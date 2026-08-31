@@ -59,13 +59,15 @@ Copy the webhook signing secret (`whsec_...`) into `STRIPE_WEBHOOK_SECRET` in `.
 ## Project structure
 
 ```
+content/                 # Site copy, images, social links
 src/
 ├── app/
+│   ├── (marketing)/     # Public pages: home, about, pricing, contact, book
 │   ├── admin/           # Protected admin dashboard
-│   ├── api/webhooks/    # Stripe webhook handler
-│   ├── book/            # Booking flow (Phase 3)
-│   └── contact/         # Contact form (Phase 2)
-├── components/ui/       # shadcn/ui primitives
+│   └── api/webhooks/    # Stripe webhook handler
+├── components/
+│   ├── marketing/       # Hero, services, testimonials, contact form
+│   └── ui/              # shadcn/ui primitives
 └── lib/
     ├── supabase/        # Auth clients
     ├── prisma.ts        # Database client

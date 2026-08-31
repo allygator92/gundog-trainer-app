@@ -21,30 +21,47 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const bookingId = session.metadata?.bookingId ?? session.client_reference_id;
+  if (
+    event.type !== "checkout.session.completed" &&
+    event.type !== "checkout.session.async_payment_succeeded" &&
+    event.type !== "checkout.session.expired" &&
+    event.type !== "checkout.session.async_payment_failed"
+  ) {
+    return NextResponse.json({ received: true });
+  }
 
-    if (bookingId) {
-      const existing = await prisma.booking.findUnique({
+  const session = event.data.object as Stripe.Checkout.Session;
+  const bookingId = session.metadata?.bookingId ?? session.client_reference_id;
+
+  if (bookingId && (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded")) {
+    const existing = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { status: true },
+    });
+
+    if (existing && existing.status !== "confirmed") {
+      await prisma.booking.update({
         where: { id: bookingId },
-        select: { status: true },
+        data: {
+          status: "confirmed",
+          stripeSessionId: session.id,
+          stripePaymentIntentId:
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : session.payment_intent?.id,
+        },
       });
-
-      if (existing && existing.status !== "confirmed") {
-        await prisma.booking.update({
-          where: { id: bookingId },
-          data: {
-            status: "confirmed",
-            stripeSessionId: session.id,
-            stripePaymentIntentId:
-              typeof session.payment_intent === "string"
-                ? session.payment_intent
-                : session.payment_intent?.id,
-          },
-        });
-      }
     }
+  }
+
+  if (
+    bookingId &&
+    (event.type === "checkout.session.expired" || event.type === "checkout.session.async_payment_failed")
+  ) {
+    await prisma.booking.updateMany({
+      where: { id: bookingId, status: "pending_payment" },
+      data: { status: "cancelled" },
+    });
   }
 
   return NextResponse.json({ received: true });

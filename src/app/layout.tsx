@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist, Geist_Mono } from "next/font/google";
+import { site } from "@content/site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,13 +13,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: {
-    default: "Gundog Trainer",
-    template: "%s | Gundog Trainer",
+    default: site.name,
+    template: `%s | ${site.name}`,
   },
-  description:
-    "Professional gundog training — virtual and in-person sessions tailored to your dog.",
+  description: site.description,
 };
 
 export default function RootLayout({
@@ -27,8 +32,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en-GB">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} font-sans antialiased`}
+      >
         {children}
       </body>
     </html>

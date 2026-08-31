@@ -92,7 +92,6 @@ model Booking {
   service   Service    @relation(fields: [serviceId], references: [id])
   documents Document[]
 
-  @@unique([startsAt])
   @@index([status])
   @@index([startsAt])
   @@map("bookings")
