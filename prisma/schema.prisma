@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ServiceType {
+  virtual
+  in_person
+}
+
+enum BookingStatus {
+  pending_payment
+  confirmed
+  cancelled
+}
+
+enum DocumentType {
+  intake_pdf
+  record
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  dogs      Dog[]
+  bookings  Booking[]
+  documents Document[]
+
+  @@index([email])
+  @@map("clients")
+}
+
+model Dog {
+  id              String   @id @default(cuid())
+  clientId        String   @map("client_id")
+  name            String
+  breed           String?
+  age             String?
+  behaviourNotes  String?  @map("behaviour_notes")
+  intakeData      Json?    @map("intake_data")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@map("dogs")
+}
+
+model Service {
+  id              String      @id @default(cuid())
+  name            String
+  type            ServiceType
+  durationMinutes Int         @map("duration_minutes")
+  pricePence      Int         @map("price_pence")
+  description     String?
+  isActive        Boolean     @default(true) @map("is_active")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  bookings Booking[]
+
+  @@unique([name])
+  @@map("services")
+}
+
+model Booking {
+  id                    String        @id @default(cuid())
+  clientId              String        @map("client_id")
+  dogId                 String        @map("dog_id")
+  serviceId             String        @map("service_id")
+  startsAt              DateTime      @map("starts_at")
+  status                BookingStatus @default(pending_payment)
+  meetingType           ServiceType   @map("meeting_type")
+  address               String?
+  stripeSessionId       String?       @unique @map("stripe_session_id")
+  stripePaymentIntentId String?       @map("stripe_payment_intent_id")
+  notes                 String?
+  createdAt             DateTime      @default(now()) @map("created_at")
+  updatedAt             DateTime      @updatedAt @map("updated_at")
+
+  client    Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  dog       Dog        @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  service   Service    @relation(fields: [serviceId], references: [id])
+  documents Document[]
+
+  @@unique([startsAt])
+  @@index([status])
+  @@index([startsAt])
+  @@map("bookings")
+}
+
+model AvailabilityRule {
+  id        String  @id @default(cuid())
+  dayOfWeek Int     @map("day_of_week")
+  startTime String  @map("start_time")
+  endTime   String  @map("end_time")
+  isActive  Boolean @default(true) @map("is_active")
+
+  @@unique([dayOfWeek, startTime, endTime])
+  @@map("availability_rules")
+}
+
+model BlockedDate {
+  id     String  @id @default(cuid())
+  date   DateTime @db.Date
+  reason String?
+
+  @@unique([date])
+  @@map("blocked_dates")
+}
+
+model Document {
+  id          String       @id @default(cuid())
+  clientId    String       @map("client_id")
+  bookingId   String?      @map("booking_id")
+  storagePath String       @map("storage_path")
+  filename    String
+  type        DocumentType
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@map("documents")
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("contact_submissions")
+}
+
+model Testimonial {
+  id          String  @id @default(cuid())
+  quote       String
+  author      String
+  sourceUrl   String? @map("source_url")
+  isPublished Boolean @default(false) @map("is_published")
+  sortOrder   Int     @default(0) @map("sort_order")
+
+  @@map("testimonials")
+}
