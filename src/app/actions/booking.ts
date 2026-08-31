@@ -2,6 +2,7 @@
 
 import { addMinutes } from "date-fns";
 import { getAvailableSlots, parseSlotStart, releaseExpiredHolds } from "@/lib/availability";
+import { buildCheckoutSessionParams } from "@/lib/checkout";
 import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
 
@@ -80,28 +81,20 @@ export async function createCheckoutAction(input: {
   });
 
   try {
-    const session = await getStripe().checkout.sessions.create({
-      mode: "payment",
-      customer_email: client.email,
-      client_reference_id: booking.id,
-      metadata: { bookingId: booking.id },
-      success_url: `${appUrl}/book/confirmed?bookingId=${booking.id}`,
-      cancel_url: `${appUrl}/book?cancelled=1`,
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "gbp",
-            unit_amount: service.pricePence,
-            product_data: {
-              name: service.name,
-              description: `${service.durationMinutes} minute ${service.type === "virtual" ? "virtual" : "in-person"} session`,
-            },
-          },
+    const session = await getStripe().checkout.sessions.create(
+      buildCheckoutSessionParams({
+        appUrl,
+        bookingId: booking.id,
+        customerEmail: client.email,
+        expiresAtUnix: Math.floor(Date.now() / 1000) + 30 * 60,
+        service: {
+          name: service.name,
+          type: service.type,
+          durationMinutes: service.durationMinutes,
+          pricePence: service.pricePence,
         },
-      ],
-    });
+      }),
+    );
 
     if (!session.url) {
       throw new Error("Stripe did not return a checkout URL");

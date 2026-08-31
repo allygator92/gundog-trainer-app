@@ -1,5 +1,9 @@
 const hits = new Map<string, number[]>();
 
+export function resetRateLimit() {
+  hits.clear();
+}
+
 export function isRateLimited(key: string, limit: number, windowMs: number): boolean {
   const now = Date.now();
   const recent = (hits.get(key) ?? []).filter((timestamp) => now - timestamp < windowMs);

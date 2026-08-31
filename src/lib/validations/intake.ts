@@ -35,7 +35,7 @@ export const intakeFormSchema = z
     consentDataStorage: z.boolean().refine((value) => value === true, {
       message: "Please agree so we can store this intake securely",
     }),
-    website: z.string().optional(),
+    botField: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.meetingType !== "in_person") {

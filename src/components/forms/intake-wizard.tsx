@@ -45,11 +45,14 @@ export function IntakeWizard({
   defaultMeetingType = "virtual",
   lockMeetingType = false,
   onCompleted,
+  onCancel,
 }: {
   defaultMeetingType?: "virtual" | "in_person";
   lockMeetingType?: boolean;
   onCompleted?: (result: { clientId: string; dogId: string; ownerName: string; dogName: string }) => void;
+  onCancel?: () => void;
 }) {
+  const embedded = Boolean(onCompleted);
   const [step, setStep] = useState<(typeof steps)[number]["id"]>(1);
   const [serverMessage, setServerMessage] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -77,7 +80,7 @@ export function IntakeWizard({
       previousTraining: "",
       goals: "",
       consentDataStorage: false,
-      website: "",
+      botField: "",
     },
   });
 
@@ -97,13 +100,17 @@ export function IntakeWizard({
     setServerMessage(null);
     const result = await submitIntakeAction(data);
     if (result.status === "success") {
-      if (onCompleted && result.clientId && result.dogId) {
-        onCompleted({
-          clientId: result.clientId,
-          dogId: result.dogId,
-          ownerName: data.ownerName,
-          dogName: data.dogName,
-        });
+      if (onCompleted) {
+        if (result.clientId && result.dogId) {
+          onCompleted({
+            clientId: result.clientId,
+            dogId: result.dogId,
+            ownerName: data.ownerName,
+            dogName: data.dogName,
+          });
+          return;
+        }
+        setServerMessage("Your intake was saved, but we could not continue to payment. Please try again.");
         return;
       }
       setSuccess(true);
@@ -136,24 +143,37 @@ export function IntakeWizard({
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="relative space-y-8">
       <div className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
-        <input id="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" {...form.register("website")} />
+        <input
+          id="intake_hp"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          {...form.register("botField")}
+        />
       </div>
 
-      <ol className="grid grid-cols-4 gap-2">
-        {steps.map((item) => (
-          <li key={item.id} className="text-center">
-            <div
-              className={cn(
-                "h-1.5 rounded-full",
-                item.id <= step ? "bg-primary" : "bg-muted",
-              )}
-            />
-            <p className={cn("mt-2 text-xs", item.id === step ? "font-medium text-foreground" : "text-muted-foreground")}>
-              {item.label}
-            </p>
-          </li>
-        ))}
-      </ol>
+      {embedded ? (
+        <p className="text-sm text-muted-foreground">
+          Intake {step} of 4 · {steps[step - 1].label}
+        </p>
+      ) : (
+        <ol className="grid grid-cols-4 gap-2">
+          {steps.map((item) => (
+            <li key={item.id} className="text-center">
+              <div
+                className={cn(
+                  "h-1.5 rounded-full",
+                  item.id <= step ? "bg-primary" : "bg-muted",
+                )}
+              />
+              <p className={cn("mt-2 text-xs", item.id === step ? "font-medium text-foreground" : "text-muted-foreground")}>
+                {item.label}
+              </p>
+            </li>
+          ))}
+        </ol>
+      )}
 
       {step === 1 ? (
         <div className="space-y-5">
@@ -367,6 +387,10 @@ export function IntakeWizard({
         {step > 1 ? (
           <Button type="button" variant="outline" onClick={() => setStep((current) => (current - 1) as 1 | 2 | 3)}>
             Back
+          </Button>
+        ) : onCancel ? (
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Back to times
           </Button>
         ) : (
           <span />

@@ -30,7 +30,7 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
     };
   }
 
-  if (parsed.data.website) {
+  if (parsed.data.botField) {
     return { status: "success", message: "Thanks — your intake has been received." };
   }
 
@@ -79,7 +79,7 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
       behaviourNotes: parsed.data.goals,
       intakeData: {
         ...parsed.data,
-        website: undefined,
+        botField: undefined,
         consentedAt,
       },
     },

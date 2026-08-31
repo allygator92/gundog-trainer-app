@@ -177,14 +177,12 @@ export function BookingFlow({
           <IntakeWizard
             defaultMeetingType={state.service.type}
             lockMeetingType
+            onCancel={() => setStep(1)}
             onCompleted={({ clientId, dogId, ownerName, dogName }) => {
               setState((current) => ({ ...current, clientId, dogId, ownerName, dogName }));
               setStep(3);
             }}
           />
-          <Button type="button" variant="outline" onClick={() => setStep(1)}>
-            Back to times
-          </Button>
         </div>
       ) : null}
 

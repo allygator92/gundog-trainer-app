@@ -93,3 +93,49 @@ export async function sendIntakeNotification(input: {
 
   return true;
 }
+
+export async function sendBookingConfirmationEmails(input: {
+  clientName: string;
+  clientEmail: string;
+  dogName: string;
+  serviceName: string;
+  meetingType: "virtual" | "in_person";
+  startsAt: Date;
+  durationMinutes: number;
+  pricePence: number;
+  address?: string | null;
+}): Promise<boolean> {
+  if (!isResendConfigured()) {
+    console.warn("Resend is not configured; booking emails were skipped.");
+    return false;
+  }
+
+  const { buildBookingEmailCopy } = await import("@/lib/booking-email");
+  const copy = buildBookingEmailCopy(input);
+  const resend = getResend();
+  const from = getFromEmail();
+
+  const [clientResult, trainerResult] = await Promise.all([
+    resend.emails.send({
+      from,
+      to: copy.client.to,
+      subject: copy.client.subject,
+      text: copy.client.text,
+    }),
+    resend.emails.send({
+      from,
+      to: getTrainerEmail(),
+      replyTo: input.clientEmail,
+      subject: copy.trainer.subject,
+      text: copy.trainer.text,
+    }),
+  ]);
+
+  if (clientResult.error || trainerResult.error) {
+    console.error("Failed to send booking emails:", clientResult.error ?? trainerResult.error);
+    return false;
+  }
+
+  return true;
+}
+
