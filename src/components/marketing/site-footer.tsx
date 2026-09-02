@@ -3,50 +3,55 @@ import { navigation, site } from "@content/site";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border/70 bg-secondary/40">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-3">
+    <footer className="site-footer relative z-10">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-3">
         <div>
-          <p className="font-display text-lg font-semibold text-primary">{site.name}</p>
-          <p className="mt-2 max-w-xs text-sm text-muted-foreground">{site.tagline}</p>
+          <p className="site-footer-brand font-display text-lg font-semibold text-primary">{site.name}</p>
+          <p className="site-footer-muted mt-2 max-w-xs text-sm text-muted-foreground">{site.tagline}</p>
         </div>
         <div>
-          <p className="text-sm font-medium">Explore</p>
-          <ul className="mt-3 space-y-2 text-sm">
+          <p className="site-footer-heading text-sm font-medium">Explore</p>
+          <ul className="mt-3 space-y-1 text-sm">
             {navigation.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="text-muted-foreground hover:text-foreground">
+                <Link href={item.href} className="site-footer-link">
                   {item.label}
                 </Link>
               </li>
             ))}
             <li>
-              <Link href="/book" className="text-muted-foreground hover:text-foreground">
+              <Link href="/book" className="site-footer-link">
                 Book
               </Link>
             </li>
             <li>
-              <Link href="/privacy" className="text-muted-foreground hover:text-foreground">
+              <Link href="/privacy" className="site-footer-link">
                 Privacy
+              </Link>
+            </li>
+            <li>
+              <Link href="/cookies" className="site-footer-link">
+                Cookies
               </Link>
             </li>
           </ul>
         </div>
         <div>
-          <p className="text-sm font-medium">Contact</p>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+          <p className="site-footer-heading text-sm font-medium">Contact</p>
+          <ul className="mt-3 space-y-1 text-sm">
             <li>
-              <a href={site.phoneHref} className="hover:text-foreground">
+              <a href={site.phoneHref} className="site-footer-link">
                 {site.phone}
               </a>
             </li>
             <li>
-              <a href={`mailto:${site.email}`} className="hover:text-foreground">
+              <a href={`mailto:${site.email}`} className="site-footer-link">
                 {site.email}
               </a>
             </li>
             {site.socials.map((social) => (
               <li key={social.label}>
-                <a href={social.href} className="hover:text-foreground">
+                <a href={social.href} className="site-footer-link" rel="noopener noreferrer">
                   {social.label}
                 </a>
               </li>
@@ -54,7 +59,7 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
-      <p className="border-t border-border/60 py-4 text-center text-xs text-muted-foreground">
+      <p className="site-footer-muted border-t border-border/60 py-4 text-center text-xs">
         {site.name} · {site.location}
       </p>
     </footer>

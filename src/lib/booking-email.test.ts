@@ -22,6 +22,8 @@ describe("buildBookingEmailCopy", () => {
     expect(copy.client.subject).toContain("Moss");
     expect(copy.client.text).toContain("£65.00");
     expect(copy.client.text).toContain("video call link");
+    expect(copy.client.html).toContain("Booking confirmed");
+    expect(copy.client.html).toContain("Sam Owner");
     expect(copy.trainer.subject).toContain("Moss");
     expect(copy.trainer.text).toContain("sam@example.com");
   });

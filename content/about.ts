@@ -22,5 +22,5 @@ export const aboutContent = {
       body: "Reward-based training with structure. No scare tactics, no mystery programmes.",
     },
   ],
-  photoCaption: "Placeholder photo — swap this for a real trainer or dog portrait in content/site.ts.",
+  photoCaption: "Working a dog in the field — swap this for your own trainer portrait in content/site.ts when you have one.",
 } as const;

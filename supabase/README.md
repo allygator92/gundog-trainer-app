@@ -36,6 +36,10 @@ Create a private bucket named `client-documents` under **Storage**:
 
 Access files via signed URLs using the service role client in server actions.
 
-## 5. Row Level Security (Phase 6)
+## 5. Row Level Security
 
-RLS policies will be added in the security phase. For Phase 0, all database access goes through Prisma using the connection string (bypasses RLS when using the service role / direct connection).
+The Next.js server uses Prisma + `DATABASE_URL`, which bypasses RLS. Turn RLS on anyway so the **anon key cannot read PII** if it leaks.
+
+After `npm run db:push`, run `supabase/rls.sql` in the Supabase SQL editor.
+
+Storage bucket `client-documents` must stay **private**. The app downloads via short-lived signed URLs after admin auth.

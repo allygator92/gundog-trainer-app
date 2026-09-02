@@ -26,3 +26,7 @@ export function formatBookingStatus(status: "pending_payment" | "confirmed" | "c
   }
   return "Cancelled";
 }
+
+export function formatDocumentType(type: "intake_pdf" | "record"): string {
+  return type === "intake_pdf" ? "Intake PDF" : "Record";
+}

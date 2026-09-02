@@ -21,6 +21,9 @@ export default async function AdminDashboardLayout({
 
   return (
     <div className="min-h-screen bg-muted/30">
+      <a href="#admin-main" className="skip-link">
+        Skip to dashboard content
+      </a>
       <header className="border-b bg-card">
         <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between gap-3">
@@ -45,7 +48,9 @@ export default async function AdminDashboardLayout({
           <AdminNav />
         </div>
       </header>
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</div>
+      <div id="admin-main" className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        {children}
+      </div>
     </div>
   );
 }

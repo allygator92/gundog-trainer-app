@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { privacyContent } from "@content/privacy";
 import { PageHeader } from "@/components/marketing/page-header";
 
@@ -20,6 +21,13 @@ export default function PrivacyPage() {
           <section key={section.heading}>
             <h2 className="font-display text-xl font-semibold">{section.heading}</h2>
             <p className="mt-2 text-muted-foreground">{section.body}</p>
+            {section.heading === "Cookies" ? (
+              <p className="mt-2">
+                <Link href="/cookies" className="underline underline-offset-2 hover:text-foreground">
+                  Cookie details
+                </Link>
+              </p>
+            ) : null}
           </section>
         ))}
       </div>

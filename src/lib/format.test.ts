@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   formatBookingStatus,
+  formatDocumentType,
   formatDuration,
   formatPricePence,
   formatServiceType,
@@ -36,5 +37,12 @@ describe("formatBookingStatus", () => {
     expect(formatBookingStatus("pending_payment")).toBe("Pending payment");
     expect(formatBookingStatus("confirmed")).toBe("Confirmed");
     expect(formatBookingStatus("cancelled")).toBe("Cancelled");
+  });
+});
+
+describe("formatDocumentType", () => {
+  it("labels stored files", () => {
+    expect(formatDocumentType("intake_pdf")).toBe("Intake PDF");
+    expect(formatDocumentType("record")).toBe("Record");
   });
 });

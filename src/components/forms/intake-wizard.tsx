@@ -28,13 +28,17 @@ const steps = [
 ] as const;
 
 const selectClassName =
-  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base md:text-sm";
+  "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
-function FieldError({ message }: { message?: string }) {
+function FieldError({ id, message }: { id?: string; message?: string }) {
   if (!message) {
     return null;
   }
-  return <p className="text-sm text-destructive">{message}</p>;
+  return (
+    <p id={id} className="text-sm text-destructive" role="alert">
+      {message}
+    </p>
+  );
 }
 
 function skillLabel(value: string) {
@@ -158,9 +162,9 @@ export function IntakeWizard({
           Intake {step} of 4 · {steps[step - 1].label}
         </p>
       ) : (
-        <ol className="grid grid-cols-4 gap-2">
+        <ol className="grid grid-cols-4 gap-2" aria-label="Intake steps">
           {steps.map((item) => (
-            <li key={item.id} className="text-center">
+            <li key={item.id} className="text-center" aria-current={item.id === step ? "step" : undefined}>
               <div
                 className={cn(
                   "h-1.5 rounded-full",
@@ -179,13 +183,26 @@ export function IntakeWizard({
         <div className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="ownerName">Your name</Label>
-            <Input id="ownerName" autoComplete="name" {...form.register("ownerName")} />
-            <FieldError message={form.formState.errors.ownerName?.message} />
+            <Input
+              id="ownerName"
+              autoComplete="name"
+              aria-invalid={Boolean(form.formState.errors.ownerName)}
+              aria-describedby={form.formState.errors.ownerName ? "ownerName-error" : undefined}
+              {...form.register("ownerName")}
+            />
+            <FieldError id="ownerName-error" message={form.formState.errors.ownerName?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="ownerEmail">Email</Label>
-            <Input id="ownerEmail" type="email" autoComplete="email" {...form.register("ownerEmail")} />
-            <FieldError message={form.formState.errors.ownerEmail?.message} />
+            <Input
+              id="ownerEmail"
+              type="email"
+              autoComplete="email"
+              aria-invalid={Boolean(form.formState.errors.ownerEmail)}
+              aria-describedby={form.formState.errors.ownerEmail ? "ownerEmail-error" : undefined}
+              {...form.register("ownerEmail")}
+            />
+            <FieldError id="ownerEmail-error" message={form.formState.errors.ownerEmail?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="ownerPhone">Phone (optional)</Label>
@@ -246,8 +263,13 @@ export function IntakeWizard({
         <div className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="dogName">Dog’s name</Label>
-            <Input id="dogName" {...form.register("dogName")} />
-            <FieldError message={form.formState.errors.dogName?.message} />
+            <Input
+              id="dogName"
+              aria-invalid={Boolean(form.formState.errors.dogName)}
+              aria-describedby={form.formState.errors.dogName ? "dogName-error" : undefined}
+              {...form.register("dogName")}
+            />
+            <FieldError id="dogName-error" message={form.formState.errors.dogName?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="breed">Breed</Label>
@@ -400,7 +422,7 @@ export function IntakeWizard({
             Next
           </Button>
         ) : (
-          <Button type="submit" disabled={form.formState.isSubmitting || !values.consentDataStorage}>
+          <Button type="submit" disabled={form.formState.isSubmitting || !values.consentDataStorage} aria-busy={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? "Sending..." : "Submit intake"}
           </Button>
         )}

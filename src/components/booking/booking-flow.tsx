@@ -99,9 +99,9 @@ export function BookingFlow({
 
   return (
     <div className="space-y-8">
-      <ol className="grid grid-cols-4 gap-2">
+      <ol className="grid grid-cols-4 gap-2" aria-label="Booking steps">
         {steps.map((label, index) => (
-          <li key={label} className="text-center">
+          <li key={label} className="text-center" aria-current={index === step ? "step" : undefined}>
             <div className={cn("h-1.5 rounded-full", index <= step ? "bg-primary" : "bg-muted")} />
             <p className={cn("mt-2 text-xs", index === step ? "font-medium" : "text-muted-foreground")}>{label}</p>
           </li>
@@ -114,11 +114,11 @@ export function BookingFlow({
             <button
               key={service.id}
               type="button"
-              className="text-left disabled:opacity-70"
+              className="group text-left disabled:opacity-70"
               onClick={() => selectService(service)}
               disabled={pending}
             >
-              <Card className="h-full transition hover:border-primary">
+              <Card className="h-full border-2 transition-all duration-150 hover:-translate-y-0.5 hover:border-primary hover:shadow-md active:translate-y-0 active:scale-[0.99] group-focus-visible:border-primary group-focus-visible:ring-2 group-focus-visible:ring-ring">
                 <CardHeader>
                   <p className="text-xs font-medium uppercase tracking-widest text-primary">
                     {formatServiceType(service.type)}
@@ -153,6 +153,11 @@ export function BookingFlow({
                     key={slot.startsAt}
                     type="button"
                     variant={state.slot?.startsAt === slot.startsAt ? "default" : "outline"}
+                    aria-pressed={state.slot?.startsAt === slot.startsAt}
+                    className={cn(
+                      "min-w-[4.75rem]",
+                      state.slot?.startsAt === slot.startsAt && "ring-2 ring-ring ring-offset-2",
+                    )}
                     onClick={() => setState((current) => ({ ...current, slot }))}
                   >
                     {slot.label}
@@ -220,7 +225,7 @@ export function BookingFlow({
             <Button type="button" variant="outline" onClick={() => setStep(2)}>
               Back
             </Button>
-            <Button type="button" onClick={pay} disabled={pending}>
+            <Button type="button" onClick={pay} disabled={pending} aria-busy={pending}>
               {pending ? "Starting checkout..." : "Pay securely"}
             </Button>
           </div>

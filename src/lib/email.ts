@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { site } from "@content/site";
+import { paragraphsToHtml, wrapEmailHtml } from "@/lib/email-html";
 
 let resendClient: Resend | null = null;
 
@@ -50,6 +51,15 @@ export async function sendContactNotification(input: {
       "",
       input.message,
     ].join("\n"),
+    html: wrapEmailHtml(
+      `New enquiry from ${input.name}`,
+      paragraphsToHtml([
+        `Name: ${input.name}`,
+        `Email: ${input.email}`,
+        `Phone: ${input.phone ?? "Not provided"}`,
+        input.message,
+      ]),
+    ),
   });
 
   if (error) {
@@ -84,6 +94,16 @@ export async function sendIntakeNotification(input: {
       "",
       "The intake PDF is in the admin dashboard under Intakes.",
     ].join("\n"),
+    html: wrapEmailHtml(
+      "New dog intake",
+      paragraphsToHtml([
+        "A new dog intake has been submitted.",
+        `Owner: ${input.ownerName}`,
+        `Email: ${input.ownerEmail}`,
+        `Dog: ${input.dogName}`,
+        "The intake PDF is in the admin dashboard under Intakes.",
+      ]),
+    ),
   });
 
   if (error) {
@@ -121,6 +141,7 @@ export async function sendBookingConfirmationEmails(input: {
       to: copy.client.to,
       subject: copy.client.subject,
       text: copy.client.text,
+      html: copy.client.html,
     }),
     resend.emails.send({
       from,
@@ -128,6 +149,7 @@ export async function sendBookingConfirmationEmails(input: {
       replyTo: input.clientEmail,
       subject: copy.trainer.subject,
       text: copy.trainer.text,
+      html: copy.trainer.html,
     }),
   ]);
 

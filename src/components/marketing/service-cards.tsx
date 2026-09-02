@@ -27,7 +27,7 @@ export function ServiceCards({
       </div>
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         {services.map((service) => (
-          <Card key={service.id} className="flex flex-col">
+          <Card key={service.id} className="flex flex-col transition duration-150 hover:-translate-y-0.5 hover:border-primary hover:shadow-md">
             <CardHeader>
               <p className="text-xs font-medium uppercase tracking-widest text-primary">
                 {formatServiceType(service.type)}

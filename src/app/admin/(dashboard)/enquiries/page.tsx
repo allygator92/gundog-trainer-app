@@ -24,6 +24,7 @@ export default async function AdminEnquiriesPage() {
                 <th className="px-4 py-3 font-medium">Received</th>
                 <th className="px-4 py-3 font-medium">Name</th>
                 <th className="px-4 py-3 font-medium">Email</th>
+                <th className="px-4 py-3 font-medium">Phone</th>
                 <th className="px-4 py-3 font-medium">Message</th>
               </tr>
             </thead>
@@ -39,6 +40,7 @@ export default async function AdminEnquiriesPage() {
                       {enquiry.email}
                     </a>
                   </td>
+                  <td className="px-4 py-3 text-muted-foreground">{enquiry.phone ?? "—"}</td>
                   <td className="max-w-md px-4 py-3 text-muted-foreground">{enquiry.message}</td>
                 </tr>
               ))}

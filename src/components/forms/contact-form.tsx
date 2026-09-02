@@ -62,31 +62,72 @@ export function ContactForm({ privacyNote }: { privacyNote: string }) {
     <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-5 rounded-xl border bg-card p-6 shadow-sm">
       <div className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
         <label htmlFor="website">Website</label>
-        <input id="website" type="text" tabIndex={-1} autoComplete="off" {...register("website")} />
+        <input id="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" {...register("website")} />
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
-        <Input id="name" autoComplete="name" {...register("name")} />
-        {errors.name ? <p className="text-sm text-destructive">{errors.name.message}</p> : null}
+        <Input
+          id="name"
+          autoComplete="name"
+          aria-invalid={Boolean(errors.name)}
+          aria-describedby={errors.name ? "name-error" : undefined}
+          {...register("name")}
+        />
+        {errors.name ? (
+          <p id="name-error" className="text-sm text-destructive" role="alert">
+            {errors.name.message}
+          </p>
+        ) : null}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" autoComplete="email" {...register("email")} />
-        {errors.email ? <p className="text-sm text-destructive">{errors.email.message}</p> : null}
+        <Input
+          id="email"
+          type="email"
+          autoComplete="email"
+          aria-invalid={Boolean(errors.email)}
+          aria-describedby={errors.email ? "email-error" : undefined}
+          {...register("email")}
+        />
+        {errors.email ? (
+          <p id="email-error" className="text-sm text-destructive" role="alert">
+            {errors.email.message}
+          </p>
+        ) : null}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="phone">Phone (optional)</Label>
-        <Input id="phone" type="tel" autoComplete="tel" {...register("phone")} />
-        {errors.phone ? <p className="text-sm text-destructive">{errors.phone.message}</p> : null}
+        <Input
+          id="phone"
+          type="tel"
+          autoComplete="tel"
+          aria-invalid={Boolean(errors.phone)}
+          aria-describedby={errors.phone ? "phone-error" : undefined}
+          {...register("phone")}
+        />
+        {errors.phone ? (
+          <p id="phone-error" className="text-sm text-destructive" role="alert">
+            {errors.phone.message}
+          </p>
+        ) : null}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="message">Message</Label>
-        <Textarea id="message" {...register("message")} />
-        {errors.message ? <p className="text-sm text-destructive">{errors.message.message}</p> : null}
+        <Textarea
+          id="message"
+          aria-invalid={Boolean(errors.message)}
+          aria-describedby={errors.message ? "message-error" : undefined}
+          {...register("message")}
+        />
+        {errors.message ? (
+          <p id="message-error" className="text-sm text-destructive" role="alert">
+            {errors.message.message}
+          </p>
+        ) : null}
       </div>
 
       {serverMessage ? (
@@ -95,7 +136,7 @@ export function ContactForm({ privacyNote }: { privacyNote: string }) {
         </p>
       ) : null}
 
-      <Button type="submit" className="w-full sm:w-auto" disabled={isSubmitting}>
+      <Button type="submit" className="w-full sm:w-auto" disabled={isSubmitting} aria-busy={isSubmitting}>
         {isSubmitting ? "Sending..." : "Send message"}
       </Button>
       <p className="text-xs text-muted-foreground">

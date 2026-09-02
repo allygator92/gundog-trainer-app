@@ -10,11 +10,17 @@ test("marketing pages render", async ({ page }) => {
   await page.goto("/about");
   await expect(page.getByRole("heading").first()).toBeVisible();
 
+  await page.goto("/training");
+  await expect(page.getByRole("heading", { name: /what makes a gundog a gundog/i })).toBeVisible();
+
   await page.goto("/pricing");
   await expect(page.getByRole("heading").first()).toBeVisible();
 
   await page.goto("/privacy");
   await expect(page.getByRole("heading").first()).toBeVisible();
+
+  await page.goto("/cookies");
+  await expect(page.getByRole("heading", { name: /cookies/i })).toBeVisible();
 });
 
 test("contact form shows validation before sending", async ({ page }) => {

@@ -48,7 +48,11 @@ export default async function AdminIntakesPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div>{dog.client.name}</div>
-                      <div className="text-muted-foreground">{dog.client.email}</div>
+                      <div className="text-muted-foreground">
+                        <Link href={`/admin/clients/${dog.clientId}`} className="hover:underline">
+                          {dog.client.email}
+                        </Link>
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       <div>{dog.name}</div>
@@ -56,7 +60,7 @@ export default async function AdminIntakesPage() {
                     </td>
                     <td className="px-4 py-3">
                       {document ? (
-                        <Link className="text-primary hover:underline" href={`/admin/intakes/${document.id}/pdf`}>
+                        <Link className="text-primary hover:underline" href={`/admin/documents/${document.id}/file`}>
                           Download PDF
                         </Link>
                       ) : (
