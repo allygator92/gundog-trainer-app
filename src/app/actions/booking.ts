@@ -1,6 +1,7 @@
 "use server";
 
 import { addMinutes } from "date-fns";
+import { getAppUrl } from "@/lib/app-url";
 import { getAvailableSlots, parseSlotStart, releaseExpiredHolds } from "@/lib/availability";
 import { buildCheckoutSessionParams } from "@/lib/checkout";
 import { prisma } from "@/lib/prisma";
@@ -66,7 +67,7 @@ export async function createCheckoutAction(input: {
     return { ok: false as const, error: "That time has just been taken. Please pick another slot." };
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = getAppUrl();
 
   const booking = await prisma.booking.create({
     data: {

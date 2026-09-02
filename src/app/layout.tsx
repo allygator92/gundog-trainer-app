@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Fraunces, Geist, Geist_Mono } from "next/font/google";
 import { site } from "@content/site";
+import { getAppUrl } from "@/lib/app-url";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,10 +25,8 @@ const cormorant = Cormorant_Garamond({
   weight: ["500", "600", "700"],
 });
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(appUrl),
+  metadataBase: new URL(getAppUrl()),
   title: {
     default: site.name,
     template: `%s | ${site.name}`,
