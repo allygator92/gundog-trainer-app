@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/admin-auth";
-import { BOOKING_TIMEZONE, WEEKDAYS } from "@/lib/availability";
+import { BOOKING_TIMEZONE, breakHoursError, rulesFromDayHours, WEEKDAYS, type DayHours } from "@/lib/availability";
+import { eachDateKeyInclusive, isDateKey, MAX_BLOCKED_RANGE_DAYS } from "@/lib/blocked-dates";
 import { prisma } from "@/lib/prisma";
 import { fromZonedTime } from "date-fns-tz";
 
@@ -20,6 +21,9 @@ const weeklyHoursSchema = z.object({
       isActive: z.boolean(),
       startTime: timeSchema,
       endTime: timeSchema,
+      hasBreak: z.boolean(),
+      breakStartTime: timeSchema,
+      breakEndTime: timeSchema,
     }),
   ),
 });
@@ -31,21 +35,28 @@ export async function saveWeeklyHoursAction(input: unknown) {
     return { ok: false as const, error: "Please check the hours and try again." };
   }
 
-  const activeDays = parsed.data.days.filter((day) => day.isActive);
-  for (const day of activeDays) {
-    if (day.startTime >= day.endTime) {
-      const label = WEEKDAYS.find((item) => item.dayOfWeek === day.dayOfWeek)?.label ?? "that day";
+  const days = parsed.data.days as DayHours[];
+  const rules = [];
+
+  for (const day of days) {
+    const label = WEEKDAYS.find((item) => item.dayOfWeek === day.dayOfWeek)?.label ?? "that day";
+    if (day.isActive && day.startTime >= day.endTime) {
       return { ok: false as const, error: `${label} needs an end time after the start time.` };
     }
+    const breakError = breakHoursError({ ...day, label });
+    if (breakError) {
+      return { ok: false as const, error: breakError };
+    }
+    rules.push(...rulesFromDayHours({ ...day, label }));
   }
 
   await prisma.$transaction([
     prisma.availabilityRule.deleteMany(),
     prisma.availabilityRule.createMany({
-      data: activeDays.map((day) => ({
-        dayOfWeek: day.dayOfWeek,
-        startTime: day.startTime,
-        endTime: day.endTime,
+      data: rules.map((rule) => ({
+        dayOfWeek: rule.dayOfWeek,
+        startTime: rule.startTime,
+        endTime: rule.endTime,
         isActive: true,
       })),
     }),
@@ -58,39 +69,44 @@ export async function saveWeeklyHoursAction(input: unknown) {
 
 export async function addBlockedDateAction(formData: FormData) {
   await requireAdmin();
-  const dateValue = String(formData.get("date") ?? "");
+  const startValue = String(formData.get("startDate") ?? formData.get("date") ?? "");
+  const endValue = String(formData.get("endDate") ?? startValue);
   const reason = String(formData.get("reason") ?? "").trim();
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
-    return { ok: false as const, error: "Pick a date to block." };
+  if (!isDateKey(startValue) || !isDateKey(endValue)) {
+    return { ok: false as const, error: "Pick a start and end date to block." };
   }
 
-  const date = fromZonedTime(`${dateValue}T00:00:00`, BOOKING_TIMEZONE);
-
-  try {
-    await prisma.blockedDate.create({
-      data: {
-        date,
-        reason: reason || undefined,
-      },
-    });
-  } catch {
-    return { ok: false as const, error: "That date is already blocked." };
+  const dateKeys = eachDateKeyInclusive(startValue, endValue);
+  if (dateKeys.length > MAX_BLOCKED_RANGE_DAYS) {
+    return { ok: false as const, error: "Please block at most two months at a time." };
   }
+
+  const result = await prisma.blockedDate.createMany({
+    data: dateKeys.map((dateKey) => ({
+      date: fromZonedTime(`${dateKey}T00:00:00`, BOOKING_TIMEZONE),
+      reason: reason || undefined,
+    })),
+    skipDuplicates: true,
+  });
 
   revalidatePath("/admin/availability");
   revalidatePath("/book");
-  return { ok: true as const };
+  return { ok: true as const, added: result.count };
 }
 
 export async function removeBlockedDateAction(formData: FormData) {
   await requireAdmin();
-  const id = String(formData.get("id") ?? "");
-  if (!id) {
+  const ids = String(formData.get("ids") ?? formData.get("id") ?? "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
+
+  if (ids.length === 0) {
     return { ok: false as const, error: "Missing blocked date." };
   }
 
-  await prisma.blockedDate.delete({ where: { id } });
+  await prisma.blockedDate.deleteMany({ where: { id: { in: ids } } });
   revalidatePath("/admin/availability");
   revalidatePath("/book");
   return { ok: true as const };

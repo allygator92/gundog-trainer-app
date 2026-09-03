@@ -67,6 +67,7 @@ model Service {
   createdAt       DateTime    @default(now()) @map("created_at")
 
   bookings Booking[]
+  waitlist WaitlistEntry[]
 
   @@unique([name])
   @@map("services")
@@ -84,6 +85,8 @@ model Booking {
   stripeSessionId       String?       @unique @map("stripe_session_id")
   stripePaymentIntentId String?       @map("stripe_payment_intent_id")
   notes                 String?
+  reminderSentAt        DateTime?     @map("reminder_sent_at")
+  manageToken           String?       @unique @map("manage_token")
   createdAt             DateTime      @default(now()) @map("created_at")
   updatedAt             DateTime      @updatedAt @map("updated_at")
 
@@ -152,4 +155,34 @@ model Testimonial {
   sortOrder   Int     @default(0) @map("sort_order")
 
   @@map("testimonials")
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  name      String
+  path      String?
+  label     String?
+  sessionId String?  @map("session_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([name, createdAt])
+  @@index([sessionId])
+  @@map("analytics_events")
+}
+
+model WaitlistEntry {
+  id         String    @id @default(cuid())
+  name       String
+  email      String
+  date       DateTime  @db.Date
+  serviceId  String?   @map("service_id")
+  notifiedAt DateTime? @map("notified_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  service Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@unique([email, date])
+  @@index([date])
+  @@map("waitlist_entries")
 }

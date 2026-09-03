@@ -2,16 +2,24 @@
 
 import { addMinutes } from "date-fns";
 import { getAppUrl } from "@/lib/app-url";
-import { getAvailableSlots, parseSlotStart, releaseExpiredHolds } from "@/lib/availability";
+import {
+  getAvailableSlots,
+  getCalendarAvailability,
+  occupiedWindow,
+  parseSlotStart,
+  releaseExpiredHolds,
+  windowsOverlap,
+} from "@/lib/availability";
+import { createManageToken } from "@/lib/booking-manage";
 import { buildCheckoutSessionParams } from "@/lib/checkout";
 import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
 
 export async function getSlotsAction(serviceId: string) {
   if (!serviceId) {
-    return [];
+    return { slots: [], fullDateKeys: [] as string[] };
   }
-  return getAvailableSlots(serviceId);
+  return getCalendarAvailability(serviceId);
 }
 
 export async function createCheckoutAction(input: {
@@ -49,21 +57,22 @@ export async function createCheckoutAction(input: {
     return { ok: false as const, error: "That time has just been taken. Please pick another slot." };
   }
 
-  const overlapping = await prisma.booking.findFirst({
+  const overlapping = await prisma.booking.findMany({
     where: {
       status: { in: ["pending_payment", "confirmed"] },
       startsAt: {
-        lt: addMinutes(startsAt, service.durationMinutes),
+        gte: addMinutes(startsAt, -4 * 60),
+        lte: addMinutes(startsAt, service.durationMinutes + 4 * 60),
       },
     },
-    include: { service: { select: { durationMinutes: true } } },
+    include: { service: { select: { durationMinutes: true, type: true } } },
   });
 
-  if (
-    overlapping &&
-    startsAt < addMinutes(overlapping.startsAt, overlapping.service.durationMinutes) &&
-    addMinutes(startsAt, service.durationMinutes) > overlapping.startsAt
-  ) {
+  const proposed = occupiedWindow(startsAt, service.durationMinutes, service.type);
+  const clash = overlapping.some((booking) =>
+    windowsOverlap(proposed, occupiedWindow(booking.startsAt, booking.service.durationMinutes, booking.service.type)),
+  );
+  if (clash) {
     return { ok: false as const, error: "That time has just been taken. Please pick another slot." };
   }
 
@@ -78,6 +87,7 @@ export async function createCheckoutAction(input: {
       status: "pending_payment",
       meetingType: service.type,
       address: service.type === "in_person" ? client.address : undefined,
+      manageToken: createManageToken(),
     },
   });
 

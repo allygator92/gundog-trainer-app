@@ -6,6 +6,7 @@ export type GalleryPhoto = {
   alt: string;
   caption: string;
   setting: "field" | "urban";
+  objectPosition?: string;
 };
 
 export function PhotoGallery({
@@ -38,6 +39,7 @@ export function PhotoGallery({
                 alt={photo.alt}
                 fill
                 className="object-cover motion-safe:transition motion-safe:duration-300 motion-safe:group-hover:scale-[1.03]"
+                style={{ objectPosition: photo.objectPosition ?? "50% 30%" }}
                 sizes={index === 0 ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 25vw, 50vw"}
               />
             </div>

@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { trainingContent } from "@content/training";
 import { site } from "@content/site";
 import { CtaBand } from "@/components/marketing/cta-band";
+import { FaqList } from "@/components/marketing/faq-list";
 import { PageHeader } from "@/components/marketing/page-header";
 import { PhotoGallery } from "@/components/marketing/photo-gallery";
+import { SessionExpect } from "@/components/marketing/session-expect";
 
 export const metadata: Metadata = {
   title: trainingContent.title,
@@ -28,6 +30,8 @@ export default function TrainingPage() {
           </section>
         ))}
       </div>
+      <SessionExpect />
+      <FaqList />
       <PhotoGallery
         photos={site.images.gallery}
         heading={trainingContent.galleryHeading}

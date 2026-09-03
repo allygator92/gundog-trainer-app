@@ -2,7 +2,7 @@ import { site } from "./site";
 
 export const privacyContent = {
   title: "Privacy policy",
-  updated: "31 August 2026",
+  updated: "3 September 2026",
   sections: [
     {
       heading: "Who we are",
@@ -10,7 +10,7 @@ export const privacyContent = {
     },
     {
       heading: "What we collect",
-      body: "When you contact us or complete a dog intake form we store your name, email, phone if you give it, address for in-person sessions, and details about your dog. We store the date and time you agreed to this. If you book, we also store the session time, payment status, and Stripe identifiers (not your full card number). Files you or we upload (intake PDFs, extra records) are kept in a private storage bucket.",
+      body: "When you contact us or complete a dog intake form we store your name, email, phone if you give it, address for in-person sessions, and details about your dog. We store the date and time you agreed to this. If you book, we also store the session time, payment status, and Stripe identifiers (not your full card number). Files you or we upload (intake PDFs, extra records) are kept in a private storage bucket. We also store anonymous page paths and booking steps (for example that someone opened /book and then left before paying) so the trainer can improve the site. Those usage events are not linked to your name or email.",
     },
     {
       heading: "Why we use it",
@@ -22,7 +22,7 @@ export const privacyContent = {
     },
     {
       heading: "Cookies",
-      body: "We use a strictly necessary cookie to remember whether you chose the Heath or Field look, and a session cookie if you sign in as the trainer. We do not use advertising or analytics cookies. See the cookies page for names and lifetimes.",
+      body: "We use a strictly necessary cookie to remember whether you chose the Heath or Field look, and a session cookie if you sign in as the trainer. We also store anonymous page views and booking steps (no names or emails) so we can see where people drop off. We do not use advertising cookies. See the cookies page for names and lifetimes.",
     },
     {
       heading: "Your rights",
@@ -33,9 +33,9 @@ export const privacyContent = {
 
 export const cookiesContent = {
   title: "Cookies",
-  updated: "31 August 2026",
+  updated: "3 September 2026",
   intro:
-    "This site uses a small number of cookies so it can work. We do not set advertising cookies.",
+    "This site uses a small number of cookies so it can work, plus anonymous usage events. We do not set advertising cookies.",
   rows: [
     {
       name: "gundog-theme",
@@ -46,6 +46,12 @@ export const cookiesContent = {
       name: "Supabase auth cookies",
       purpose: "Keeps the trainer signed in on /admin. Not set for public visitors.",
       duration: "Session / refresh token lifetime set by Supabase",
+    },
+    {
+      name: "Session storage (gundog-analytics-session)",
+      purpose:
+        "An anonymous id for this browser tab, used only to connect page views and booking steps. No name, email, or advertising profile.",
+      duration: "Until you close the tab",
     },
   ],
 } as const;

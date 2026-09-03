@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
+import { skipDemoWelcome } from "./helpers";
 
 test("theme toggle switches the public site look", async ({ page }) => {
+  await skipDemoWelcome(page);
   await page.goto("/");
   const shell = page.locator("[data-marketing-theme]");
   await expect(shell).toHaveAttribute("data-theme", "heath");

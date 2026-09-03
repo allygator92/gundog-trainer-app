@@ -31,13 +31,17 @@ export const intakeFormSchema = z
     fearTriggers: optionalText,
     aggressionNotes: optionalText,
     previousTraining: optionalText,
-    goals: z.string().trim().min(10, "Tell us a little about your goals").max(2000),
+    goals: z.string().trim().max(2000).default(""),
     consentDataStorage: z.boolean().refine((value) => value === true, {
       message: "Please agree so we can store this intake securely",
     }),
+    existingDogId: z.string().optional(),
     botField: z.string().optional(),
   })
   .superRefine((data, ctx) => {
+    if (!data.existingDogId && data.goals.trim().length < 10) {
+      ctx.addIssue({ code: "custom", path: ["goals"], message: "Tell us a little about your goals" });
+    }
     if (data.meetingType !== "in_person") {
       return;
     }

@@ -131,11 +131,12 @@ All wall-clock times are **Europe/London** (`src/lib/availability-slots.ts`), in
 
 Inputs:
 
-- Weekly `AvailabilityRule` rows (day of week 1–7, `HH:mm` start/end) edited in admin
-- `BlockedDate` (whole days off)
-- Existing `pending_payment` + `confirmed` bookings (busy windows use **that booking’s service duration**, which may differ from the service currently being booked)
+- Weekly `AvailabilityRule` rows (day of week 1–7, `HH:mm` start/end) edited in admin. A lunch break is stored as two windows on the same day (for example 09:00–12:00 and 13:00–17:00)
+- `BlockedDate` (whole days off; admin can block a date range in one go)
+- Existing `pending_payment` + `confirmed` bookings (busy windows use **that booking’s service duration**, plus a buffer: **15 minutes** after virtual, **30 minutes** after in-person, so you are not offered back-to-back 90-minute jobs)
 - Lead time: no slot starting within **60 minutes**
-- Horizon: **14 days**
+- Horizon: **28 days**
+- Full days can take a waitlist; cancelling a session emails people waiting for that date
 
 `getAvailableSlots` calls `releaseExpiredHolds()` first so abandoned checkouts do not block the diary forever.
 
@@ -150,6 +151,8 @@ Inputs:
 
 `isResendConfigured()` is true only when `RESEND_API_KEY` starts with `re_` and is **not** the placeholder `re_...`. If it is not configured, contact, intake, and booking emails are skipped with a server log — the booking still confirms. That is intentional so local work does not fail on mail.
 
+Confirmation emails include a `/booking/[token]` link to cancel or reschedule. Vercel Cron hits `/api/cron/reminders` at 07:00 UTC for sessions the next day (virtual reminders can include `VIRTUAL_MEETING_URL`). Set `CRON_SECRET`.
+
 ### Admin dashboard
 
 `/admin` is gated by Supabase Auth (`requireAdmin` + middleware session refresh). There is no extra roles table — anyone who can sign in is the trainer.
@@ -161,7 +164,9 @@ Inputs:
 | `/admin/bookings/[id]` | Client, dog, intake answers, payment ids, notes, cancel (frees the slot) |
 | `/admin/clients` | Owners created by intake (matched later by email) |
 | `/admin/clients/[id]` | Dogs, bookings, files, extra upload |
-| `/admin/availability` | Weekly hours + blocked dates |
+| `/admin/availability` | Weekly hours, breaks, and blocked date ranges |
+| `/admin/analytics` | Anonymous traffic and booking drop-off |
+| `/admin/waitlist` | People waiting for a full day |
 | `/admin/intakes` | Intake list + PDF download |
 | `/admin/documents` | All private files + upload PDF/JPEG/PNG/WebP |
 | `/admin/enquiries` | Contact form messages |
@@ -183,8 +188,9 @@ Deleting a client (GDPR) removes their dogs, bookings, and private files. Type t
 ### Cookies and privacy
 
 - `/privacy` — what we store, why, how long, your rights, ICO.
-- `/cookies` — `gundog-theme` and admin session cookies only. No ads cookies.
+- `/cookies` — theme cookie, admin session cookies, and anonymous tab session storage for usage analytics. No ads cookies.
 - Public pages show a small notice until dismissed (stored in `localStorage`, not a tracking cookie).
+- `/admin/analytics` summarises page views and booking funnel events from `analytics_events`. Events are anonymous (path + tab session id only).
 
 ### PWA and sharing
 
@@ -193,8 +199,8 @@ Deleting a client (GDPR) removes their dogs, bookings, and private files. Type t
 
 ### Theme, favicon, images
 
-- Favicon: `src/app/icon.svg` (Next.js App Router file convention).
-- Photos are Unsplash working-dog shots referenced from `content/site.ts`. They are placeholders until you have your own trainer/dog pictures. `next.config.ts` allowlists `images.unsplash.com` and `*.supabase.co`.
+- Favicon: `src/app/icon.jpg` (Next.js App Router file convention). Brand mark also lives at `public/brand/logo.jpg` for intake PDFs.
+- Photos are Unsplash working-dog shots referenced from `content/site.ts`. They are placeholders until you have your own trainer/dog pictures. Gallery crops use `object-position` so faces stay in frame. `next.config.ts` allowlists `images.unsplash.com` and `*.supabase.co`.
 
 ### Things that are easy to break
 

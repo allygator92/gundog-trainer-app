@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { navigation, site } from "@content/site";
+import { BrandLockup } from "@/components/marketing/brand-lockup";
 
 export function SiteFooter() {
   return (
     <footer className="site-footer relative z-10">
       <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-3">
         <div>
-          <p className="site-footer-brand font-display text-lg font-semibold text-primary">{site.name}</p>
+          <BrandLockup compact className="site-footer-brand" />
           <p className="site-footer-muted mt-2 max-w-xs text-sm text-muted-foreground">{site.tagline}</p>
         </div>
         <div>

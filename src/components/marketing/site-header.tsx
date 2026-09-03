@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { navigation, site } from "@content/site";
+import { BrandLockup } from "@/components/marketing/brand-lockup";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import type { SiteTheme } from "@/lib/theme";
@@ -33,12 +34,8 @@ export function SiteHeader({ theme }: { theme: SiteTheme }) {
   return (
     <header className="site-header sticky top-0 z-50">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <Link
-          href="/"
-          className="site-logo font-display text-lg font-semibold tracking-tight"
-          aria-label={`${site.name} home`}
-        >
-          {site.name}
+        <Link href="/" className="min-w-0" aria-label={`${site.name} home`}>
+          <BrandLockup priority />
         </Link>
 
         <div className="flex items-center gap-3">

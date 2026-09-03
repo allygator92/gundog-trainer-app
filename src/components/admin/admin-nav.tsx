@@ -12,6 +12,8 @@ const links = [
   { href: "/admin/intakes", label: "Intakes" },
   { href: "/admin/documents", label: "Documents" },
   { href: "/admin/enquiries", label: "Enquiries" },
+  { href: "/admin/analytics", label: "Analytics" },
+  { href: "/admin/waitlist", label: "Waitlist" },
 ] as const;
 
 export function AdminNav() {
@@ -26,8 +28,8 @@ export function AdminNav() {
             key={link.href}
             href={link.href}
             className={cn(
-              "hover:text-foreground",
-              active ? "font-medium text-foreground" : "text-muted-foreground",
+              "admin-nav-link hover:text-foreground",
+              active ? "is-active font-medium text-foreground" : "text-muted-foreground",
             )}
           >
             {link.label}

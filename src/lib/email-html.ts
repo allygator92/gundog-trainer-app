@@ -31,9 +31,16 @@ export function wrapEmailHtml(title: string, bodyHtml: string) {
 </html>`;
 }
 
+export function linkifyEscapedText(value: string) {
+  return escapeHtml(value).replace(
+    /(https?:\/\/[^\s<]+)/g,
+    '<a href="$1" style="color:#8a6d2f;word-break:break-all;">$1</a>',
+  );
+}
+
 export function paragraphsToHtml(lines: string[]) {
   return lines
     .filter((line) => line.length > 0)
-    .map((line) => `<p style="margin:0 0 12px;font-size:16px;line-height:1.5;">${escapeHtml(line)}</p>`)
+    .map((line) => `<p style="margin:0 0 12px;font-size:16px;line-height:1.5;">${linkifyEscapedText(line)}</p>`)
     .join("");
 }

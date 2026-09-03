@@ -1,6 +1,8 @@
 import type Stripe from "stripe";
-import { sendBookingConfirmationEmails } from "@/lib/email";
+import { getAppUrl } from "@/lib/app-url";
 import { paymentIntentIdFromSession } from "@/lib/checkout";
+import { createManageToken, getVirtualMeetingUrl, manageBookingUrl } from "@/lib/booking-manage";
+import { sendBookingConfirmationEmails } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 
 const CONFIRM_TYPES = new Set(["checkout.session.completed", "checkout.session.async_payment_succeeded"]);
@@ -39,12 +41,15 @@ export async function applyCheckoutSessionEvent(event: Stripe.Event): Promise<Ch
       return { action: "already_confirmed", bookingId };
     }
 
+    const manageToken = existing.manageToken ?? createManageToken();
+
     await prisma.booking.update({
       where: { id: bookingId },
       data: {
         status: "confirmed",
         stripeSessionId: session.id,
         stripePaymentIntentId: paymentIntentIdFromSession(session.payment_intent),
+        manageToken,
       },
     });
 
@@ -58,6 +63,8 @@ export async function applyCheckoutSessionEvent(event: Stripe.Event): Promise<Ch
       durationMinutes: existing.service.durationMinutes,
       pricePence: existing.service.pricePence,
       address: existing.address,
+      manageUrl: manageBookingUrl(getAppUrl(), manageToken),
+      meetingUrl: existing.meetingType === "virtual" ? getVirtualMeetingUrl() : undefined,
     });
 
     return { action: "confirmed", bookingId };

@@ -1,4 +1,6 @@
 import { cookies } from "next/headers";
+import { PageViewTracker } from "@/components/analytics/page-view-tracker";
+import { DemoGuide } from "@/components/demo/demo-guide";
 import { CookieNotice } from "@/components/marketing/cookie-notice";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
@@ -22,6 +24,8 @@ export default async function MarketingLayout({ children }: { children: React.Re
       </main>
       <SiteFooter />
       <CookieNotice />
+      <DemoGuide />
+      <PageViewTracker />
     </div>
   );
 }

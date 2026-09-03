@@ -40,8 +40,8 @@ export function CookieNotice() {
       >
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm">
-            We use a cookie to remember Heath or Field, and a session cookie if you sign in as admin. We do not use
-            advertising cookies.{" "}
+            We use a cookie to remember Heath or Field, a session cookie if you sign in as admin, and anonymous page
+            and booking events so the trainer can see where people drop off. We do not use advertising cookies.{" "}
             <Link href="/cookies" className="underline underline-offset-2">
               Cookie details
             </Link>

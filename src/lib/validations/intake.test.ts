@@ -48,6 +48,15 @@ describe("intakeFormSchema", () => {
     expect(formatIntakeAddress(parsed)).toBe("10 Field Lane, York, YO1 7HH");
   });
 
+  it("lets a returning client skip a new goals write-up", () => {
+    const parsed = intakeFormSchema.parse({
+      ...virtualIntake,
+      existingDogId: "dog_1",
+      goals: "",
+    });
+    expect(parsed.existingDogId).toBe("dog_1");
+  });
+
   it("rejects missing consent", () => {
     const parsed = intakeFormSchema.safeParse({
       ...virtualIntake,

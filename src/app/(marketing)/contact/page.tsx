@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { contactContent } from "@content/contact";
+import { demo } from "@content/demo";
 import { site } from "@content/site";
+import { DemoCallout } from "@/components/demo/demo-callout";
 import { ContactForm } from "@/components/forms/contact-form";
 import { PageHeader } from "@/components/marketing/page-header";
 
@@ -18,6 +20,9 @@ export default function ContactPage() {
           title={contactContent.headline}
           description={contactContent.intro}
         />
+        <DemoCallout title={demo.contact.title} className="mt-6">
+          <p>{demo.contact.body}</p>
+        </DemoCallout>
         <div className="px-0 sm:px-0">
           <ul className="space-y-3 text-sm">
             <li>

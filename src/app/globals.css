@@ -302,24 +302,57 @@
   backdrop-filter: none;
 }
 
-[data-theme="field"] .site-logo {
+[data-theme="field"] .site-header .site-logo {
   color: var(--accent);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
+.site-logo-mark {
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--border) 80%, transparent);
+}
+
+[data-theme="field"] .site-logo-mark {
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--accent) 55%, transparent);
+}
+
+.theme-toggle {
+  background: var(--card);
+}
+
 [data-theme="field"] .theme-toggle {
-  border-color: color-mix(in oklch, var(--primary-foreground) 28%, transparent);
+  border-color: var(--border);
+  background: var(--card);
 }
 
 [data-theme="field"] .theme-toggle button[aria-pressed="false"] {
-  color: color-mix(in oklch, var(--primary-foreground) 80%, transparent);
+  color: var(--foreground);
 }
 
 [data-theme="field"] .theme-toggle button[aria-pressed="false"]:hover,
 [data-theme="field"] .theme-toggle button[aria-pressed="false"]:focus-visible {
+  color: var(--foreground);
+  background: color-mix(in oklch, var(--foreground) 8%, transparent);
+}
+
+[data-theme="field"] .site-header .theme-toggle,
+[data-theme="field"] .admin-header .theme-toggle {
+  border-color: color-mix(in oklch, var(--primary-foreground) 40%, transparent);
+  background: color-mix(in oklch, var(--primary) 70%, black);
+}
+
+[data-theme="field"] .site-header .theme-toggle button[aria-pressed="false"],
+[data-theme="field"] .admin-header .theme-toggle button[aria-pressed="false"] {
   color: var(--primary-foreground);
-  background: color-mix(in oklch, var(--primary-foreground) 12%, transparent);
+  background: color-mix(in oklch, var(--primary-foreground) 14%, transparent);
+}
+
+[data-theme="field"] .site-header .theme-toggle button[aria-pressed="false"]:hover,
+[data-theme="field"] .site-header .theme-toggle button[aria-pressed="false"]:focus-visible,
+[data-theme="field"] .admin-header .theme-toggle button[aria-pressed="false"]:hover,
+[data-theme="field"] .admin-header .theme-toggle button[aria-pressed="false"]:focus-visible {
+  color: var(--primary-foreground);
+  background: color-mix(in oklch, var(--primary-foreground) 14%, transparent);
 }
 
 .theme-toggle-active {
@@ -332,13 +365,83 @@
   color: var(--accent-foreground);
 }
 
+.admin-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+}
+
+[data-theme="field"] .admin-header {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-bottom: 3px solid var(--accent);
+}
+
+[data-theme="field"] .admin-header .admin-kicker {
+  color: var(--accent);
+}
+
+[data-theme="field"] .admin-header .admin-title {
+  color: var(--primary-foreground);
+}
+
+[data-theme="field"] .admin-header .site-logo {
+  color: var(--accent);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+[data-theme="field"] .admin-header .admin-user-email {
+  color: color-mix(in oklch, var(--primary-foreground) 80%, transparent);
+}
+
+[data-theme="field"] .admin-header .admin-nav-link {
+  color: color-mix(in oklch, var(--primary-foreground) 78%, transparent);
+}
+
+[data-theme="field"] .admin-header .admin-nav-link:hover,
+[data-theme="field"] .admin-header .admin-nav-link:focus-visible,
+[data-theme="field"] .admin-header .admin-nav-link.is-active {
+  color: var(--primary-foreground);
+}
+
+[data-theme="field"] .admin-header .admin-header-btn {
+  border-color: color-mix(in oklch, var(--primary-foreground) 40%, transparent);
+  color: var(--primary-foreground);
+  background: transparent;
+}
+
+[data-theme="field"] .admin-header .admin-header-btn:hover,
+[data-theme="field"] .admin-header .admin-header-btn:focus-visible {
+  background: color-mix(in oklch, var(--primary-foreground) 12%, transparent);
+  color: var(--primary-foreground);
+}
+
+.demo-note {
+  border-color: color-mix(in oklch, var(--primary) 35%, var(--border));
+  background: color-mix(in oklch, var(--secondary) 70%, var(--card));
+  color: var(--foreground);
+}
+
+.demo-note-badge {
+  color: var(--primary);
+}
+
+[data-theme="field"] .demo-note {
+  border-color: color-mix(in oklch, var(--accent) 70%, var(--border));
+  background: color-mix(in oklch, var(--card) 88%, var(--accent));
+}
+
+[data-theme="field"] .demo-note-badge {
+  color: color-mix(in oklch, var(--accent) 40%, var(--foreground));
+}
+
 [data-theme="field"] .site-footer {
   background: var(--primary);
   color: var(--primary-foreground);
   border-top: 3px solid var(--accent);
 }
 
-[data-theme="field"] .site-footer .site-footer-brand {
+[data-theme="field"] .site-footer .site-footer-brand .site-logo {
   color: var(--accent);
 }
 

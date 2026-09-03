@@ -1,11 +1,15 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { createCheckoutAction, getSlotsAction } from "@/app/actions/booking";
+import { BookingCalendar } from "@/components/booking/booking-calendar";
+import { DemoCallout } from "@/components/demo/demo-callout";
 import { IntakeWizard } from "@/components/forms/intake-wizard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { demo } from "@content/demo";
 import { site } from "@content/site";
+import { trackClientEvent } from "@/lib/analytics-client";
 import type { AvailableSlot } from "@/lib/availability";
 import { formatDuration, formatPricePence, formatServiceType } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -47,21 +51,13 @@ export function BookingFlow({
     dogName: null,
   });
   const [slots, setSlots] = useState<AvailableSlot[]>([]);
+  const [fullDateKeys, setFullDateKeys] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(cancelled ? "Payment was cancelled. You can pick a time again." : null);
   const [pending, startTransition] = useTransition();
 
-  const slotsByDate = useMemo(() => {
-    const groups = new Map<string, AvailableSlot[]>();
-    for (const slot of slots) {
-      const list = groups.get(slot.dateLabel) ?? [];
-      list.push(slot);
-      groups.set(slot.dateLabel, list);
-    }
-    return [...groups.entries()];
-  }, [slots]);
-
   function selectService(service: BookableService) {
     setError(null);
+    trackClientEvent("booking_service_selected", { label: service.name });
     setState({
       service,
       slot: null,
@@ -71,8 +67,9 @@ export function BookingFlow({
       dogName: null,
     });
     startTransition(async () => {
-      const nextSlots = await getSlotsAction(service.id);
-      setSlots(nextSlots);
+      const next = await getSlotsAction(service.id);
+      setSlots(next.slots);
+      setFullDateKeys(next.fullDateKeys);
       setStep(1);
     });
   }
@@ -82,6 +79,7 @@ export function BookingFlow({
       return;
     }
     setError(null);
+    trackClientEvent("checkout_clicked");
     startTransition(async () => {
       const result = await createCheckoutAction({
         serviceId: state.service!.id,
@@ -142,30 +140,23 @@ export function BookingFlow({
             <p className="text-sm text-muted-foreground">Loading times…</p>
           ) : null}
           {slots.length === 0 && !pending ? (
-            <p className="text-sm text-muted-foreground">No times in the next two weeks. Try the other session type, or get in touch.</p>
+            <p className="text-sm text-muted-foreground">
+              No times in the next four weeks. Join a waitlist on a full day, try the other session type, or get in
+              touch.
+            </p>
           ) : null}
-          {slotsByDate.map(([dateLabel, dateSlots]) => (
-            <div key={dateLabel}>
-              <h2 className="font-display text-lg font-semibold">{dateLabel}</h2>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {dateSlots.map((slot) => (
-                  <Button
-                    key={slot.startsAt}
-                    type="button"
-                    variant={state.slot?.startsAt === slot.startsAt ? "default" : "outline"}
-                    aria-pressed={state.slot?.startsAt === slot.startsAt}
-                    className={cn(
-                      "min-w-[4.75rem]",
-                      state.slot?.startsAt === slot.startsAt && "ring-2 ring-ring ring-offset-2",
-                    )}
-                    onClick={() => setState((current) => ({ ...current, slot }))}
-                  >
-                    {slot.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          ))}
+          {slots.length > 0 || fullDateKeys.length > 0 ? (
+            <BookingCalendar
+              slots={slots}
+              fullDateKeys={fullDateKeys}
+              serviceId={state.service?.id}
+              selectedSlot={state.slot}
+              onSelectSlot={(slot) => {
+                trackClientEvent("booking_slot_selected", { label: `${slot.dateLabel} ${slot.label}` });
+                setState((current) => ({ ...current, slot }));
+              }}
+            />
+          ) : null}
           <div className="flex justify-between">
             <Button type="button" variant="outline" onClick={() => setStep(0)}>
               Back
@@ -184,6 +175,7 @@ export function BookingFlow({
             lockMeetingType
             onCancel={() => setStep(1)}
             onCompleted={({ clientId, dogId, ownerName, dogName }) => {
+              trackClientEvent("intake_completed");
               setState((current) => ({ ...current, clientId, dogId, ownerName, dogName }));
               setStep(3);
             }}
@@ -194,6 +186,10 @@ export function BookingFlow({
       {step === 3 && state.service && state.slot ? (
         <div className="space-y-5 rounded-xl border bg-card p-6">
           <h2 className="font-display text-2xl font-semibold">Review and pay</h2>
+          <DemoCallout title={demo.payment.title} showTestCard>
+            <p>{demo.payment.body}</p>
+            <p>{demo.payment.afterPay}</p>
+          </DemoCallout>
           <dl className="space-y-2 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">Session</dt>

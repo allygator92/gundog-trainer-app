@@ -1,9 +1,11 @@
 import { homeContent } from "@content/home";
 import { site } from "@content/site";
 import { CtaBand } from "@/components/marketing/cta-band";
+import { FaqList } from "@/components/marketing/faq-list";
 import { Hero } from "@/components/marketing/hero";
 import { PhotoGallery } from "@/components/marketing/photo-gallery";
 import { ServiceCards } from "@/components/marketing/service-cards";
+import { SessionExpect } from "@/components/marketing/session-expect";
 import { TestimonialStrip } from "@/components/marketing/testimonial-strip";
 import { getActiveServices, getPublishedTestimonials } from "@/lib/queries";
 
@@ -29,6 +31,8 @@ export default async function HomePage() {
         intro="Retrieving, hunting cover, water work, and the same breeds keeping their heads in built-up streets."
       />
       <TestimonialStrip testimonials={testimonials} heading={homeContent.testimonialsHeading} />
+      <SessionExpect />
+      <FaqList />
       <CtaBand
         heading={homeContent.ctaBand.heading}
         body={homeContent.ctaBand.body}

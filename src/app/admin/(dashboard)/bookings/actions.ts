@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { notifyWaitlistForDate } from "@/lib/waitlist";
 
 export async function cancelBookingAction(bookingId: string) {
   await requireAdmin();
@@ -23,6 +24,7 @@ export async function cancelBookingAction(bookingId: string) {
     where: { id: bookingId },
     data: { status: "cancelled" },
   });
+  await notifyWaitlistForDate(booking.startsAt);
 
   revalidatePath("/admin");
   revalidatePath("/admin/bookings");

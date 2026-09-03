@@ -124,6 +124,8 @@ export async function sendBookingConfirmationEmails(input: {
   durationMinutes: number;
   pricePence: number;
   address?: string | null;
+  manageUrl?: string;
+  meetingUrl?: string;
 }): Promise<boolean> {
   if (!isResendConfigured()) {
     console.warn("Resend is not configured; booking emails were skipped.");
@@ -159,5 +161,76 @@ export async function sendBookingConfirmationEmails(input: {
   }
 
   return true;
+}
+
+async function sendPreparedEmail(input: {
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+  replyTo?: string;
+}) {
+  if (!isResendConfigured()) {
+    console.warn("Resend is not configured; email was skipped.");
+    return false;
+  }
+  const { error } = await getResend().emails.send({
+    from: getFromEmail(),
+    to: input.to,
+    replyTo: input.replyTo,
+    subject: input.subject,
+    text: input.text,
+    html: input.html,
+  });
+  if (error) {
+    console.error("Failed to send email:", error);
+    return false;
+  }
+  return true;
+}
+
+export async function sendBookingReminderEmail(
+  input: Parameters<typeof sendBookingConfirmationEmails>[0],
+): Promise<boolean> {
+  const { buildReminderEmailCopy } = await import("@/lib/booking-email");
+  return sendPreparedEmail(buildReminderEmailCopy(input));
+}
+
+export async function sendBookingCancelledEmail(input: {
+  clientName: string;
+  clientEmail: string;
+  dogName: string;
+  when: string;
+  bookUrl: string;
+}): Promise<boolean> {
+  const { buildCancelledEmailCopy } = await import("@/lib/booking-email");
+  return sendPreparedEmail(buildCancelledEmailCopy(input));
+}
+
+export async function sendWaitlistOpenedEmail(input: {
+  name: string;
+  email: string;
+  dateLabel: string;
+  bookUrl: string;
+}): Promise<boolean> {
+  const { buildWaitlistOpenedCopy } = await import("@/lib/booking-email");
+  return sendPreparedEmail(buildWaitlistOpenedCopy(input));
+}
+
+export async function sendWaitlistJoinedNotification(input: {
+  name: string;
+  email: string;
+  dateLabel: string;
+}): Promise<boolean> {
+  return sendPreparedEmail({
+    to: getTrainerEmail(),
+    replyTo: input.email,
+    subject: `Waitlist: ${input.name} for ${input.dateLabel}`,
+    text: `${input.name} <${input.email}> joined the waitlist for ${input.dateLabel}.`,
+    html: wrapEmailHtml(
+      "New waitlist request",
+      paragraphsToHtml([`${input.name} <${input.email}> joined the waitlist for ${input.dateLabel}.`]),
+    ),
+  });
 }
 

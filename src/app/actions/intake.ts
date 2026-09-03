@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { headers } from "next/headers";
 import { sendIntakeNotification } from "@/lib/email";
 import { generateIntakePdf } from "@/lib/pdf/intake-document";
@@ -49,7 +50,7 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
     parsed.data.meetingType === "in_person" ? formatIntakeAddress(parsed.data) : undefined;
 
   const existingClient = await prisma.client.findFirst({
-    where: { email: parsed.data.ownerEmail },
+    where: { email: { equals: parsed.data.ownerEmail, mode: "insensitive" } },
   });
 
   const client = existingClient
@@ -69,6 +70,21 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
           address,
         },
       });
+
+  if (parsed.data.existingDogId) {
+    const dog = await prisma.dog.findFirst({
+      where: { id: parsed.data.existingDogId, clientId: client.id },
+    });
+    if (!dog) {
+      return { status: "error", message: "That dog could not be found for this email." };
+    }
+    return {
+      status: "success",
+      message: "Welcome back — we will use the existing intake for this dog.",
+      clientId: client.id,
+      dogId: dog.id,
+    };
+  }
 
   const dog = await prisma.dog.create({
     data: {
@@ -119,4 +135,27 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
       message: "Could not save your intake. Please try again in a moment.",
     };
   }
+}
+
+export async function lookupDogsByEmailAction(email: string) {
+  const parsed = z.string().trim().email().safeParse(email);
+  if (!parsed.success) {
+    return [];
+  }
+
+  const client = await prisma.client.findFirst({
+    where: { email: { equals: parsed.data, mode: "insensitive" } },
+    include: { dogs: { orderBy: { createdAt: "desc" }, take: 8 } },
+  });
+
+  if (!client) {
+    return [];
+  }
+
+  return client.dogs.map((dog) => ({
+    id: dog.id,
+    name: dog.name,
+    breed: dog.breed,
+    age: dog.age,
+  }));
 }

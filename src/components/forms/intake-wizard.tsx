@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { submitIntakeAction } from "@/app/actions/intake";
+import { lookupDogsByEmailAction, submitIntakeAction } from "@/app/actions/intake";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,6 +60,10 @@ export function IntakeWizard({
   const [step, setStep] = useState<(typeof steps)[number]["id"]>(1);
   const [serverMessage, setServerMessage] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [existingDogs, setExistingDogs] = useState<{ id: string; name: string; breed: string | null; age: string | null }[]>(
+    [],
+  );
+  const [addingNewDog, setAddingNewDog] = useState(false);
 
   const form = useForm<IntakeFormInput, unknown, IntakeFormValues>({
     resolver: zodResolver(intakeFormSchema),
@@ -84,6 +88,7 @@ export function IntakeWizard({
       previousTraining: "",
       goals: "",
       consentDataStorage: false,
+      existingDogId: undefined,
       botField: "",
     },
   });
@@ -95,9 +100,26 @@ export function IntakeWizard({
     const valid = await form.trigger(intakeStepFields[step] as unknown as (keyof IntakeFormValues)[], {
       shouldFocus: true,
     });
-    if (valid) {
-      setStep((current) => (current < 4 ? ((current + 1) as 2 | 3 | 4) : current));
+    if (!valid) {
+      return;
     }
+    if (step === 1) {
+      const dogs = await lookupDogsByEmailAction(form.getValues("ownerEmail"));
+      setExistingDogs(dogs);
+      setAddingNewDog(dogs.length === 0);
+    }
+    setStep((current) => (current < 4 ? ((current + 1) as 2 | 3 | 4) : current));
+  }
+
+  function useExistingDog(dog: { id: string; name: string; breed: string | null; age: string | null }) {
+    form.setValue("existingDogId", dog.id);
+    form.setValue("dogName", dog.name);
+    form.setValue("breed", dog.breed || "Unknown");
+    form.setValue("ageYears", Number.parseFloat(dog.age ?? "1") || 1);
+    if (!form.getValues("goals")) {
+      form.setValue("goals", "Returning client — see previous intake.");
+    }
+    setStep(4);
   }
 
   async function onSubmit(data: IntakeFormValues) {
@@ -261,6 +283,32 @@ export function IntakeWizard({
 
       {step === 2 ? (
         <div className="space-y-5">
+          {existingDogs.length > 0 && !addingNewDog ? (
+            <div className="space-y-3 rounded-xl border bg-card p-4">
+              <p className="text-sm font-medium">Welcome back. Book with a dog we already know?</p>
+              <ul className="space-y-2">
+                {existingDogs.map((dog) => (
+                  <li key={dog.id}>
+                    <Button type="button" variant="outline" className="w-full justify-start" onClick={() => useExistingDog(dog)}>
+                      {dog.name}
+                      {dog.breed ? ` · ${dog.breed}` : ""}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  form.setValue("existingDogId", undefined);
+                  setAddingNewDog(true);
+                }}
+              >
+                Add another dog
+              </Button>
+            </div>
+          ) : (
+            <>
           <div className="space-y-2">
             <Label htmlFor="dogName">Dog’s name</Label>
             <Input
@@ -318,6 +366,8 @@ export function IntakeWizard({
               )}
             />
           </fieldset>
+            </>
+          )}
         </div>
       ) : null}
 
@@ -379,11 +429,16 @@ export function IntakeWizard({
               </p>
             ) : null}
             <p>
-              <span className="font-medium">Dog:</span> {values.dogName}, {values.breed}, {values.ageYears} years
+              <span className="font-medium">Dog:</span> {values.dogName}
+              {values.existingDogId ? " (existing record)" : `, ${values.breed}, ${values.ageYears} years`}
             </p>
-            <p>
-              <span className="font-medium">Goals:</span> {values.goals}
-            </p>
+            {values.existingDogId ? (
+              <p className="text-muted-foreground">We’ll use the intake already on file for this dog.</p>
+            ) : (
+              <p>
+                <span className="font-medium">Goals:</span> {values.goals}
+              </p>
+            )}
           </div>
           <label className="flex items-start gap-3 text-sm">
             <input type="checkbox" className="mt-1" {...form.register("consentDataStorage")} />
@@ -418,9 +473,13 @@ export function IntakeWizard({
           <span />
         )}
         {step < 4 ? (
-          <Button type="button" onClick={goNext}>
-            Next
-          </Button>
+          step === 2 && existingDogs.length > 0 && !addingNewDog ? (
+            <span />
+          ) : (
+            <Button type="button" onClick={goNext}>
+              Next
+            </Button>
+          )
         ) : (
           <Button type="submit" disabled={form.formState.isSubmitting || !values.consentDataStorage} aria-busy={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? "Sending..." : "Submit intake"}

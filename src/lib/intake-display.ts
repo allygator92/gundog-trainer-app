@@ -21,7 +21,7 @@ const labels: Record<string, string> = {
   consentedAt: "Consent recorded",
 };
 
-const skip = new Set(["consentDataStorage", "botField"]);
+const skip = new Set(["consentDataStorage", "botField", "existingDogId"]);
 
 export function intakeRows(data: unknown): { label: string; value: string }[] {
   if (!data || typeof data !== "object") {

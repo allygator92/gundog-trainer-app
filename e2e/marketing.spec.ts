@@ -1,9 +1,17 @@
 import { expect, test } from "@playwright/test";
+import { skipDemoWelcome } from "./helpers";
+
+test.beforeEach(async ({ page }) => {
+  await skipDemoWelcome(page);
+});
 
 test("home page shows the book CTA", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /confidence, recall, and field skills/i })).toBeVisible();
   await expect(page.getByRole("link", { name: "Book a session" }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Gundog Trainer home" }).locator("img")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "FAQs" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What to expect in a session" })).toBeVisible();
 });
 
 test("marketing pages render", async ({ page }) => {

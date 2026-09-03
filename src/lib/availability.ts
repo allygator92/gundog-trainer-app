@@ -5,12 +5,19 @@ import {
   DAYS_AHEAD,
   PENDING_HOLD_MINUTES,
   WEEKDAYS,
+  breakHoursError,
   buildAvailableSlots,
+  buildOpenDateKeys,
   defaultWeeklyHours,
   londonDay,
+  occupiedWindow,
   parseLondon,
   parseSlotStart,
+  rulesFromDayHours,
+  sessionBufferMinutes,
+  windowsOverlap,
   type AvailableSlot,
+  type DayHours,
 } from "@/lib/availability-slots";
 
 export {
@@ -18,12 +25,19 @@ export {
   DAYS_AHEAD,
   PENDING_HOLD_MINUTES,
   WEEKDAYS,
+  breakHoursError,
   buildAvailableSlots,
+  buildOpenDateKeys,
   defaultWeeklyHours,
   londonDay,
+  occupiedWindow,
   parseLondon,
   parseSlotStart,
+  rulesFromDayHours,
+  sessionBufferMinutes,
+  windowsOverlap,
   type AvailableSlot,
+  type DayHours,
 };
 
 export async function releaseExpiredHolds() {
@@ -37,12 +51,17 @@ export async function releaseExpiredHolds() {
   });
 }
 
-export async function getAvailableSlots(serviceId: string): Promise<AvailableSlot[]> {
+export async function getAvailableSlots(serviceId: string, ignoreBookingId?: string): Promise<AvailableSlot[]> {
+  const calendar = await getCalendarAvailability(serviceId, ignoreBookingId);
+  return calendar.slots;
+}
+
+export async function getCalendarAvailability(serviceId: string, ignoreBookingId?: string) {
   await releaseExpiredHolds();
 
   const service = await prisma.service.findUnique({ where: { id: serviceId } });
   if (!service?.isActive) {
-    return [];
+    return { slots: [] as AvailableSlot[], fullDateKeys: [] as string[] };
   }
 
   const now = new Date();
@@ -57,20 +76,27 @@ export async function getAvailableSlots(serviceId: string): Promise<AvailableSlo
     prisma.booking.findMany({
       where: {
         status: { in: ["pending_payment", "confirmed"] },
-        startsAt: { gte: now, lte: rangeEnd },
+        startsAt: { gte: addMinutes(now, -24 * 60), lte: rangeEnd },
+        ...(ignoreBookingId ? { id: { not: ignoreBookingId } } : {}),
       },
-      include: { service: { select: { durationMinutes: true } } },
+      include: { service: { select: { durationMinutes: true, type: true } } },
     }),
   ]);
 
-  return buildAvailableSlots({
+  const blockedDays = blocked.map((row) => londonDay(row.date));
+  const occupied = bookings.map((booking) =>
+    occupiedWindow(booking.startsAt, booking.service.durationMinutes, booking.service.type),
+  );
+  const slots = buildAvailableSlots({
     now,
     durationMinutes: service.durationMinutes,
     rules,
-    blockedDays: blocked.map((row) => londonDay(row.date)),
-    occupied: bookings.map((booking) => ({
-      start: booking.startsAt,
-      end: addMinutes(booking.startsAt, booking.service.durationMinutes),
-    })),
+    blockedDays,
+    occupied,
   });
+  const openDateKeys = buildOpenDateKeys({ now, rules, blockedDays });
+  const bookedDays = new Set(slots.map((slot) => slot.dateKey));
+  const fullDateKeys = openDateKeys.filter((dateKey) => !bookedDays.has(dateKey));
+
+  return { slots, fullDateKeys };
 }

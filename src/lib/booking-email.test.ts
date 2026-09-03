@@ -15,6 +15,7 @@ describe("buildBookingEmailCopy", () => {
       startsAt,
       durationMinutes: 60,
       pricePence: 6500,
+      manageUrl: "https://example.com/booking/abc",
     });
 
     expect(formatBookingWhen(startsAt)).toContain("10:00");
@@ -22,8 +23,10 @@ describe("buildBookingEmailCopy", () => {
     expect(copy.client.subject).toContain("Moss");
     expect(copy.client.text).toContain("£65.00");
     expect(copy.client.text).toContain("video call link");
+    expect(copy.client.text).toContain("https://example.com/booking/abc");
     expect(copy.client.html).toContain("Booking confirmed");
     expect(copy.client.html).toContain("Sam Owner");
+    expect(copy.client.html).toContain('href="https://example.com/booking/abc"');
     expect(copy.trainer.subject).toContain("Moss");
     expect(copy.trainer.text).toContain("sam@example.com");
   });

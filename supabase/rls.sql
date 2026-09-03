@@ -14,6 +14,8 @@ alter table public.blocked_dates enable row level security;
 alter table public.documents enable row level security;
 alter table public.contact_submissions enable row level security;
 alter table public.testimonials enable row level security;
+alter table public.analytics_events enable row level security;
+alter table public.waitlist_entries enable row level security;
 
 -- No policies on PII tables: anon and authenticated cannot select/insert/update/delete via the API.
 -- Public reads of services and testimonials go through Prisma on the server, not the anon key.

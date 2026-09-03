@@ -10,7 +10,9 @@ export function ThemeToggle({ theme }: { theme: SiteTheme }) {
   function select(next: SiteTheme) {
     setCurrent(next);
     document.cookie = themeCookie(next);
-    document.querySelector("[data-marketing-theme]")?.setAttribute("data-theme", next);
+    document.querySelectorAll("[data-theme]").forEach((node) => {
+      node.setAttribute("data-theme", next);
+    });
   }
 
   return (

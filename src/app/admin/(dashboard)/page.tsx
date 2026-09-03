@@ -63,8 +63,13 @@ export default async function AdminDashboardPage() {
     },
     {
       title: "Availability",
-      description: "Weekly hours and blocked dates.",
+      description: "Weekly hours, breaks, and blocked dates.",
       href: "/admin/availability",
+    },
+    {
+      title: "Analytics",
+      description: "Traffic and where people drop off in booking.",
+      href: "/admin/analytics",
     },
     {
       title: "Documents",
@@ -80,7 +85,7 @@ export default async function AdminDashboardPage() {
         <p className="mt-1 text-muted-foreground">Today’s sessions, recent intakes, and enquiries.</p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {sections.map((section) => (
           <Link key={section.href} href={section.href} className="block transition-opacity hover:opacity-90">
             <Card className="h-full">

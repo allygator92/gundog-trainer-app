@@ -28,8 +28,15 @@ export default async function BookPage({
   }));
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
+    <div className="mx-auto w-full max-w-4xl px-4 pb-16 sm:px-6">
       <PageHeader className="px-0 sm:px-0" title={bookContent.headline} description={bookContent.intro} />
+      <p className="mb-8 text-sm text-muted-foreground">
+        Bring a slip lead if you have one.{" "}
+        <a href="/training#sessions" className="underline underline-offset-2">
+          What to expect, what to bring, and whether two dogs can share a session
+        </a>
+        .
+      </p>
       <BookingFlow services={bookableServices} cancelled={params.cancelled === "1"} />
     </div>
   );
