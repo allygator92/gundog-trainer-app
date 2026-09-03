@@ -33,13 +33,12 @@ export function SiteHeader({ theme }: { theme: SiteTheme }) {
 
   return (
     <header className="site-header sticky top-0 z-50">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <Link href="/" className="min-w-0" aria-label={`${site.name} home`}>
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6">
+        <Link href="/" className="flex min-w-0 flex-1 items-center pr-2" aria-label={`${site.name} home`}>
           <BrandLockup priority />
         </Link>
 
-        <div className="flex items-center gap-3">
-          <ThemeToggle theme={theme} />
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <nav className="hidden items-center gap-6 text-sm md:flex" aria-label="Primary">
             {navigation.map((item) => (
               <Link
@@ -57,6 +56,9 @@ export function SiteHeader({ theme }: { theme: SiteTheme }) {
               </Link>
             </Button>
           </nav>
+          <div className="hidden md:block">
+            <ThemeToggle theme={theme} />
+          </div>
 
           <button
             type="button"
@@ -78,6 +80,10 @@ export function SiteHeader({ theme }: { theme: SiteTheme }) {
           className="site-mobile-nav space-y-1 border-t border-border px-4 py-4 md:hidden"
           aria-label="Mobile"
         >
+          <div className="mb-3 flex items-center justify-between gap-3 px-3 py-1">
+            <p className="text-sm text-muted-foreground">Website look</p>
+            <ThemeToggle theme={theme} />
+          </div>
           {navigation.map((item) => (
             <Link
               key={item.href}

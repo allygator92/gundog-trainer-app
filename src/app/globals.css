@@ -304,8 +304,14 @@
 
 [data-theme="field"] .site-header .site-logo {
   color: var(--accent);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+  [data-theme="field"] .site-header .site-logo {
+    letter-spacing: 0.14em;
+  }
 }
 
 .site-logo-mark {

@@ -1,6 +1,8 @@
 import { Resend } from "resend";
 import { site } from "@content/site";
 import { paragraphsToHtml, wrapEmailHtml } from "@/lib/email-html";
+import { formatSupportKind } from "@/lib/format";
+import { getDeveloperEmail, type SupportKind } from "@/lib/support";
 
 let resendClient: Resend | null = null;
 
@@ -230,6 +232,64 @@ export async function sendWaitlistJoinedNotification(input: {
     html: wrapEmailHtml(
       "New waitlist request",
       paragraphsToHtml([`${input.name} <${input.email}> joined the waitlist for ${input.dateLabel}.`]),
+    ),
+  });
+}
+
+export async function sendSupportRequestEmail(input: {
+  kind: SupportKind;
+  title: string;
+  body: string;
+  submittedBy: string;
+  adminUrl: string;
+}): Promise<boolean> {
+  const kindLabel = formatSupportKind(input.kind);
+  return sendPreparedEmail({
+    to: getDeveloperEmail(),
+    replyTo: input.submittedBy,
+    subject: `Support ${kindLabel.toLowerCase()}: ${input.title}`,
+    text: [
+      `${input.submittedBy} raised a ${kindLabel.toLowerCase()} from admin.`,
+      "",
+      input.body,
+      "",
+      `Open in admin: ${input.adminUrl}`,
+    ].join("\n"),
+    html: wrapEmailHtml(
+      `Support ${kindLabel.toLowerCase()}`,
+      paragraphsToHtml([
+        `${input.submittedBy} raised a ${kindLabel.toLowerCase()} from admin.`,
+        input.body,
+        `Open in admin: ${input.adminUrl}`,
+      ]),
+    ),
+  });
+}
+
+export async function sendSupportFeedbackEmail(input: {
+  title: string;
+  body: string;
+  submittedBy: string;
+  adminUrl: string;
+}): Promise<boolean> {
+  return sendPreparedEmail({
+    to: getDeveloperEmail(),
+    replyTo: input.submittedBy,
+    subject: `Support update: ${input.title}`,
+    text: [
+      `${input.submittedBy} added more detail on “${input.title}”.`,
+      "",
+      input.body,
+      "",
+      `Open in admin: ${input.adminUrl}`,
+    ].join("\n"),
+    html: wrapEmailHtml(
+      "Support update",
+      paragraphsToHtml([
+        `${input.submittedBy} added more detail on “${input.title}”.`,
+        input.body,
+        `Open in admin: ${input.adminUrl}`,
+      ]),
     ),
   });
 }

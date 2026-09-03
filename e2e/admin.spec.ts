@@ -15,3 +15,10 @@ test("admin client pages also require sign in", async ({ page }) => {
   await page.goto("/admin/clients");
   await expect(page).toHaveURL(/\/admin\/login/);
 });
+
+test("admin support requires sign in", async ({ page }) => {
+  await skipDemoWelcome(page);
+  await page.goto("/admin/support");
+  await expect(page).toHaveURL(/\/admin\/login/);
+  await expect(page.getByText("Admin sign in")).toBeVisible();
+});

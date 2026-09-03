@@ -14,6 +14,7 @@ const links = [
   { href: "/admin/enquiries", label: "Enquiries" },
   { href: "/admin/analytics", label: "Analytics" },
   { href: "/admin/waitlist", label: "Waitlist" },
+  { href: "/admin/support", label: "Support" },
 ] as const;
 
 export function AdminNav() {

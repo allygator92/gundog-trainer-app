@@ -5,6 +5,8 @@ import {
   formatDuration,
   formatPricePence,
   formatServiceType,
+  formatSupportKind,
+  formatSupportStatus,
 } from "@/lib/format";
 
 describe("formatPricePence", () => {
@@ -44,5 +46,22 @@ describe("formatDocumentType", () => {
   it("labels stored files", () => {
     expect(formatDocumentType("intake_pdf")).toBe("Intake PDF");
     expect(formatDocumentType("record")).toBe("Record");
+  });
+});
+
+describe("formatSupportKind", () => {
+  it("labels request types", () => {
+    expect(formatSupportKind("bug")).toBe("Bug");
+    expect(formatSupportKind("change")).toBe("Change");
+    expect(formatSupportKind("feature")).toBe("New feature");
+  });
+});
+
+describe("formatSupportStatus", () => {
+  it("labels request states", () => {
+    expect(formatSupportStatus("submitted")).toBe("Received");
+    expect(formatSupportStatus("investigating")).toBe("Investigating");
+    expect(formatSupportStatus("needs_feedback")).toBe("Needs your reply");
+    expect(formatSupportStatus("resolved")).toBe("Fixed / implemented");
   });
 });

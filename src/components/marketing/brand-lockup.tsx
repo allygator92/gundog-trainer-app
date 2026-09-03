@@ -17,6 +17,7 @@ export function BrandMark({
       alt=""
       width={size}
       height={size}
+      style={{ width: size, height: size }}
       className={cn("rounded-md object-cover", className)}
       priority={priority}
     />
@@ -33,9 +34,11 @@ export function BrandLockup({
   priority?: boolean;
 }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <BrandMark size={compact ? 36 : 44} className="site-logo-mark shrink-0" priority={priority} />
-      <span className="site-logo font-display text-lg font-semibold tracking-tight sm:text-xl">{site.name}</span>
+    <span className={cn("flex min-w-0 max-w-full items-center gap-2 sm:gap-2.5", className)}>
+      <BrandMark size={compact ? 36 : 40} className="site-logo-mark shrink-0" priority={priority} />
+      <span className="site-logo min-w-0 truncate font-display text-base font-semibold tracking-tight sm:text-lg md:text-xl">
+        {site.name}
+      </span>
     </span>
   );
 }

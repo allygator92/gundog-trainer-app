@@ -49,6 +49,9 @@ export default async function AdminDashboardLayout({
                 {user.email}
               </span>
               <Button asChild variant="outline" size="sm" className="admin-header-btn">
+                <Link href="/admin/support">Support</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="admin-header-btn">
                 <Link href="/">View site</Link>
               </Button>
               <form action={signOut}>

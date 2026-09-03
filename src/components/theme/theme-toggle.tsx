@@ -16,7 +16,7 @@ export function ThemeToggle({ theme }: { theme: SiteTheme }) {
   }
 
   return (
-    <div className="theme-toggle inline-flex rounded-full border border-border p-0.5" role="group" aria-label="Website look">
+    <div className="theme-toggle inline-flex shrink-0 rounded-full border border-border p-0.5" role="group" aria-label="Website look">
       {siteThemes.map((item) => (
         <button
           key={item.id}
@@ -26,7 +26,7 @@ export function ThemeToggle({ theme }: { theme: SiteTheme }) {
           title={item.description}
           onClick={() => select(item.id)}
           className={cn(
-            "min-h-8 rounded-full px-3 py-1.5 text-xs font-medium uppercase tracking-wide",
+            "min-h-8 shrink-0 rounded-full px-2 py-1 text-[0.65rem] font-medium uppercase tracking-wide sm:px-3 sm:py-1.5 sm:text-xs",
             current === item.id ? "theme-toggle-active" : "text-muted-foreground hover:text-foreground",
           )}
         >
