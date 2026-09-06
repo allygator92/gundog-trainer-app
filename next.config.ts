@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["@react-pdf/renderer", "@react-pdf/layout"],
+  serverExternalPackages: ["@prisma/client", "@react-pdf/renderer", "@react-pdf/layout"],
   outputFileTracingIncludes: {
     "/*": ["./src/lib/pdf/assets/logo.jpg", "./public/brand/logo.jpg"],
   },
