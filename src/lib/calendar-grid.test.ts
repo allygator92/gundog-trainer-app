@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { addDaysToDateKey, monthGrid, parseDateKey, shiftMonth, utcDateKey, utcNoonFromDateKey } from "@/lib/calendar-grid";
+import {
+  addDaysToDateKey,
+  formatDateKeyLong,
+  formatMonthTitle,
+  monthGrid,
+  parseDateKey,
+  shiftMonth,
+  todayDateKey,
+  utcDateKey,
+  utcNoonFromDateKey,
+} from "@/lib/calendar-grid";
 
 describe("monthGrid", () => {
   it("starts the week on Monday", () => {
@@ -25,5 +35,14 @@ describe("date key helpers", () => {
     const stored = utcNoonFromDateKey("2026-09-06");
     expect(stored.toISOString()).toBe("2026-09-06T12:00:00.000Z");
     expect(utcDateKey(stored)).toBe("2026-09-06");
+  });
+
+  it("formats month titles and long date keys in British English", () => {
+    expect(formatMonthTitle(2026, 9)).toBe("September 2026");
+    expect(formatDateKeyLong("2026-09-01")).toBe("Tuesday, 1 September 2026");
+  });
+
+  it("uses Europe/London for today so late UTC evening can be the next calendar day", () => {
+    expect(todayDateKey(new Date("2026-09-06T23:30:00.000Z"))).toBe("2026-09-07");
   });
 });

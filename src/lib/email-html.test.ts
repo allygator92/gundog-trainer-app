@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { escapeHtml, paragraphsToHtml } from "@/lib/email-html";
+import { site } from "@content/site";
+import { escapeHtml, paragraphsToHtml, wrapEmailHtml } from "@/lib/email-html";
 
 describe("escapeHtml", () => {
   it("escapes markup in email bodies", () => {
@@ -16,5 +17,15 @@ describe("paragraphsToHtml", () => {
     ]);
     expect(html).toContain('href="https://example.com/booking/abc"');
     expect(html).toContain("Need to cancel or pick another time?");
+  });
+});
+
+describe("wrapEmailHtml", () => {
+  it("escapes the title and includes the site name", () => {
+    const html = wrapEmailHtml("Booking <confirmed>", "<p>Hello</p>");
+    expect(html).toContain(site.name);
+    expect(html).toContain("Booking &lt;confirmed&gt;");
+    expect(html).not.toContain("Booking <confirmed>");
+    expect(html).toContain("<p>Hello</p>");
   });
 });

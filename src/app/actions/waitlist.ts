@@ -1,6 +1,5 @@
 "use server";
 
-import { z } from "zod";
 import { headers } from "next/headers";
 import { formatInTimeZone } from "date-fns-tz";
 import { revalidatePath } from "next/cache";
@@ -9,13 +8,7 @@ import { utcNoonFromDateKey } from "@/lib/calendar-grid";
 import { sendWaitlistJoinedNotification } from "@/lib/email";
 import { isRateLimited } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
-
-const waitlistSchema = z.object({
-  name: z.string().trim().min(2).max(100),
-  email: z.string().trim().email(),
-  dateKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  serviceId: z.string().optional(),
-});
+import { waitlistSchema } from "@/lib/validations/waitlist";
 
 export async function joinWaitlistAction(input: unknown) {
   const parsed = waitlistSchema.safeParse(input);

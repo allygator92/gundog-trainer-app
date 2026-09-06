@@ -64,4 +64,23 @@ describe("intakeFormSchema", () => {
     });
     expect(parsed.success).toBe(false);
   });
+
+  it("rejects a short goals write-up for a new dog", () => {
+    const parsed = intakeFormSchema.safeParse({
+      ...virtualIntake,
+      goals: "Recall",
+    });
+    expect(parsed.success).toBe(false);
+  });
+
+  it("rejects an invalid UK postcode for in-person sessions", () => {
+    const parsed = intakeFormSchema.safeParse({
+      ...virtualIntake,
+      meetingType: "in_person",
+      addressLine1: "10 Field Lane",
+      city: "York",
+      postcode: "NOT A POSTCODE",
+    });
+    expect(parsed.success).toBe(false);
+  });
 });

@@ -35,7 +35,7 @@ On PowerShell:
 Copy-Item .env.example .env
 ```
 
-Fill in Supabase, Stripe, and Resend values. See `.env.example` for every key. Never commit `.env`.
+Fill in Supabase, Stripe, and Resend values. See `.env.example` for every key. Never commit `.env`. Leave `NEXT_PUBLIC_DEMO_MODE=true` while this is a sample site.
 
 ### 3. Set up the database
 
@@ -88,10 +88,12 @@ This is the map of the moving parts. Read this before changing booking, payments
 
 ```
 Browser
-  → src/app/(marketing)/*     public pages, /book, /intake, /training
+  → src/app/(marketing)/*     public pages, /book, /intake, /booking/[token], /training
   → src/app/admin/*           Supabase-auth gated trainer UI
   → src/app/api/webhooks/stripe   Stripe → confirm or release a booking
-  → src/app/actions/*         server actions (forms, checkout, slots)
+  → src/app/api/cron/reminders    Vercel Cron → next-day emails
+  → src/app/api/analytics         anonymous page / funnel events
+  → src/app/actions/*         server actions (forms, checkout, slots, waitlist)
 ```
 
 Route groups `(marketing)` only affect layout and URLs stay unprefixed (`/about`, not `/marketing/about`).
@@ -115,8 +117,8 @@ Pages that read the database set `export const dynamic = "force-dynamic"` so ser
 A booking is not “paid” when the client clicks **Pay securely**. The sequence is:
 
 1. **Session** — client picks a `Service`. `getSlotsAction` asks the availability engine for that service’s duration.
-2. **Time** — client picks an ISO start (`startsAt`). Nothing is reserved yet.
-3. **Intake** — `submitIntakeAction` upserts a `Client` by **email**, always creates a new `Dog`, stores JSON intake fields, generates a PDF, uploads it to a **private** Supabase bucket, and writes a `Document` row. The wizard returns `clientId` + `dogId` to the booking flow. There is no client login; identity is the email address.
+2. **Time** — client picks an ISO start (`startsAt`). A full day can take a waitlist instead. Nothing is reserved yet.
+3. **Intake** — `submitIntakeAction` upserts a `Client` by **email**. A returning owner can pick an existing dog (`existingDogId`) and skip a new goals write-up. Otherwise it creates a new `Dog`, stores JSON intake fields, generates a PDF, uploads it to a **private** Supabase bucket, and writes a `Document` row. The wizard returns `clientId` + `dogId` to the booking flow. There is no client login; identity is the email address.
 4. **Pay** — `createCheckoutAction` re-checks the slot is still free, inserts a booking with `status: pending_payment`, then creates a Stripe Checkout Session that holds `bookingId` in metadata. The browser redirects to Stripe.
 5. **Confirmed** — only the **webhook** (`checkout.session.completed` or `async_payment_succeeded`) flips the row to `confirmed` and sends emails. The success page is not trusted to do this.
 6. **Cancelled / abandoned** — Stripe `expired` / `async_payment_failed`, or a hold older than **30 minutes**, sets `pending_payment` → `cancelled` so the slot is offered again.
@@ -151,11 +153,11 @@ Inputs:
 
 `isResendConfigured()` is true only when `RESEND_API_KEY` starts with `re_` and is **not** the placeholder `re_...`. If it is not configured, contact, intake, and booking emails are skipped with a server log — the booking still confirms. That is intentional so local work does not fail on mail.
 
-Confirmation emails include a `/booking/[token]` link to cancel or reschedule. Vercel Cron hits `/api/cron/reminders` at 07:00 UTC for sessions the next day (virtual reminders can include `VIRTUAL_MEETING_URL`). Set `CRON_SECRET`.
+Confirmation emails include a `/booking/[token]` link to cancel or reschedule (`src/lib/booking-manage.ts`). Reschedule needs **24 hours’** notice; cancel frees the slot and emails people on that day’s waitlist. Vercel Cron hits `/api/cron/reminders` at 07:00 UTC for sessions the next day (virtual reminders can include `VIRTUAL_MEETING_URL`). Set `CRON_SECRET`.
 
 ### Admin dashboard
 
-`/admin` is gated by Supabase Auth (`requireAdmin` + middleware session refresh). There is no extra roles table — anyone who can sign in is the trainer.
+`/admin` is gated by Supabase Auth (`requireAdmin` + session refresh in `src/proxy.ts`). There is no extra roles table — anyone who can sign in is the trainer.
 
 | Page | What it is for |
 |------|----------------|
@@ -170,6 +172,7 @@ Confirmation emails include a `/booking/[token]` link to cancel or reschedule. V
 | `/admin/intakes` | Intake list + PDF download |
 | `/admin/documents` | All private files + upload PDF/JPEG/PNG/WebP |
 | `/admin/enquiries` | Contact form messages |
+| `/admin/support` | Bugs, changes, and feature requests emailed to `DEVELOPER_EMAIL` |
 
 Downloads go through `/admin/documents/[id]/file`, which checks you are signed in, then issues a **10-minute** signed URL to the private `client-documents` bucket. Direct public URLs should not work.
 
@@ -179,7 +182,7 @@ Deleting a client (GDPR) removes their dogs, bookings, and private files. Type t
 
 ### Security (RLS and secrets)
 
-- Admin routes are behind Supabase Auth middleware.
+- Admin routes are behind Supabase Auth (`src/proxy.ts`).
 - Prisma talks to Postgres with `DATABASE_URL` (the database role). That **bypasses** Row Level Security.
 - `supabase/rls.sql` turns RLS on for every public table with **no anon policies**, so a leaked `NEXT_PUBLIC_SUPABASE_ANON_KEY` cannot read PII through PostgREST. Run that SQL in the Supabase SQL editor after `db:push`.
 - Storage bucket `client-documents` is private. Downloads are 10-minute signed URLs after an admin session check.
@@ -208,9 +211,9 @@ Deleting a client (GDPR) removes their dogs, bookings, and private files. Type t
 - **Do not move Prisma secrets solely into `.env.local`.**
 - **Do not add `pointer-events: none` or colour Field footer `li` elements** in a way that hides links — Field navy + muted navy already did that once.
 - **Do not wrap admin in `data-theme`.**
-- Intake matches clients by email and creates a **new dog every time**. Repeat bookings for the same dog will duplicate `Dog` rows unless you later add “pick an existing dog”.
+- Intake matches clients by email. Returning owners can pick an **existing dog**; a new dog still gets a full intake + PDF. If they skip that picker, a repeat booking creates another `Dog` row.
 - Server actions in `src/app/actions/` are the write API. Keep validation (Zod) on that boundary; the browser wizard is not trusted.
-- Rate limits exist on contact and intake (`src/lib/rate-limit.ts`) — in-memory, so they reset on every server restart and do not work across multiple server instances.
+- Rate limits exist on contact, intake, waitlist, and manage-booking (`src/lib/rate-limit.ts`) — in-memory, so they reset on every server restart and do not work across multiple server instances.
 
 ## Stripe webhooks (local testing)
 
@@ -224,34 +227,54 @@ Paste the printed `whsec_...` into `STRIPE_WEBHOOK_SECRET` in `.env`, then resta
 
 Apple Pay and Google Pay appear on Stripe Checkout on supported devices. Production wallets also need your domain verified in Stripe.
 
+## Sample site (demo notes)
+
+`NEXT_PUBLIC_DEMO_MODE` defaults on via `.env.example`. Set it to `false` (or turn off `content/demo.ts`) to hide the sample-site badge and notes. Brand copy, phone, email, and Unsplash photos stay as placeholders until you replace them in `content/`.
+
 ## Tests
 
 ```bash
-npm test          # unit tests (validation, slots, checkout, emails, theme)
-npm run test:e2e  # Playwright against the running app
+npm test            # unit tests (Vitest)
+npm run test:watch  # same suite, re-run on save
+npm run test:e2e    # Playwright against the running app
 ```
+
+Unit tests live next to the code as `src/**/*.test.ts` (`vitest.config.mts`). They cover:
+
+- Availability: London/BST slots, lunch breaks, lead time, travel buffers, blocked dates
+- Booking: Stripe Checkout params, webhook confirm/cancel/idempotency, 24-hour reschedule window
+- Email: HTML escaping, confirmation/reminder/cancel/waitlist copy, Resend config checks
+- Forms: contact, intake, waitlist, and admin support Zod schemas
+- Admin: booking filters, waitlist notify, next-day reminders, analytics funnel, Heath/Field cookie
+- Layout: admin header classes that keep brand, toggle, and actions from overlapping on a phone
 
 The first e2e run downloads Chromium (`npx playwright install chromium`). On Windows the install cache can move between environments; if Playwright says the browser executable is missing, run that install again.
 
-Unit tests are the right place for slot maths, webhook idempotency, and Zod schemas. E2e covers “a page renders and a form validates” — they do not complete a real Stripe payment unless you add that flow later.
+E2e covers marketing pages, booking UI, demo notes, theme toggle, admin login shell, and responsive layout. They do not complete a real Stripe payment unless you add that flow later.
 
 ## Project structure
 
 ```
-content/                 # Site copy, nav, Unsplash image URLs
+content/                 # Site copy, nav, Unsplash image URLs, sample-site notes
 e2e/                     # Playwright flows
 src/
 ├── app/
-│   ├── icon.svg         # Favicon
-│   ├── (marketing)/     # Public pages, booking, intake, privacy, cookies, training
-│   ├── admin/           # Bookings, clients, documents, availability, intakes, enquiries
-│   ├── actions/         # Server actions (booking, intake, contact)
+│   ├── icon.jpg         # Favicon
+│   ├── (marketing)/     # Public pages, /book, /intake, /booking/[token], privacy, cookies
+│   ├── admin/           # Diary, clients, documents, availability, waitlist, support, analytics
+│   ├── actions/         # Server actions (booking, intake, contact, waitlist, manage booking)
 │   ├── manifest.ts      # Add to Home Screen
-│   └── api/webhooks/    # Stripe webhook
+│   └── api/
+│       ├── webhooks/    # Stripe webhook
+│       ├── analytics/   # Anonymous page / funnel events
+│       └── cron/        # Next-day booking reminders
 ├── components/
 │   ├── booking/         # Multi-step book → pay flow
+│   ├── calendar/        # Month calendar
 │   ├── forms/           # Contact + intake
 │   ├── marketing/       # Header, hero, footer, gallery
+│   ├── admin/           # Dashboard forms
+│   ├── demo/            # Sample-site notes
 │   └── theme/           # Heath / Field look toggle
 └── lib/                 # Availability, Stripe, email, Zod schemas, theme cookie
 prisma/
@@ -268,9 +291,13 @@ supabase/
 |---------|-------------|
 | `npm run dev` | Start development server |
 | `npm run build` | Production build |
-| `npm test` | Unit tests |
-| `npm run test:e2e` | End-to-end tests |
+| `npm run lint` | ESLint |
+| `npm test` | Unit tests (Vitest) |
+| `npm run test:watch` | Unit tests, watch mode |
+| `npm run test:e2e` | End-to-end tests (Playwright) |
+| `npm run db:generate` | Generate Prisma Client |
 | `npm run db:push` | Push schema to database |
+| `npm run db:migrate` | Create / apply a Prisma migration |
 | `npm run db:seed` | Seed services, testimonials, hours |
 | `npm run db:studio` | Open Prisma Studio |
 
@@ -288,10 +315,15 @@ HTTPS is automatic on Vercel. Apple Pay / Google Pay need the domain verified in
 
 - Marketing: home, about, training, pricing, contact, privacy, cookies
 - Photo gallery of working gundogs in field and urban settings (Unsplash placeholders)
-- Booking: session type → UK time slots → intake → Stripe Checkout
+- Booking: session type → UK calendar/slots → intake → Stripe Checkout
+- Waitlist for a full day; cancelling or moving a session emails people waiting
+- Client cancel / reschedule from a token link in the confirmation email
 - Intake PDF stored in a private Supabase bucket
-- Admin: overview, bookings with filters/detail, clients (including GDPR delete), documents, availability, intakes, enquiries
+- Admin: overview, bookings with filters/detail, clients (including GDPR delete), documents, availability, waitlist, intakes, enquiries, analytics, support
 - Paid bookings confirm from the Stripe webhook and queue HTML + text emails
+- Next-day reminders via Vercel Cron; virtual reminders can include `VIRTUAL_MEETING_URL`
 - Abandoned checkouts release the slot after 30 minutes
 - Heath / Field public looks, cookie-persisted
+- Sample-site notes (`NEXT_PUBLIC_DEMO_MODE`) for showing the product without live trainer details
 - PWA manifest, Open Graph tags, cookie notice, RLS SQL to apply in Supabase
+- Unit tests for slots, checkout webhooks, emails, forms, reminders, and waitlist notify

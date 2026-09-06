@@ -18,4 +18,17 @@ describe("getAppUrl", () => {
   it("falls back to localhost when nothing valid is set", () => {
     expect(getAppUrl({ NEXT_PUBLIC_APP_URL: "   " })).toBe("http://localhost:3000");
   });
+
+  it("ignores a non-http NEXT_PUBLIC_APP_URL", () => {
+    expect(getAppUrl({ NEXT_PUBLIC_APP_URL: "ftp://example.com" })).toBe("http://localhost:3000");
+  });
+
+  it("prefers the production Vercel host over the deployment host", () => {
+    expect(
+      getAppUrl({
+        VERCEL_PROJECT_PRODUCTION_URL: "gundog.example",
+        VERCEL_URL: "gundog-trainer-git-main.vercel.app",
+      }),
+    ).toBe("https://gundog.example");
+  });
 });

@@ -1,13 +1,20 @@
 import { addMinutes } from "date-fns";
 import { describe, expect, it } from "vitest";
 import {
+  BUFFER_MINUTES_IN_PERSON,
+  BUFFER_MINUTES_VIRTUAL,
+  breakHoursError,
   buildAvailableSlots,
   buildOpenDateKeys,
   dateKeyHasFutureStarts,
   defaultWeeklyHours,
+  londonDay,
   occupiedWindow,
   parseLondon,
+  parseSlotStart,
   rulesFromDayHours,
+  sessionBufferMinutes,
+  windowsOverlap,
 } from "@/lib/availability-slots";
 
 const weekdayNineToFive = [1, 2, 3, 4, 5].map((dayOfWeek) => ({
@@ -37,6 +44,73 @@ describe("defaultWeeklyHours", () => {
       breakEndTime: "13:00",
       endTime: "17:00",
     });
+  });
+});
+
+describe("breakHoursError", () => {
+  const monday = {
+    ...defaultWeeklyHours([])[0],
+    isActive: true,
+    startTime: "09:00",
+    endTime: "17:00",
+    hasBreak: true,
+    breakStartTime: "12:00",
+    breakEndTime: "13:00",
+  };
+
+  it("accepts a lunch break inside opening hours", () => {
+    expect(breakHoursError(monday)).toBeNull();
+  });
+
+  it("rejects a break that sits outside opening hours", () => {
+    expect(breakHoursError({ ...monday, breakStartTime: "08:00" })).toMatch(/inside opening hours/);
+    expect(breakHoursError({ ...monday, breakEndTime: "12:00", breakStartTime: "12:00" })).toMatch(
+      /end after it starts/,
+    );
+  });
+
+  it("skips validation when the day is closed or has no break", () => {
+    expect(breakHoursError({ ...monday, isActive: false })).toBeNull();
+    expect(breakHoursError({ ...monday, hasBreak: false })).toBeNull();
+  });
+});
+
+describe("London wall-clock helpers", () => {
+  it("parses GMT and BST instants without shifting the calendar day", () => {
+    expect(parseLondon("2026-01-15", "10:00").toISOString()).toBe("2026-01-15T10:00:00.000Z");
+    expect(parseLondon("2026-07-01", "10:00").toISOString()).toBe("2026-07-01T09:00:00.000Z");
+    expect(londonDay(parseLondon("2026-07-01", "00:30"))).toBe("2026-07-01");
+  });
+
+  it("parses a slot ISO string back to a Date", () => {
+    const startsAt = parseLondon("2026-09-01", "09:00").toISOString();
+    expect(parseSlotStart(startsAt).toISOString()).toBe(startsAt);
+  });
+});
+
+describe("occupied windows", () => {
+  it("adds a longer buffer after in-person sessions than virtual", () => {
+    expect(sessionBufferMinutes("virtual")).toBe(BUFFER_MINUTES_VIRTUAL);
+    expect(sessionBufferMinutes("in_person")).toBe(BUFFER_MINUTES_IN_PERSON);
+
+    const start = parseLondon("2026-09-01", "10:00");
+    const window = occupiedWindow(start, 60, "in_person");
+    expect(window.start).toEqual(addMinutes(start, -BUFFER_MINUTES_IN_PERSON));
+    expect(window.end).toEqual(addMinutes(start, 60 + BUFFER_MINUTES_IN_PERSON));
+  });
+
+  it("treats touching windows as overlapping only when they share time", () => {
+    const ten = parseLondon("2026-09-01", "10:00");
+    const eleven = parseLondon("2026-09-01", "11:00");
+    expect(
+      windowsOverlap({ start: ten, end: eleven }, { start: eleven, end: parseLondon("2026-09-01", "12:00") }),
+    ).toBe(false);
+    expect(
+      windowsOverlap(
+        { start: ten, end: parseLondon("2026-09-01", "11:30") },
+        { start: eleven, end: parseLondon("2026-09-01", "12:00") },
+      ),
+    ).toBe(true);
   });
 });
 

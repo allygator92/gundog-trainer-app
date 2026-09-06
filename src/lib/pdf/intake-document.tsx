@@ -198,19 +198,20 @@ function Note({ label, value }: { label: string; value: string }) {
   );
 }
 
+function jpegDataUrl(filePath: string) {
+  return `data:image/jpeg;base64,${readFileSync(filePath).toString("base64")}`;
+}
+
 function brandLogoSrc() {
-  const candidates = [
-    join(process.cwd(), "src/lib/pdf/assets/logo.jpg"),
-    join(process.cwd(), "public/brand/logo.jpg"),
-  ];
-  for (const file of candidates) {
+  try {
+    return jpegDataUrl(join(process.cwd(), "src/lib/pdf/assets", "logo.jpg"));
+  } catch {
     try {
-      return `data:image/jpeg;base64,${readFileSync(file).toString("base64")}`;
+      return jpegDataUrl(join(process.cwd(), "public/brand", "logo.jpg"));
     } catch {
-      // Try the next bundled path.
+      return null;
     }
   }
-  return null;
 }
 
 export function IntakePdfDocument({

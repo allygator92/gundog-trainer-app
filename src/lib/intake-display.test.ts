@@ -20,4 +20,16 @@ describe("intakeRows", () => {
   it("returns nothing for missing snapshots", () => {
     expect(intakeRows(null)).toEqual([]);
   });
+
+  it("labels session type and yes/no answers for people", () => {
+    expect(
+      intakeRows({
+        meetingType: "in_person",
+        neutered: true,
+      }),
+    ).toEqual([
+      { label: "Session type", value: "In person" },
+      { label: "Neutered", value: "Yes" },
+    ]);
+  });
 });

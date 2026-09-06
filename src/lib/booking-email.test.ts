@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildBookingEmailCopy, formatBookingWhen } from "@/lib/booking-email";
+import {
+  buildBookingEmailCopy,
+  buildCancelledEmailCopy,
+  buildReminderEmailCopy,
+  buildWaitlistOpenedCopy,
+  formatBookingWhen,
+} from "@/lib/booking-email";
 import { parseLondon } from "@/lib/availability-slots";
 
 describe("buildBookingEmailCopy", () => {
@@ -46,5 +52,59 @@ describe("buildBookingEmailCopy", () => {
 
     expect(copy.client.text).toContain("10 Field Lane, York");
     expect(copy.trainer.text).toContain("10 Field Lane, York");
+  });
+});
+
+describe("buildReminderEmailCopy", () => {
+  it("includes tomorrow’s time and the manage link", () => {
+    const copy = buildReminderEmailCopy({
+      clientName: "Sam Owner",
+      clientEmail: "sam@example.com",
+      dogName: "Moss",
+      serviceName: "Virtual Training Session",
+      meetingType: "virtual",
+      startsAt: parseLondon("2026-09-07", "10:00"),
+      durationMinutes: 60,
+      pricePence: 6500,
+      manageUrl: "https://example.com/booking/abc",
+      meetingUrl: "https://meet.example/room",
+    });
+
+    expect(copy.subject).toContain("Moss");
+    expect(copy.subject).toContain("10:00");
+    expect(copy.text).toContain("tomorrow");
+    expect(copy.text).toContain("https://meet.example/room");
+    expect(copy.html).toContain("Session tomorrow");
+  });
+});
+
+describe("buildCancelledEmailCopy", () => {
+  it("points the client back to the book page", () => {
+    const copy = buildCancelledEmailCopy({
+      clientName: "Sam Owner",
+      clientEmail: "sam@example.com",
+      dogName: "Moss",
+      when: "Monday 7 September 2026 at 10:00",
+      bookUrl: "https://example.com/book",
+    });
+
+    expect(copy.to).toBe("sam@example.com");
+    expect(copy.subject).toContain("cancelled");
+    expect(copy.text).toContain("https://example.com/book");
+  });
+});
+
+describe("buildWaitlistOpenedCopy", () => {
+  it("tells the waiter a time has opened", () => {
+    const copy = buildWaitlistOpenedCopy({
+      name: "Sam",
+      email: "sam@example.com",
+      dateLabel: "Monday 7 September",
+      bookUrl: "https://example.com/book",
+    });
+
+    expect(copy.to).toBe("sam@example.com");
+    expect(copy.subject).toContain("Monday 7 September");
+    expect(copy.text).toContain("https://example.com/book");
   });
 });

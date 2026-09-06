@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
-import { summariseAnalytics } from "@/lib/analytics";
+import { isAnalyticsEventName, percent, summariseAnalytics } from "@/lib/analytics";
+
+describe("isAnalyticsEventName", () => {
+  it("accepts funnel events and rejects others", () => {
+    expect(isAnalyticsEventName("page_view")).toBe(true);
+    expect(isAnalyticsEventName("checkout_clicked")).toBe(true);
+    expect(isAnalyticsEventName("click")).toBe(false);
+  });
+});
+
+describe("percent", () => {
+  it("rounds a ratio to a whole percent", () => {
+    expect(percent(0.5)).toBe("50%");
+    expect(percent(0)).toBe("0%");
+  });
+});
 
 describe("summariseAnalytics", () => {
   it("counts unique booking drop-off and payment outcomes", () => {
@@ -23,5 +38,12 @@ describe("summariseAnalytics", () => {
     expect(stats.payments.confirmed).toBe(1);
     expect(stats.payments.abandonedRate).toBe(0.5);
     expect(stats.topPages[0]?.path).toBe("/book");
+  });
+
+  it("treats an empty diary as zero paid rate rather than NaN", () => {
+    const stats = summariseAnalytics([], []);
+    expect(stats.uniqueVisitors).toBe(0);
+    expect(stats.payments.paidRate).toBe(0);
+    expect(stats.payments.abandonedRate).toBe(0);
   });
 });
