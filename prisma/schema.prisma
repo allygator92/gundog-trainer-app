@@ -186,3 +186,45 @@ model WaitlistEntry {
   @@index([date])
   @@map("waitlist_entries")
 }
+
+enum SupportRequestKind {
+  bug
+  change
+  feature
+}
+
+enum SupportRequestStatus {
+  submitted
+  investigating
+  needs_feedback
+  resolved
+}
+
+model SupportRequest {
+  id               String                @id @default(cuid())
+  kind             SupportRequestKind
+  title            String
+  body             String
+  status           SupportRequestStatus  @default(submitted)
+  submittedBy      String                @map("submitted_by")
+  resolutionNotes  String?               @map("resolution_notes")
+  createdAt        DateTime              @default(now()) @map("created_at")
+  updatedAt        DateTime              @updatedAt @map("updated_at")
+  messages         SupportMessage[]
+
+  @@index([status, createdAt])
+  @@map("support_requests")
+}
+
+model SupportMessage {
+  id          String   @id @default(cuid())
+  requestId   String   @map("request_id")
+  authorEmail String   @map("author_email")
+  body        String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  request SupportRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt])
+  @@map("support_messages")
+}

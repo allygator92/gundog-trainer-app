@@ -2,6 +2,8 @@ import { addMinutes } from "date-fns";
 import { describe, expect, it } from "vitest";
 import {
   buildAvailableSlots,
+  buildOpenDateKeys,
+  dateKeyHasFutureStarts,
   defaultWeeklyHours,
   occupiedWindow,
   parseLondon,
@@ -139,5 +141,44 @@ describe("buildAvailableSlots", () => {
     expect(slots.map((slot) => slot.label)).not.toContain("10:00");
     expect(slots.map((slot) => slot.label)).not.toContain("11:00");
     expect(slots.map((slot) => slot.label)).toContain("12:00");
+  });
+});
+
+describe("buildOpenDateKeys", () => {
+  it("does not include the previous London calendar day around BST midnight", () => {
+    const keys = buildOpenDateKeys({
+      now: parseLondon("2026-09-06", "10:00"),
+      rules: weekdayNineToFive,
+      daysAhead: 1,
+    });
+
+    expect(keys).not.toContain("2026-09-05");
+    expect(keys).toEqual(["2026-09-07"]);
+  });
+});
+
+describe("dateKeyHasFutureStarts", () => {
+  it("is false once every remaining start on that day is already in the past", () => {
+    expect(
+      dateKeyHasFutureStarts({
+        dateKey: "2026-09-04",
+        now: parseLondon("2026-09-04", "16:30"),
+        rules: weekdayNineToFive,
+        durationMinutes: 60,
+        leadMinutes: 60,
+      }),
+    ).toBe(false);
+  });
+
+  it("is true when a later start is still bookable", () => {
+    expect(
+      dateKeyHasFutureStarts({
+        dateKey: "2026-09-04",
+        now: parseLondon("2026-09-04", "10:00"),
+        rules: weekdayNineToFive,
+        durationMinutes: 60,
+        leadMinutes: 60,
+      }),
+    ).toBe(true);
   });
 });

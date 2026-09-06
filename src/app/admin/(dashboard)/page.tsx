@@ -76,6 +76,11 @@ export default async function AdminDashboardPage() {
       description: "Intake PDFs and extra records.",
       href: "/admin/documents",
     },
+    {
+      title: "Support",
+      description: "Report a bug or ask for a change.",
+      href: "/admin/support",
+    },
   ];
 
   return (

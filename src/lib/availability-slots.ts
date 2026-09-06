@@ -1,5 +1,6 @@
-import { addMinutes, eachDayOfInterval, isBefore, parseISO } from "date-fns";
+import { addMinutes, isBefore, parseISO } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
+import { addDaysToDateKey } from "@/lib/calendar-grid";
 
 export const BOOKING_TIMEZONE = "Europe/London";
 export const PENDING_HOLD_MINUTES = 30;
@@ -137,6 +138,38 @@ export function parseLondon(dateKey: string, time: string) {
   return fromZonedTime(`${dateKey}T${time}:00`, BOOKING_TIMEZONE);
 }
 
+function londonDateKeys(now: Date, daysAhead: number) {
+  const start = londonDay(now);
+  return Array.from({ length: daysAhead + 1 }, (_, index) => addDaysToDateKey(start, index));
+}
+
+export function dateKeyHasFutureStarts(input: {
+  dateKey: string;
+  now: Date;
+  rules: SlotRule[];
+  durationMinutes: number;
+  leadMinutes?: number;
+}) {
+  const leadMinutes = input.leadMinutes ?? SLOT_LEAD_MINUTES;
+  const cutoff = addMinutes(input.now, leadMinutes);
+  const isoDay = Number(formatInTimeZone(parseLondon(input.dateKey, "12:00"), BOOKING_TIMEZONE, "i"));
+  const dayRules = input.rules.filter((rule) => rule.dayOfWeek === isoDay);
+
+  for (const rule of dayRules) {
+    let cursor = parseLondon(input.dateKey, rule.startTime);
+    const windowEnd = parseLondon(input.dateKey, rule.endTime);
+
+    while (!isBefore(windowEnd, addMinutes(cursor, input.durationMinutes))) {
+      if (!isBefore(cursor, cutoff)) {
+        return true;
+      }
+      cursor = addMinutes(cursor, input.durationMinutes);
+    }
+  }
+
+  return false;
+}
+
 export function parseSlotStart(startsAt: string) {
   return parseISO(startsAt);
 }
@@ -169,13 +202,9 @@ export function buildOpenDateKeys(input: {
 }): string[] {
   const blockedDays = new Set(input.blockedDays ?? []);
   const daysAhead = input.daysAhead ?? DAYS_AHEAD;
-  const rangeStart = parseLondon(londonDay(input.now), "00:00");
-  const rangeEnd = addMinutes(rangeStart, daysAhead * 24 * 60);
-  const days = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
   const open: string[] = [];
 
-  for (const day of days) {
-    const dateKey = londonDay(day);
+  for (const dateKey of londonDateKeys(input.now, daysAhead)) {
     if (blockedDays.has(dateKey)) {
       continue;
     }
@@ -202,13 +231,9 @@ export function buildAvailableSlots(input: {
   const daysAhead = input.daysAhead ?? DAYS_AHEAD;
   const leadMinutes = input.leadMinutes ?? SLOT_LEAD_MINUTES;
 
-  const rangeStart = parseLondon(londonDay(input.now), "00:00");
-  const rangeEnd = addMinutes(rangeStart, daysAhead * 24 * 60);
-  const days = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
   const slots: AvailableSlot[] = [];
 
-  for (const day of days) {
-    const dateKey = londonDay(day);
+  for (const dateKey of londonDateKeys(input.now, daysAhead)) {
     if (blockedDays.has(dateKey)) {
       continue;
     }

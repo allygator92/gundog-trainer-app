@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDaysToDateKey, monthGrid, parseDateKey, shiftMonth } from "@/lib/calendar-grid";
+import { addDaysToDateKey, monthGrid, parseDateKey, shiftMonth, utcDateKey, utcNoonFromDateKey } from "@/lib/calendar-grid";
 
 describe("monthGrid", () => {
   it("starts the week on Monday", () => {
@@ -19,5 +19,11 @@ describe("date key helpers", () => {
 
   it("shifts months into the next year", () => {
     expect(shiftMonth(2026, 12, 1)).toEqual({ year: 2027, month: 1 });
+  });
+
+  it("stores calendar dates at UTC noon so BST cannot shift the day", () => {
+    const stored = utcNoonFromDateKey("2026-09-06");
+    expect(stored.toISOString()).toBe("2026-09-06T12:00:00.000Z");
+    expect(utcDateKey(stored)).toBe("2026-09-06");
   });
 });

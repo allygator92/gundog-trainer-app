@@ -60,8 +60,7 @@ export function ContactForm({ privacyNote }: { privacyNote: string }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-5 rounded-xl border bg-card p-6 shadow-sm">
-      <div className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
-        <label htmlFor="website">Website</label>
+      <div className="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
         <input id="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" {...register("website")} />
       </div>
 

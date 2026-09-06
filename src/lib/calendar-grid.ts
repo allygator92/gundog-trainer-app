@@ -61,3 +61,13 @@ export function formatDateKeyLong(dateKey: string) {
 export function todayDateKey(now = new Date()) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(now);
 }
+
+/** Calendar DATE writes: UTC noon so BST midnight cannot store the previous day. */
+export function utcNoonFromDateKey(dateKey: string) {
+  const { year, month, day } = parseDateKey(dateKey);
+  return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+}
+
+export function utcDateKey(date: Date) {
+  return dateKeyFromParts(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
+}

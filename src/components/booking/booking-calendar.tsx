@@ -61,7 +61,7 @@ export function BookingCalendar({
     if (slotsByDate.has(dateKey)) {
       return "available";
     }
-    if (fullDays.has(dateKey)) {
+    if (fullDays.has(dateKey) && dateKey >= today) {
       return "full";
     }
     if (!inMonth) {
@@ -70,7 +70,9 @@ export function BookingCalendar({
     return "muted";
   }
 
-  const selectedIsFull = Boolean(selectedDate && fullDays.has(selectedDate) && dateSlots.length === 0);
+  const selectedIsFull = Boolean(
+    selectedDate && selectedDate >= today && fullDays.has(selectedDate) && dateSlots.length === 0,
+  );
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)]">
@@ -91,13 +93,15 @@ export function BookingCalendar({
           minMonth={minMonth ? { year: minMonth.year, month: minMonth.month } : undefined}
           maxMonth={maxMonth ? { year: maxMonth.year, month: maxMonth.month } : undefined}
           dayTone={dayTone}
-          dayDisabled={(dateKey) => !slotsByDate.has(dateKey) && !fullDays.has(dateKey)}
+          dayDisabled={(dateKey) =>
+            !slotsByDate.has(dateKey) && !(fullDays.has(dateKey) && dateKey >= today)
+          }
           dayLabel={(dateKey) => {
             const count = slotsByDate.get(dateKey)?.length ?? 0;
             if (count) {
               return `${dateKey}, ${count} times`;
             }
-            if (fullDays.has(dateKey)) {
+            if (fullDays.has(dateKey) && dateKey >= today) {
               return `${dateKey}, full — join waitlist`;
             }
             return `${dateKey}, no times`;

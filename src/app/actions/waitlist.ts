@@ -4,7 +4,8 @@ import { z } from "zod";
 import { headers } from "next/headers";
 import { formatInTimeZone } from "date-fns-tz";
 import { revalidatePath } from "next/cache";
-import { BOOKING_TIMEZONE, parseLondon } from "@/lib/availability";
+import { BOOKING_TIMEZONE, dateKeyHasFutureStarts, londonDay, parseLondon } from "@/lib/availability";
+import { utcNoonFromDateKey } from "@/lib/calendar-grid";
 import { sendWaitlistJoinedNotification } from "@/lib/email";
 import { isRateLimited } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
@@ -28,12 +29,35 @@ export async function joinWaitlistAction(input: unknown) {
     return { ok: false as const, error: "Too many waitlist requests. Please try again later." };
   }
 
+  const now = new Date();
+  const today = londonDay(now);
+  if (parsed.data.dateKey < today) {
+    return { ok: false as const, error: "That day has already passed." };
+  }
+
+  const [rules, service] = await Promise.all([
+    prisma.availabilityRule.findMany({ where: { isActive: true } }),
+    parsed.data.serviceId
+      ? prisma.service.findUnique({ where: { id: parsed.data.serviceId }, select: { durationMinutes: true } })
+      : Promise.resolve(null),
+  ]);
+  if (
+    !dateKeyHasFutureStarts({
+      dateKey: parsed.data.dateKey,
+      now,
+      rules,
+      durationMinutes: service?.durationMinutes ?? 60,
+    })
+  ) {
+    return { ok: false as const, error: "That day’s remaining times have already passed." };
+  }
+
   try {
     await prisma.waitlistEntry.create({
       data: {
         name: parsed.data.name,
         email: parsed.data.email.toLowerCase(),
-        date: parseLondon(parsed.data.dateKey, "00:00"),
+        date: utcNoonFromDateKey(parsed.data.dateKey),
         serviceId: parsed.data.serviceId || undefined,
       },
     });

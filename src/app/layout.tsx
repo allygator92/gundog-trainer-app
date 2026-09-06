@@ -54,10 +54,19 @@ export const metadata: Metadata = {
     description: site.description,
     images: [site.images.hero],
   },
+  icons: {
+    icon: [{ url: "/brand/logo.jpg", type: "image/jpeg" }],
+    apple: [{ url: "/brand/logo.jpg" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: site.name,
+    statusBarStyle: "default",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#24344d",
+  themeColor: "#1e3d32",
 };
 
 export default function RootLayout({

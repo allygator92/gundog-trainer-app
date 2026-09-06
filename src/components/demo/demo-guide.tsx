@@ -1,16 +1,31 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { usePathname } from "next/navigation";
 import { demo } from "@content/demo";
 import { DemoTestCard } from "@/components/demo/demo-callout";
 import { Button } from "@/components/ui/button";
-import { DEMO_WELCOME_KEY, isDemoEnabled } from "@/lib/demo";
+import { DEMO_WELCOME_KEY, isDemoEnabled, sampleNotesForPath, type DemoNote } from "@/lib/demo";
+
+function NoteSection({ note, showTestCard }: { note: DemoNote; showTestCard?: boolean }) {
+  return (
+    <section>
+      <h3 className="font-medium">{note.title}</h3>
+      <p className="mt-1 text-muted-foreground">{note.body}</p>
+      {showTestCard ? <DemoTestCard /> : null}
+      {note.afterPay ? <p className="mt-2 text-muted-foreground">{note.afterPay}</p> : null}
+      {note.untilLive ? <p className="mt-2 text-muted-foreground">{note.untilLive}</p> : null}
+    </section>
+  );
+}
 
 export function DemoGuide() {
   const titleId = useId();
+  const pathname = usePathname();
   const [ready, setReady] = useState(false);
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
+  const notes = sampleNotesForPath(pathname);
 
   useEffect(() => {
     if (!isDemoEnabled()) {
@@ -100,24 +115,9 @@ export function DemoGuide() {
               </button>
             </div>
             <div className="mt-4 space-y-4 text-sm">
-              <section>
-                <h3 className="font-medium">{demo.payment.title}</h3>
-                <p className="mt-1 text-muted-foreground">{demo.payment.body}</p>
-                <DemoTestCard />
-                <p className="mt-2 text-muted-foreground">{demo.payment.afterPay}</p>
-              </section>
-              <section>
-                <h3 className="font-medium">{demo.contact.title}</h3>
-                <p className="mt-1 text-muted-foreground">{demo.contact.body}</p>
-              </section>
-              <section>
-                <h3 className="font-medium">{demo.about.title}</h3>
-                <p className="mt-1 text-muted-foreground">{demo.about.body}</p>
-              </section>
-              <section>
-                <h3 className="font-medium">{demo.admin.title}</h3>
-                <p className="mt-1 text-muted-foreground">{demo.admin.body}</p>
-              </section>
+              {notes.map((note) => (
+                <NoteSection key={note.title} note={note} showTestCard={note.title === demo.payment.title} />
+              ))}
             </div>
           </div>
         ) : null}

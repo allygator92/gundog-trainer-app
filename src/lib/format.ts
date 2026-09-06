@@ -30,3 +30,28 @@ export function formatBookingStatus(status: "pending_payment" | "confirmed" | "c
 export function formatDocumentType(type: "intake_pdf" | "record"): string {
   return type === "intake_pdf" ? "Intake PDF" : "Record";
 }
+
+export function formatSupportKind(kind: "bug" | "change" | "feature"): string {
+  if (kind === "bug") {
+    return "Bug";
+  }
+  if (kind === "change") {
+    return "Change";
+  }
+  return "New feature";
+}
+
+export function formatSupportStatus(
+  status: "submitted" | "investigating" | "needs_feedback" | "resolved",
+): string {
+  if (status === "submitted") {
+    return "Received";
+  }
+  if (status === "investigating") {
+    return "Investigating";
+  }
+  if (status === "needs_feedback") {
+    return "Needs your reply";
+  }
+  return "Fixed / implemented";
+}
