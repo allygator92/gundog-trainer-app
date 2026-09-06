@@ -2,12 +2,13 @@ import { addHours } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { getAppUrl } from "@/lib/app-url";
 import { BOOKING_TIMEZONE, londonDay, parseLondon } from "@/lib/availability-slots";
+import { utcNoonFromDateKey } from "@/lib/calendar-grid";
 import { sendWaitlistOpenedEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 
 export async function notifyWaitlistForDate(date: Date) {
   const dateKey = londonDay(date);
-  const day = parseLondon(dateKey, "00:00");
+  const day = utcNoonFromDateKey(dateKey);
   const cutoff = addHours(new Date(), -6);
   const entries = await prisma.waitlistEntry.findMany({
     where: {

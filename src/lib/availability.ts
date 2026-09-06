@@ -8,6 +8,7 @@ import {
   breakHoursError,
   buildAvailableSlots,
   buildOpenDateKeys,
+  dateKeyHasFutureStarts,
   defaultWeeklyHours,
   londonDay,
   occupiedWindow,
@@ -28,6 +29,7 @@ export {
   breakHoursError,
   buildAvailableSlots,
   buildOpenDateKeys,
+  dateKeyHasFutureStarts,
   defaultWeeklyHours,
   londonDay,
   occupiedWindow,
@@ -96,7 +98,16 @@ export async function getCalendarAvailability(serviceId: string, ignoreBookingId
   });
   const openDateKeys = buildOpenDateKeys({ now, rules, blockedDays });
   const bookedDays = new Set(slots.map((slot) => slot.dateKey));
-  const fullDateKeys = openDateKeys.filter((dateKey) => !bookedDays.has(dateKey));
+  const fullDateKeys = openDateKeys.filter(
+    (dateKey) =>
+      !bookedDays.has(dateKey) &&
+      dateKeyHasFutureStarts({
+        dateKey,
+        now,
+        rules,
+        durationMinutes: service.durationMinutes,
+      }),
+  );
 
   return { slots, fullDateKeys };
 }

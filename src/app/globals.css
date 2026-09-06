@@ -376,6 +376,10 @@
   background: var(--card);
 }
 
+.admin-header-actions {
+  min-width: 0;
+}
+
 [data-theme="field"] .admin-header {
   background: var(--primary);
   color: var(--primary-foreground);
@@ -392,8 +396,14 @@
 
 [data-theme="field"] .admin-header .site-logo {
   color: var(--accent);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+  [data-theme="field"] .admin-header .site-logo {
+    letter-spacing: 0.14em;
+  }
 }
 
 [data-theme="field"] .admin-header .admin-user-email {

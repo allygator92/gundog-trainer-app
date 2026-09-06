@@ -12,4 +12,6 @@ test("sample-site welcome explains placeholders and payments", async ({ page }) 
   await page.getByRole("button", { name: demo.launcherLabel }).click();
   await expect(page.getByText(demo.payment.testCardLabel)).toBeVisible();
   await expect(page.getByText("4242 4242 4242 4242")).toBeVisible();
+  await expect(page.getByRole("heading", { name: demo.admin.title })).toBeVisible();
+  await expect(page.getByRole("heading", { name: demo.cookies.title })).toBeVisible();
 });

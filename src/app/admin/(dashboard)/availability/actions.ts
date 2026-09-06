@@ -3,10 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/admin-auth";
-import { BOOKING_TIMEZONE, breakHoursError, rulesFromDayHours, WEEKDAYS, type DayHours } from "@/lib/availability";
+import { breakHoursError, rulesFromDayHours, WEEKDAYS, type DayHours } from "@/lib/availability";
 import { eachDateKeyInclusive, isDateKey, MAX_BLOCKED_RANGE_DAYS } from "@/lib/blocked-dates";
 import { prisma } from "@/lib/prisma";
-import { fromZonedTime } from "date-fns-tz";
+import { utcNoonFromDateKey } from "@/lib/calendar-grid";
 
 const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
 const timeSchema = z
@@ -84,7 +84,7 @@ export async function addBlockedDateAction(formData: FormData) {
 
   const result = await prisma.blockedDate.createMany({
     data: dateKeys.map((dateKey) => ({
-      date: fromZonedTime(`${dateKey}T00:00:00`, BOOKING_TIMEZONE),
+      date: utcNoonFromDateKey(dateKey),
       reason: reason || undefined,
     })),
     skipDuplicates: true,

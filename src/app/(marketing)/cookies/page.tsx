@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { cookiesContent } from "@content/privacy";
+import { demo } from "@content/demo";
+import { DemoCallout } from "@/components/demo/demo-callout";
 import { PageHeader } from "@/components/marketing/page-header";
 
 export const metadata: Metadata = {
@@ -15,6 +17,10 @@ export default function CookiesPage() {
         title={cookiesContent.title}
         description={`Last updated ${cookiesContent.updated}. ${cookiesContent.intro}`}
       />
+      <DemoCallout title={demo.cookies.title} className="mb-8">
+        <p>{demo.cookies.body}</p>
+        <p>{demo.cookies.untilLive}</p>
+      </DemoCallout>
       <ul className="space-y-3">
         {cookiesContent.rows.map((row) => (
           <li key={row.name} className="rounded-xl border bg-card p-4">
