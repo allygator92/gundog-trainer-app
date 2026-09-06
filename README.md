@@ -157,7 +157,7 @@ Confirmation emails include a `/booking/[token]` link to cancel or reschedule (`
 
 ### Admin dashboard
 
-`/admin` is gated by Supabase Auth (`requireAdmin` + middleware session refresh). There is no extra roles table — anyone who can sign in is the trainer.
+`/admin` is gated by Supabase Auth (`requireAdmin` + session refresh in `src/proxy.ts`). There is no extra roles table — anyone who can sign in is the trainer.
 
 | Page | What it is for |
 |------|----------------|
@@ -182,7 +182,7 @@ Deleting a client (GDPR) removes their dogs, bookings, and private files. Type t
 
 ### Security (RLS and secrets)
 
-- Admin routes are behind Supabase Auth middleware.
+- Admin routes are behind Supabase Auth (`src/proxy.ts`).
 - Prisma talks to Postgres with `DATABASE_URL` (the database role). That **bypasses** Row Level Security.
 - `supabase/rls.sql` turns RLS on for every public table with **no anon policies**, so a leaked `NEXT_PUBLIC_SUPABASE_ANON_KEY` cannot read PII through PostgREST. Run that SQL in the Supabase SQL editor after `db:push`.
 - Storage bucket `client-documents` is private. Downloads are 10-minute signed URLs after an admin session check.
