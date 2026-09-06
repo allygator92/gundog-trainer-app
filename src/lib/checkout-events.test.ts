@@ -96,4 +96,25 @@ describe("applyCheckoutSessionEvent", () => {
     } as Stripe.Event);
     expect(result).toEqual({ action: "ignored" });
   });
+
+  it("ignores a checkout event with no booking id", async () => {
+    const result = await applyCheckoutSessionEvent(
+      checkoutEvent("checkout.session.completed", { metadata: {}, client_reference_id: null }),
+    );
+    expect(result).toEqual({ action: "ignored" });
+    expect(findUnique).not.toHaveBeenCalled();
+  });
+
+  it("ignores a completed session for a booking that no longer exists", async () => {
+    findUnique.mockResolvedValue(null);
+    const result = await applyCheckoutSessionEvent(checkoutEvent("checkout.session.completed"));
+    expect(result).toEqual({ action: "ignored" });
+    expect(sendBookingConfirmationEmails).not.toHaveBeenCalled();
+  });
+
+  it("releases the slot when an async payment fails", async () => {
+    const result = await applyCheckoutSessionEvent(checkoutEvent("checkout.session.async_payment_failed"));
+    expect(result).toEqual({ action: "cancelled", bookingId: "booking_1" });
+    expect(updateMany).toHaveBeenCalled();
+  });
 });

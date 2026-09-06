@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { adminHeaderLayout } from "@/lib/admin-header-layout";
-import { rectsOverlap, type Rect } from "@/lib/layout-overlap";
+import { assertNoOverlap, rectsOverlap, type Rect } from "@/lib/layout-overlap";
 
 const phoneBrand: Rect = { x: 16, y: 16, width: 210, height: 36 };
 const phoneToggle: Rect = { x: 230, y: 16, width: 140, height: 32 };
@@ -20,6 +20,20 @@ describe("rectsOverlap", () => {
     expect(rectsOverlap(phoneBrand, phoneToggle)).toBe(false);
     expect(rectsOverlap(phoneBrand, phoneActions)).toBe(false);
     expect(rectsOverlap(phoneToggle, phoneActions)).toBe(false);
+  });
+});
+
+describe("assertNoOverlap", () => {
+  it("throws when a box is missing", () => {
+    expect(() => assertNoOverlap(null, phoneToggle, "header")).toThrow(/missing bounding box/);
+  });
+
+  it("throws when two boxes share interior pixels", () => {
+    expect(() => assertNoOverlap(phoneBrand, overlappingActions, "header")).toThrow(/overlap/);
+  });
+
+  it("passes when the header rows sit apart", () => {
+    expect(() => assertNoOverlap(phoneBrand, phoneActions, "header")).not.toThrow();
   });
 });
 

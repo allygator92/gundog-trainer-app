@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { eachDateKeyInclusive, groupBlockedRanges } from "@/lib/blocked-dates";
+import { eachDateKeyInclusive, groupBlockedRanges, isDateKey } from "@/lib/blocked-dates";
+
+describe("isDateKey", () => {
+  it("accepts YYYY-MM-DD calendar keys", () => {
+    expect(isDateKey("2026-09-07")).toBe(true);
+    expect(isDateKey("07-09-2026")).toBe(false);
+    expect(isDateKey("2026-9-7")).toBe(false);
+  });
+});
 
 describe("eachDateKeyInclusive", () => {
   it("includes both ends and accepts reversed order", () => {
@@ -22,5 +30,13 @@ describe("groupBlockedRanges", () => {
     expect(groups).toHaveLength(2);
     expect(groups[0]).toMatchObject({ ids: ["a", "b"], startKey: "2026-09-01", endKey: "2026-09-02" });
     expect(groups[1]).toMatchObject({ ids: ["c"], startKey: "2026-09-04", endKey: "2026-09-04" });
+  });
+
+  it("does not merge consecutive days with different reasons", () => {
+    const groups = groupBlockedRanges([
+      { id: "a", dateKey: "2026-09-01", dateLabel: "Tue 1", reason: "Holiday" },
+      { id: "b", dateKey: "2026-09-02", dateLabel: "Wed 2", reason: "Travel" },
+    ]);
+    expect(groups).toHaveLength(2);
   });
 });
