@@ -25,7 +25,7 @@ export async function submitContactAction(input: unknown): Promise<ContactFormSt
   }
 
   if (parsed.data.website) {
-    return { status: "success", message: "Thanks — I’ll get back to you shortly." };
+    return { status: "success", message: "Thanks - I’ll get back to you shortly." };
   }
 
   const headerStore = await headers();
@@ -53,5 +53,5 @@ export async function submitContactAction(input: unknown): Promise<ContactFormSt
     message: parsed.data.message,
   });
 
-  return { status: "success", message: "Thanks — I’ll get back to you shortly." };
+  return { status: "success", message: "Thanks - I’ll get back to you shortly." };
 }

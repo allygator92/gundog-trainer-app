@@ -2,7 +2,7 @@ export const sessionExpectContent = {
   id: "sessions",
   heading: "What to expect in a session",
   intro:
-    "Sessions are one-to-one and built around the dog in front of us — not a generic syllabus. You leave with homework you can actually do in a spare twenty minutes.",
+    "Sessions are one-to-one and built around the dog in front of us - not a generic syllabus. You leave with homework you can actually do in a spare twenty minutes.",
   blocks: [
     {
       title: "How a session typically runs",
@@ -10,15 +10,15 @@ export const sessionExpectContent = {
     },
     {
       title: "What you should bring",
-      body: "A slip lead is the most useful bit of kit — a flat collar and ordinary lead is fine if that is what you have. Bring water for the dog, weather-proof clothing for you, and any food or toy you already use as payment. If the dog wears a GPS or training collar, bring that too so we can see the real picture.",
+      body: "A slip lead is the most useful bit of kit - a flat collar and ordinary lead is fine if that is what you have. Bring water for the dog, weather-proof clothing for you, and any food or toy you already use as payment. If the dog wears a GPS or training collar, bring that too so we can see the real picture.",
     },
     {
       title: "What I can provide",
-      body: "Dummies, a whistle to try, a place board or box, and a long line if we need a safety net. I can lend kit for the hour so you do not have to buy everything before we know what suits the dog. You keep your own lead and the relationship — the extras are there to teach the picture, not to replace your handling.",
+      body: "Dummies, a whistle to try, a place board or box, and a long line if we need a safety net. I can lend kit for the hour so you do not have to buy everything before we know what suits the dog. You keep your own lead and the relationship - the extras are there to teach the picture, not to replace your handling.",
     },
     {
       title: "More than one dog",
-      body: "The recommendation is separate sessions. Each dog needs your full attention, and two aroused gundogs in one hour usually means neither gets a clean picture. Once the basics are there we can book a household session for heel, settle, and manners around each other — say so on the intake. Puppies from the same home can sometimes share an assessment; working adults almost always do better one at a time.",
+      body: "The recommendation is separate sessions. Each dog needs your full attention, and two aroused gundogs in one hour usually means neither gets a clean picture. Once the basics are there we can book a household session for heel, settle, and manners around each other - say so on the intake. Puppies from the same home can sometimes share an assessment; working adults almost always do better one at a time.",
     },
   ],
 } as const;
@@ -39,7 +39,7 @@ export const faqContent = {
     {
       question: "Can two dogs share a session?",
       answer:
-        "Usually not for the first sessions. The honest recommendation is one dog per hour so we can train, not just manage. A later household session for manners around each other is possible — tell me on the intake and we will plan it.",
+        "Usually not for the first sessions. The honest recommendation is one dog per hour so we can train, not just manage. A later household session for manners around each other is possible - tell me on the intake and we will plan it.",
     },
     {
       question: "Where do in-person sessions happen?",
@@ -49,7 +49,7 @@ export const faqContent = {
     {
       question: "How do virtual sessions work?",
       answer:
-        "We meet on a video call. You handle your dog; I coach. A reminder with the join link is sent the day before. You do not need a special app.",
+        "We meet on a video call. You handle your dog; I coach whistle timing, handling, and homework. A video hour cannot cover shot, water, or cover. A reminder with the join link is sent the day before. You do not need a special app.",
     },
     {
       question: "What if I need to cancel or change the time?",

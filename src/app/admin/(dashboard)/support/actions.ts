@@ -153,5 +153,5 @@ export async function addSupportFeedbackAction(input: unknown) {
 
   revalidatePath("/admin/support");
   revalidatePath(`/admin/support/${existing.id}`);
-  return { ok: true as const, message: "Thanks — your extra detail has been sent." };
+  return { ok: true as const, message: "Thanks - your extra detail has been sent." };
 }

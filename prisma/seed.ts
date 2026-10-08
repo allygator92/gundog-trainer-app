@@ -10,7 +10,7 @@ async function main() {
       durationMinutes: 60,
       pricePence: 6500,
       description:
-        "One-to-one video call training session. Ideal for recall, obedience, and behaviour troubleshooting from home.",
+        "A one-to-one video hour for whistle timing, handling, and homework. Shot, water, and cover need an in-person hour.",
     },
     {
       name: "In-Person Training Session",
@@ -18,7 +18,7 @@ async function main() {
       durationMinutes: 90,
       pricePence: 9500,
       description:
-        "Hands-on gundog training at your home or local outdoor area. Includes assessment and a tailored training plan.",
+        "Ninety minutes on your ground for the dog’s job: steadiness, dummy work, a spaniel’s pattern, or a retriever quiet at the peg.",
     },
   ];
 
@@ -35,21 +35,21 @@ async function main() {
       quote:
         "Our spaniel's recall improved dramatically after just two sessions. Professional, patient, and clearly passionate about gundogs.",
       author: "Sarah M.",
-      isPublished: true,
+      isPublished: false,
       sortOrder: 1,
     },
     {
       quote:
-        "The virtual sessions were perfect for us — flexible scheduling and practical advice we could use straight away in the field.",
+        "The virtual sessions were perfect for us - flexible scheduling and practical advice we could use straight away in the field.",
       author: "James T.",
-      isPublished: true,
+      isPublished: false,
       sortOrder: 2,
     },
     {
       quote:
         "Highly recommend. Clear communication, fair pricing, and a real understanding of working breeds.",
       author: "Emma R.",
-      isPublished: true,
+      isPublished: false,
       sortOrder: 3,
     },
   ];
@@ -60,6 +60,11 @@ async function main() {
     });
     if (!existing) {
       await prisma.testimonial.create({ data: testimonial });
+    } else if (existing.isPublished) {
+      await prisma.testimonial.update({
+        where: { id: existing.id },
+        data: { isPublished: false },
+      });
     }
   }
 

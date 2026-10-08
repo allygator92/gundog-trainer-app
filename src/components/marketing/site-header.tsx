@@ -34,12 +34,12 @@ export function SiteHeader({ theme }: { theme: SiteTheme }) {
   return (
     <header className="site-header sticky top-0 z-50" data-testid="site-header">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6">
-        <Link href="/" className="flex min-w-0 flex-1 items-center pr-2" aria-label={`${site.name} home`}>
+        <Link href="/" className="flex shrink-0 items-center pr-2" aria-label={`${site.name} home`}>
           <BrandLockup priority />
         </Link>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3" data-testid="site-header-controls">
-          <nav className="hidden items-center gap-6 text-sm md:flex" aria-label="Primary">
+          <nav className="hidden items-center gap-3 text-sm lg:flex xl:gap-5" aria-label="Primary">
             {navigation.map((item) => (
               <Link
                 key={item.href}
@@ -60,7 +60,7 @@ export function SiteHeader({ theme }: { theme: SiteTheme }) {
 
           <button
             type="button"
-            className="site-menu-button inline-flex h-11 w-11 items-center justify-center rounded-md border border-input md:hidden"
+            className="site-menu-button inline-flex h-11 w-11 items-center justify-center rounded-md border border-input lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-haspopup="true"
@@ -75,7 +75,7 @@ export function SiteHeader({ theme }: { theme: SiteTheme }) {
       {open ? (
         <nav
           id="mobile-nav"
-          className="site-mobile-nav space-y-1 border-t border-border px-4 py-4 md:hidden"
+          className="site-mobile-nav space-y-1 border-t border-border px-4 py-4 lg:hidden"
           aria-label="Mobile"
         >
           {navigation.map((item) => (

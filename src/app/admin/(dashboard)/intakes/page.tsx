@@ -21,7 +21,7 @@ export default async function AdminIntakesPage() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Intakes</h2>
         <p className="mt-1 text-muted-foreground">
-          Submitted dog intake forms. Open Intakes after you sign in — the login page itself does not list them.
+          Submitted dog intake forms. Open Intakes after you sign in - the login page itself does not list them.
           PDF links expire after 10 minutes.
         </p>
       </div>

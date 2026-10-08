@@ -119,7 +119,7 @@ export default async function AdminBookingsPage({
                     </div>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {booking.stripePaymentIntentId ? "Paid" : booking.stripeSessionId ? "Checkout started" : "—"}
+                    {booking.stripePaymentIntentId ? "Paid" : booking.stripeSessionId ? "Checkout started" : "-"}
                   </td>
                   <td className="px-4 py-3">
                     <BookingStatusBadge status={booking.status} />

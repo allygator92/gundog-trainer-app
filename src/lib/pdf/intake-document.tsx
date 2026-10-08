@@ -2,7 +2,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { Document, Image, Page, Text, View, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
 import { site } from "@content/site";
-import { formatIntakeAddress, type IntakeFormValues } from "@/lib/validations/intake";
+import {
+  dogJobLabels,
+  formatDogAge,
+  formatIntakeAddress,
+  groundLabels,
+  startedLabels,
+  steadyLabels,
+  type IntakeFormValues,
+} from "@/lib/validations/intake";
 
 const colors = {
   green: "#1e3d32",
@@ -101,7 +109,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   label: {
-    width: 92,
+    width: 118,
     fontSize: 8,
     color: colors.muted,
     textTransform: "uppercase",
@@ -164,8 +172,15 @@ const styles = StyleSheet.create({
   },
 });
 
+function choiceLabel<T extends string>(labels: Record<T, string>, value: T | "") {
+  if (!value) {
+    return "Not set";
+  }
+  return labels[value];
+}
+
 function titleCase(value: string) {
-  return value ? value.charAt(0).toUpperCase() + value.slice(1) : "—";
+  return value ? value.charAt(0).toUpperCase() + value.slice(1) : "-";
 }
 
 export function formatConsentedAt(iso: string) {
@@ -184,7 +199,7 @@ function Field({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.row}>
       <Text style={styles.label}>{label}</Text>
-      <Text style={styles.value}>{value || "—"}</Text>
+      <Text style={styles.value}>{value || "-"}</Text>
     </View>
   );
 }
@@ -261,10 +276,21 @@ export function IntakePdfDocument({
               <Text style={styles.sectionTitle}>Dog</Text>
               <Field label="Name" value={values.dogName} />
               <Field label="Breed" value={values.breed} />
-              <Field label="Age" value={`${values.ageYears} years`} />
+              <Field label="Age" value={formatDogAge(values)} />
+              <Field label="Job" value={choiceLabel(dogJobLabels, values.dogJob)} />
               <Field label="Sex" value={titleCase(values.sex)} />
               <Field label="Neutered" value={values.neutered ? "Yes" : "No"} />
             </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>The job</Text>
+            <Field label="Dummy work" value={choiceLabel(startedLabels, values.dummyWork)} />
+            <Field label="Whistle" value={choiceLabel(startedLabels, values.whistle)} />
+            <Field label="Birds" value={choiceLabel(steadyLabels, values.steadyBirds)} />
+            <Field label="Other dogs" value={choiceLabel(steadyLabels, values.steadyDogs)} />
+            <Field label="Shot" value={choiceLabel(steadyLabels, values.steadyShot)} />
+            <Field label="Ground" value={choiceLabel(groundLabels, values.hasGround)} />
           </View>
 
           <View style={styles.section}>

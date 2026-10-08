@@ -74,7 +74,7 @@ How it is wired:
 1. `src/app/(marketing)/layout.tsx` reads the `gundog-theme` cookie and sets `data-theme="heath" | "field"` on a wrapper.
 2. `src/components/theme/theme-toggle.tsx` writes that cookie in the browser and updates `data-theme` immediately so the page does not need a full reload.
 3. `src/app/globals.css` scopes Field overrides with `[data-theme="field"]`. Tokens such as `--primary` and `--font-display-family` switch with the attribute.
-4. Admin routes are **not** inside `(marketing)`, so they never pick up Field. Keep it that way — a diary UI in brass serif is harder to scan.
+4. Admin routes are **not** inside `(marketing)`, so they never pick up Field. Keep it that way - a diary UI in brass serif is harder to scan.
 
 The Field header is navy with cream text. The mobile menu panel is cream. Menu links must set their own dark colour (`.site-mobile-link`) or they inherit cream-on-cream and disappear. Footer links on Field need `.site-footer-link` for the same reason: Tailwind `text-muted-foreground` is a dark navy that vanishes on a navy footer.
 
@@ -107,7 +107,7 @@ Pages that read the database set `export const dynamic = "force-dynamic"` so ser
 | Site name, nav, Unsplash image URLs | Services, prices, durations |
 | Home / about / training copy | Availability rules, blocked dates |
 | Intake question wording | Clients, dogs, bookings |
-| Privacy text | Intake PDFs (path only — file in Storage) |
+| Privacy text | Intake PDFs (path only - file in Storage) |
 | | Contact enquiries, testimonials |
 
 `content/site.ts` is the switchboard for the logo name, contact details, nav, and photos. Swap gallery URLs there; do not hardcode Unsplash links in components.
@@ -116,12 +116,12 @@ Pages that read the database set `export const dynamic = "force-dynamic"` so ser
 
 A booking is not “paid” when the client clicks **Pay securely**. The sequence is:
 
-1. **Session** — client picks a `Service`. `getSlotsAction` asks the availability engine for that service’s duration.
-2. **Time** — client picks an ISO start (`startsAt`). A full day can take a waitlist instead. Nothing is reserved yet.
-3. **Intake** — `submitIntakeAction` upserts a `Client` by **email**. A returning owner can pick an existing dog (`existingDogId`) and skip a new goals write-up. Otherwise it creates a new `Dog`, stores JSON intake fields, generates a PDF, uploads it to a **private** Supabase bucket, and writes a `Document` row. The wizard returns `clientId` + `dogId` to the booking flow. There is no client login; identity is the email address.
-4. **Pay** — `createCheckoutAction` re-checks the slot is still free, inserts a booking with `status: pending_payment`, then creates a Stripe Checkout Session that holds `bookingId` in metadata. The browser redirects to Stripe.
-5. **Confirmed** — only the **webhook** (`checkout.session.completed` or `async_payment_succeeded`) flips the row to `confirmed` and sends emails. The success page is not trusted to do this.
-6. **Cancelled / abandoned** — Stripe `expired` / `async_payment_failed`, or a hold older than **30 minutes**, sets `pending_payment` → `cancelled` so the slot is offered again.
+1. **Session** - client picks a `Service`. `getSlotsAction` asks the availability engine for that service’s duration.
+2. **Time** - client picks an ISO start (`startsAt`). A full day can take a waitlist instead. Nothing is reserved yet.
+3. **Intake** - `submitIntakeAction` upserts a `Client` by **email**. A returning owner can pick an existing dog (`existingDogId`) and skip a new goals write-up. Otherwise it creates a new `Dog`, stores JSON intake fields, generates a PDF, uploads it to a **private** Supabase bucket, and writes a `Document` row. The wizard returns `clientId` + `dogId` to the booking flow. There is no client login; identity is the email address.
+4. **Pay** - `createCheckoutAction` re-checks the slot is still free, inserts a booking with `status: pending_payment`, then creates a Stripe Checkout Session that holds `bookingId` in metadata. The browser redirects to Stripe.
+5. **Confirmed** - only the **webhook** (`checkout.session.completed` or `async_payment_succeeded`) flips the row to `confirmed` and sends emails. The success page is not trusted to do this.
+6. **Cancelled / abandoned** - Stripe `expired` / `async_payment_failed`, or a hold older than **30 minutes**, sets `pending_payment` → `cancelled` so the slot is offered again.
 
 `pending_payment` **occupies** the slot the same as `confirmed`. That is the hold. If you stop treating pending as busy, two people can pay for the same hour.
 
@@ -151,13 +151,13 @@ Inputs:
 
 ### Email (Resend)
 
-`isResendConfigured()` is true only when `RESEND_API_KEY` starts with `re_` and is **not** the placeholder `re_...`. If it is not configured, contact, intake, and booking emails are skipped with a server log — the booking still confirms. That is intentional so local work does not fail on mail.
+`isResendConfigured()` is true only when `RESEND_API_KEY` starts with `re_` and is **not** the placeholder `re_...`. If it is not configured, contact, intake, and booking emails are skipped with a server log - the booking still confirms. That is intentional so local work does not fail on mail.
 
 Confirmation emails include a `/booking/[token]` link to cancel or reschedule (`src/lib/booking-manage.ts`). Reschedule needs **24 hours’** notice; cancel frees the slot and emails people on that day’s waitlist. Vercel Cron hits `/api/cron/reminders` at 07:00 UTC for sessions the next day (virtual reminders can include `VIRTUAL_MEETING_URL`). Set `CRON_SECRET`.
 
 ### Admin dashboard
 
-`/admin` is gated by Supabase Auth (`requireAdmin` + session refresh in `src/proxy.ts`). There is no extra roles table — anyone who can sign in is the trainer.
+`/admin` is gated by Supabase Auth (`requireAdmin` + session refresh in `src/proxy.ts`). There is no extra roles table - anyone who can sign in is the trainer.
 
 | Page | What it is for |
 |------|----------------|
@@ -190,8 +190,8 @@ Deleting a client (GDPR) removes their dogs, bookings, and private files. Type t
 
 ### Cookies and privacy
 
-- `/privacy` — what we store, why, how long, your rights, ICO.
-- `/cookies` — theme cookie, admin session cookies, and anonymous tab session storage for usage analytics. No ads cookies.
+- `/privacy` - what we store, why, how long, your rights, ICO.
+- `/cookies` - theme cookie, admin session cookies, and anonymous tab session storage for usage analytics. No ads cookies.
 - Public pages show a small notice until dismissed (stored in `localStorage`, not a tracking cookie).
 - `/admin/analytics` summarises page views and booking funnel events from `analytics_events`. Events are anonymous (path + tab session id only).
 
@@ -202,18 +202,18 @@ Deleting a client (GDPR) removes their dogs, bookings, and private files. Type t
 
 ### Theme, favicon, images
 
-- Favicon: `src/app/icon.jpg` (Next.js App Router file convention). Brand mark also lives at `public/brand/logo.jpg` for intake PDFs.
+- Favicon and home-screen icon: `src/app/icon.png` and `src/app/apple-icon.png`, plus `public/apple-touch-icon.png` and `public/icons/` for the installed web app. The in-page mark stays `public/brand/logo.jpg`.
 - Photos are Unsplash working-dog shots referenced from `content/site.ts`. They are placeholders until you have your own trainer/dog pictures. Gallery crops use `object-position` so faces stay in frame. `next.config.ts` allowlists `images.unsplash.com` and `*.supabase.co`.
 
 ### Things that are easy to break
 
 - **Do not confirm bookings from the success page.** Confirm in the webhook only.
 - **Do not move Prisma secrets solely into `.env.local`.**
-- **Do not add `pointer-events: none` or colour Field footer `li` elements** in a way that hides links — Field navy + muted navy already did that once.
+- **Do not add `pointer-events: none` or colour Field footer `li` elements** in a way that hides links - Field navy + muted navy already did that once.
 - **Do not wrap admin in `data-theme`.**
 - Intake matches clients by email. Returning owners can pick an **existing dog**; a new dog still gets a full intake + PDF. If they skip that picker, a repeat booking creates another `Dog` row.
 - Server actions in `src/app/actions/` are the write API. Keep validation (Zod) on that boundary; the browser wizard is not trusted.
-- Rate limits exist on contact, intake, waitlist, and manage-booking (`src/lib/rate-limit.ts`) — in-memory, so they reset on every server restart and do not work across multiple server instances.
+- Rate limits exist on contact, intake, waitlist, and manage-booking (`src/lib/rate-limit.ts`) - in-memory, so they reset on every server restart and do not work across multiple server instances.
 
 ## Stripe webhooks (local testing)
 
@@ -259,7 +259,8 @@ content/                 # Site copy, nav, Unsplash image URLs, sample-site note
 e2e/                     # Playwright flows
 src/
 ├── app/
-│   ├── icon.jpg         # Favicon
+│   ├── icon.png         # Favicon
+│   ├── apple-icon.png   # Apple home-screen icon
 │   ├── (marketing)/     # Public pages, /book, /intake, /booking/[token], privacy, cookies
 │   ├── admin/           # Diary, clients, documents, availability, waitlist, support, analytics
 │   ├── actions/         # Server actions (booking, intake, contact, waitlist, manage booking)

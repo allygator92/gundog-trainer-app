@@ -47,7 +47,7 @@ export default async function AdminSupportDetailPage({
         <div className="space-y-3 rounded-xl border border-orange-200 bg-orange-50 p-4">
           <h3 className="font-semibold">More detail needed</h3>
           <p className="text-sm text-muted-foreground">
-            Add anything that would help, then send it from here — no need to email separately.
+            Add anything that would help, then send it from here - no need to email separately.
           </p>
           <SupportFeedbackForm requestId={request.id} />
         </div>

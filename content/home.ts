@@ -1,13 +1,13 @@
 export const homeContent = {
   eyebrow: "Professional gundog training",
-  headline: "Build confidence, recall, and field skills",
+  headline: "Train the dog for the job in front of you",
   intro:
-    "Virtual and in-person sessions tailored to working breeds. Book online, complete your dog’s intake form, and pay securely.",
+    "Pet gundog, beating, picking-up, peg dog, or tests. Book a video hour for whistle, handling, and homework, or an in-person hour on the ground.",
   primaryCta: { href: "/book", label: "Book a session" },
   secondaryCta: { href: "/contact", label: "Get in touch" },
   servicesHeading: "How we train",
   servicesIntro:
-    "Choose a video session from home or hands-on work in person. Every lesson is built around your dog, your ground, and your goals.",
+    "A video hour covers whistle timing, handling, and homework. An in-person hour works the dog’s job on the ground.",
   testimonialsHeading: "What owners say",
   ctaBand: {
     heading: "Ready to start?",

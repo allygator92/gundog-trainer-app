@@ -36,7 +36,7 @@ export function ContactForm({ privacyNote }: { privacyNote: string }) {
     const result = await submitContactAction(values);
     if (result.status === "success") {
       setSuccess(true);
-      setServerMessage(result.message ?? "Thanks — I’ll get back to you shortly.");
+      setServerMessage(result.message ?? "Thanks - I’ll get back to you shortly.");
       return;
     }
     if (result.fieldErrors) {

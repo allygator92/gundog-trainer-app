@@ -40,7 +40,7 @@ export default async function AdminEnquiriesPage() {
                       {enquiry.email}
                     </a>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{enquiry.phone ?? "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{enquiry.phone ?? "-"}</td>
                   <td className="max-w-md px-4 py-3 text-muted-foreground">{enquiry.message}</td>
                 </tr>
               ))}

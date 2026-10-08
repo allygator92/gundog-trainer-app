@@ -41,27 +41,15 @@ export function SiteFooter() {
           <p className="site-footer-heading text-sm font-medium">Contact</p>
           <ul className="mt-3 space-y-1 text-sm">
             <li>
-              <a href={site.phoneHref} className="site-footer-link">
-                {site.phone}
-              </a>
+              <Link href="/contact" className="site-footer-link">
+                Send a message
+              </Link>
             </li>
-            <li>
-              <a href={`mailto:${site.email}`} className="site-footer-link">
-                {site.email}
-              </a>
-            </li>
-            {site.socials.map((social) => (
-              <li key={social.label}>
-                <a href={social.href} className="site-footer-link" rel="noopener noreferrer">
-                  {social.label}
-                </a>
-              </li>
-            ))}
           </ul>
         </div>
       </div>
       <p className="site-footer-muted border-t border-border/60 py-4 text-center text-xs">
-        {site.name} · {site.location}
+        {site.name}
       </p>
     </footer>
   );

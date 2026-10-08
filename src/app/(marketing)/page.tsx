@@ -27,8 +27,8 @@ export default async function HomePage() {
       />
       <PhotoGallery
         photos={site.images.gallery}
-        heading="Working dogs, field and town"
-        intro="Retrieving, hunting cover, water work, and the same breeds keeping their heads in built-up streets."
+        heading="In the field"
+        intro="A Labrador in grass, a dog holding a duck, a pointer with a bird, a shake-off, a Gun on a hill, and a springer in cover."
       />
       <TestimonialStrip testimonials={testimonials} heading={homeContent.testimonialsHeading} />
       <SessionExpect />

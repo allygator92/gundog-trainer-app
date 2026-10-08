@@ -17,7 +17,7 @@ export default async function PricingPage() {
       services={services}
       heading="Pricing"
       headingLevel={1}
-      intro="Session prices come from the services list, so they stay in one place if they change. Travel for in-person work can be agreed when you book."
+      intro="A video hour is £65: whistle timing, handling, and homework. An in-person hour is £95: steadiness, dummies, a spaniel’s pattern, or a retriever at the peg. Shot, water, and cover need the in-person hour."
     />
   );
 }

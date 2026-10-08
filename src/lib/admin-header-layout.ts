@@ -1,7 +1,7 @@
 /**
  * Admin header layout classes.
  * Phone: brand + Heath/Field on the first row; Support / View site / Sign out wrap below.
- * Tablet and web: brand, actions, then the toggle on the far right — same as the public header.
+ * Tablet and web: brand, actions, then the toggle on the far right - same as the public header.
  */
 export const adminHeaderLayout = {
   bar: "flex flex-wrap items-center justify-between gap-x-3 gap-y-3",

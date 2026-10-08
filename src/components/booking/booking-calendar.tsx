@@ -79,7 +79,7 @@ export function BookingCalendar({
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
-            Green dots have times. Tinted days are full — you can join the waitlist.
+            Green dots have times. Tinted days are full - you can join the waitlist.
           </p>
           <Button type="button" variant="outline" size="sm" onClick={jumpToFirst} disabled={!firstSlot}>
             First available
@@ -102,7 +102,7 @@ export function BookingCalendar({
               return `${dateKey}, ${count} times`;
             }
             if (fullDays.has(dateKey) && dateKey >= today) {
-              return `${dateKey}, full — join waitlist`;
+              return `${dateKey}, full - join waitlist`;
             }
             return `${dateKey}, no times`;
           }}

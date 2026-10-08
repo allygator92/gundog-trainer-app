@@ -1,3 +1,15 @@
+import { dogJobLabels, groundLabels, startedLabels, steadyLabels } from "@/lib/validations/intake";
+
+const choiceLabels: Record<string, Record<string, string>> = {
+  dogJob: dogJobLabels,
+  dummyWork: startedLabels,
+  whistle: startedLabels,
+  steadyBirds: steadyLabels,
+  steadyDogs: steadyLabels,
+  steadyShot: steadyLabels,
+  hasGround: groundLabels,
+};
+
 const labels: Record<string, string> = {
   ownerName: "Owner",
   ownerEmail: "Email",
@@ -10,8 +22,16 @@ const labels: Record<string, string> = {
   dogName: "Dog",
   breed: "Breed",
   ageYears: "Age (years)",
+  ageMonths: "Age (months)",
   sex: "Sex",
   neutered: "Neutered",
+  dogJob: "Job",
+  dummyWork: "Dummy work",
+  whistle: "Whistle",
+  steadyBirds: "Steady to birds",
+  steadyDogs: "Steady to other dogs",
+  steadyShot: "Steady to shot",
+  hasGround: "Ground to work on",
   recall: "Recall",
   leadWalking: "Lead walking",
   fearTriggers: "Fear triggers",
@@ -54,6 +74,10 @@ function formatIntakeValue(key: string, raw: unknown): string {
   }
   if (key === "meetingType" && raw === "virtual") {
     return "Virtual";
+  }
+  const choices = choiceLabels[key];
+  if (choices && typeof raw === "string" && raw in choices) {
+    return choices[raw];
   }
   return String(raw);
 }

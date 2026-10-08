@@ -41,7 +41,7 @@ export default async function BookingConfirmedPage({
           <p>Total {formatPricePence(booking.service.pricePence)} · {formatDuration(booking.service.durationMinutes)}</p>
           {booking.meetingType === "virtual" ? <p>{site.virtualMeetingNote}</p> : <p>I’ll come to {booking.address}.</p>}
           {booking.status !== "confirmed" ? (
-            <p className="text-sm">If this still says pending, wait a moment — payment confirmation can take a few seconds.</p>
+            <p className="text-sm">If this still says pending, wait a moment - payment confirmation can take a few seconds.</p>
           ) : null}
         </div>
       ) : (

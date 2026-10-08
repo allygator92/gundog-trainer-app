@@ -11,7 +11,7 @@ export const createSupportRequestSchema = z.object({
     .string()
     .trim()
     .min(20, "Please describe what you need in a bit more detail")
-    .max(5000, "That’s too long — please shorten it"),
+    .max(5000, "That’s too long - please shorten it"),
 });
 
 export const updateSupportStatusSchema = z
@@ -37,7 +37,7 @@ export const updateSupportStatusSchema = z
 
 export const addSupportFeedbackSchema = z.object({
   requestId: z.string().trim().min(1),
-  body: z.string().trim().min(10, "Add a bit more detail").max(4000, "That’s too long — please shorten it"),
+  body: z.string().trim().min(10, "Add a bit more detail").max(4000, "That’s too long - please shorten it"),
 });
 
 export type CreateSupportRequestValues = z.infer<typeof createSupportRequestSchema>;

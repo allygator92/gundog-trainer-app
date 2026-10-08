@@ -10,7 +10,7 @@ export function Hero() {
       <div className="absolute inset-0">
         <Image
           src={site.images.hero}
-          alt="A working Labrador standing in a field, ready to hunt"
+          alt="A yellow Labrador standing in long grass"
           fill
           priority
           className="object-cover"

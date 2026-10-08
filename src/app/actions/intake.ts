@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { isRateLimited } from "@/lib/rate-limit";
 import { uploadPrivatePdf } from "@/lib/supabase/storage";
 import {
+  formatDogAge,
   formatIntakeAddress,
   intakeFormSchema,
   type IntakeFormState,
@@ -32,7 +33,7 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
   }
 
   if (parsed.data.botField) {
-    return { status: "success", message: "Thanks — your intake has been received." };
+    return { status: "success", message: "Thanks - your intake has been received." };
   }
 
   const headerStore = await headers();
@@ -80,7 +81,7 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
     }
     return {
       status: "success",
-      message: "Welcome back — we will use the existing intake for this dog.",
+      message: "Welcome back - we will use the existing intake for this dog.",
       clientId: client.id,
       dogId: dog.id,
     };
@@ -91,7 +92,7 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
       clientId: client.id,
       name: parsed.data.dogName,
       breed: parsed.data.breed,
-      age: String(parsed.data.ageYears),
+      age: formatDogAge(parsed.data),
       behaviourNotes: parsed.data.goals,
       intakeData: {
         ...parsed.data,
@@ -124,7 +125,7 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
 
   return {
     status: "success",
-    message: "Thanks — your intake has been received.",
+    message: "Thanks - your intake has been received.",
     clientId: client.id,
     dogId: dog.id,
   };

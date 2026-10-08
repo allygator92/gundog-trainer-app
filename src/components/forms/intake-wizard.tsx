@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { lookupDogsByEmailAction, submitIntakeAction } from "@/app/actions/intake";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +11,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
+  dogJobLabels,
+  dogJobs,
   dogSexes,
+  formatDogAge,
   formatIntakeAddress,
+  groundLabels,
+  groundOptions,
   intakeFormSchema,
   intakeStepFields,
   skillLevels,
+  startedLabels,
+  startedStates,
+  steadyLabels,
+  steadyStates,
   type IntakeFormInput,
   type IntakeFormValues,
 } from "@/lib/validations/intake";
@@ -23,7 +32,7 @@ import {
 const steps = [
   { id: 1, label: "You" },
   { id: 2, label: "Dog" },
-  { id: 3, label: "Behaviour" },
+  { id: 3, label: "Job" },
   { id: 4, label: "Review" },
 ] as const;
 
@@ -38,6 +47,37 @@ function FieldError({ id, message }: { id?: string; message?: string }) {
     <p id={id} className="text-sm text-destructive" role="alert">
       {message}
     </p>
+  );
+}
+
+function ChoiceField<T extends string>({
+  id,
+  label,
+  options,
+  labels,
+  register,
+  error,
+}: {
+  id: string;
+  label: string;
+  options: readonly T[];
+  labels: Record<T, string>;
+  register: UseFormRegisterReturn;
+  error?: string;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <select id={id} className={selectClassName} {...register}>
+        <option value="">Choose</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {labels[option]}
+          </option>
+        ))}
+      </select>
+      <FieldError message={error} />
+    </div>
   );
 }
 
@@ -79,8 +119,16 @@ export function IntakeWizard({
       dogName: "",
       breed: "",
       ageYears: 1,
+      ageMonths: "",
       sex: "unknown",
       neutered: false,
+      dogJob: "",
+      dummyWork: "",
+      whistle: "",
+      steadyBirds: "",
+      steadyDogs: "",
+      steadyShot: "",
+      hasGround: "",
       recall: "fair",
       leadWalking: "fair",
       fearTriggers: "",
@@ -117,7 +165,7 @@ export function IntakeWizard({
     form.setValue("breed", dog.breed || "Unknown");
     form.setValue("ageYears", Number.parseFloat(dog.age ?? "1") || 1);
     if (!form.getValues("goals")) {
-      form.setValue("goals", "Returning client — see previous intake.");
+      form.setValue("goals", "Returning client - see previous intake.");
     }
     setStep(4);
   }
@@ -140,7 +188,7 @@ export function IntakeWizard({
         return;
       }
       setSuccess(true);
-      setServerMessage(result.message ?? "Thanks — your intake has been received.");
+      setServerMessage(result.message ?? "Thanks - your intake has been received.");
       return;
     }
     if (result.fieldErrors) {
@@ -330,6 +378,12 @@ export function IntakeWizard({
             <FieldError message={form.formState.errors.ageYears?.message} />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="ageMonths">Age in months, if under a year</Label>
+            <Input id="ageMonths" type="number" min={1} max={18} {...form.register("ageMonths")} />
+            <p className="text-sm text-muted-foreground">Put 0 in years, then the months here.</p>
+            <FieldError message={form.formState.errors.ageMonths?.message} />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="sex">Sex</Label>
             <select id="sex" className={selectClassName} {...form.register("sex")}>
               {dogSexes.map((sex) => (
@@ -373,6 +427,62 @@ export function IntakeWizard({
 
       {step === 3 ? (
         <div className="space-y-5">
+          <ChoiceField
+            id="dogJob"
+            label="What is this dog for?"
+            options={dogJobs}
+            labels={dogJobLabels}
+            register={form.register("dogJob")}
+            error={form.formState.errors.dogJob?.message}
+          />
+          <ChoiceField
+            id="dummyWork"
+            label="Dummy work"
+            options={startedStates}
+            labels={startedLabels}
+            register={form.register("dummyWork")}
+            error={form.formState.errors.dummyWork?.message}
+          />
+          <ChoiceField
+            id="whistle"
+            label="Whistle"
+            options={startedStates}
+            labels={startedLabels}
+            register={form.register("whistle")}
+            error={form.formState.errors.whistle?.message}
+          />
+          <ChoiceField
+            id="steadyBirds"
+            label="Steady to birds"
+            options={steadyStates}
+            labels={steadyLabels}
+            register={form.register("steadyBirds")}
+            error={form.formState.errors.steadyBirds?.message}
+          />
+          <ChoiceField
+            id="steadyDogs"
+            label="Steady to other dogs"
+            options={steadyStates}
+            labels={steadyLabels}
+            register={form.register("steadyDogs")}
+            error={form.formState.errors.steadyDogs?.message}
+          />
+          <ChoiceField
+            id="steadyShot"
+            label="Steady to shot"
+            options={steadyStates}
+            labels={steadyLabels}
+            register={form.register("steadyShot")}
+            error={form.formState.errors.steadyShot?.message}
+          />
+          <ChoiceField
+            id="hasGround"
+            label="Ground to work on"
+            options={groundOptions}
+            labels={groundLabels}
+            register={form.register("hasGround")}
+            error={form.formState.errors.hasGround?.message}
+          />
           <div className="space-y-2">
             <Label htmlFor="recall">Recall</Label>
             <select id="recall" className={selectClassName} {...form.register("recall")}>
@@ -407,7 +517,11 @@ export function IntakeWizard({
           </div>
           <div className="space-y-2">
             <Label htmlFor="goals">Goals</Label>
-            <Textarea id="goals" {...form.register("goals")} />
+            <Textarea
+              id="goals"
+              placeholder="What do you want this dog to do - at home, beating, picking-up, or at the peg?"
+              {...form.register("goals")}
+            />
             <FieldError message={form.formState.errors.goals?.message} />
           </div>
         </div>
@@ -430,8 +544,18 @@ export function IntakeWizard({
             ) : null}
             <p>
               <span className="font-medium">Dog:</span> {values.dogName}
-              {values.existingDogId ? " (existing record)" : `, ${values.breed}, ${values.ageYears} years`}
+              {values.existingDogId
+                ? " (existing record)"
+                : `, ${values.breed}, ${formatDogAge({
+                    ageYears: Number(values.ageYears) || 0,
+                    ageMonths: typeof values.ageMonths === "number" ? values.ageMonths : undefined,
+                  })}`}
             </p>
+            {values.dogJob ? (
+              <p>
+                <span className="font-medium">Job:</span> {dogJobLabels[values.dogJob]}
+              </p>
+            ) : null}
             {values.existingDogId ? (
               <p className="text-muted-foreground">We’ll use the intake already on file for this dog.</p>
             ) : (

@@ -36,7 +36,7 @@ export function BrandLockup({
   return (
     <span className={cn("flex min-w-0 max-w-full items-center gap-2 sm:gap-2.5", className)}>
       <BrandMark size={compact ? 36 : 40} className="site-logo-mark shrink-0" priority={priority} />
-      <span className="site-logo min-w-0 truncate font-display text-base font-semibold tracking-tight sm:text-lg md:text-xl">
+      <span className="site-logo whitespace-nowrap font-display text-base font-semibold tracking-tight sm:text-lg">
         {site.name}
       </span>
     </span>

@@ -27,7 +27,7 @@ export default async function AdminAnalyticsPage() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Analytics</h2>
         <p className="mt-1 text-muted-foreground">
-          Last 30 days. Page views and booking steps are anonymous — no names, emails, or IP addresses.
+          Last 30 days. Page views and booking steps are anonymous - no names, emails, or IP addresses.
         </p>
       </div>
 

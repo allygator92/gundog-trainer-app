@@ -44,7 +44,7 @@ export const metadata: Metadata = {
         url: site.images.hero,
         width: 1600,
         height: 900,
-        alt: "A working Labrador standing in a field, ready to hunt",
+        alt: "A yellow Labrador standing in long grass",
       },
     ],
   },
@@ -55,8 +55,11 @@ export const metadata: Metadata = {
     images: [site.images.hero],
   },
   icons: {
-    icon: [{ url: "/brand/logo.jpg", type: "image/jpeg" }],
-    apple: [{ url: "/brand/logo.jpg" }],
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   appleWebApp: {
     capable: true,
@@ -66,7 +69,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1e3d32",
+  themeColor: "#173B21",
 };
 
 export default function RootLayout({

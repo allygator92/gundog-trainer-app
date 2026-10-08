@@ -30,7 +30,7 @@ export default async function AboutPage() {
         <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
           <Image
             src={site.images.about}
-            alt={`${site.trainerName}, ${site.trainerRole}`}
+            alt="A Gun with a shotgun and a pointer in the mist"
             fill
             className="object-cover"
             sizes="(min-width: 1024px) 50vw, 100vw"

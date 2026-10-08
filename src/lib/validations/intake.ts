@@ -2,6 +2,43 @@ import { z } from "zod";
 
 export const skillLevels = ["poor", "fair", "good", "excellent"] as const;
 export const dogSexes = ["male", "female", "unknown"] as const;
+export const dogJobs = ["pet", "beating", "picking_up", "peg", "tests"] as const;
+export const startedStates = ["not_started", "started"] as const;
+export const steadyStates = ["steady", "not_yet", "not_sure"] as const;
+export const groundOptions = ["yes", "no"] as const;
+
+export const dogJobLabels: Record<(typeof dogJobs)[number], string> = {
+  pet: "Pet gundog",
+  beating: "Beating",
+  picking_up: "Picking-up",
+  peg: "Peg dog",
+  tests: "Working tests",
+};
+
+export const startedLabels: Record<(typeof startedStates)[number], string> = {
+  not_started: "Not started",
+  started: "Started",
+};
+
+export const steadyLabels: Record<(typeof steadyStates)[number], string> = {
+  steady: "Steady",
+  not_yet: "Not yet",
+  not_sure: "Not sure",
+};
+
+export const groundLabels: Record<(typeof groundOptions)[number], string> = {
+  yes: "Yes",
+  no: "No",
+};
+
+const optionalMonths = z.preprocess(
+  (value) => (value === "" || value === null || value === undefined ? undefined : value),
+  z.coerce.number().min(1, "Enter the puppy’s age in months").max(18, "Enter the puppy’s age in months").optional(),
+);
+
+function emptyOrEnum<T extends readonly [string, ...string[]]>(values: T) {
+  return z.union([z.literal(""), z.enum(values)]);
+}
 
 const ukPostcode = /^[A-Za-z]{1,2}\d[A-Za-z\d]?\s*\d[A-Za-z]{2}$/;
 
@@ -24,8 +61,16 @@ export const intakeFormSchema = z
     dogName: z.string().trim().min(1, "Dog’s name is required").max(80),
     breed: z.string().trim().min(1, "Breed is required").max(80),
     ageYears: z.coerce.number().min(0, "Enter a valid age").max(25, "Enter a valid age"),
+    ageMonths: optionalMonths,
     sex: z.enum(dogSexes),
     neutered: z.boolean(),
+    dogJob: emptyOrEnum(dogJobs),
+    dummyWork: emptyOrEnum(startedStates),
+    whistle: emptyOrEnum(startedStates),
+    steadyBirds: emptyOrEnum(steadyStates),
+    steadyDogs: emptyOrEnum(steadyStates),
+    steadyShot: emptyOrEnum(steadyStates),
+    hasGround: emptyOrEnum(groundOptions),
     recall: z.enum(skillLevels),
     leadWalking: z.enum(skillLevels),
     fearTriggers: optionalText,
@@ -41,6 +86,29 @@ export const intakeFormSchema = z
   .superRefine((data, ctx) => {
     if (!data.existingDogId && data.goals.trim().length < 10) {
       ctx.addIssue({ code: "custom", path: ["goals"], message: "Tell us a little about your goals" });
+    }
+    if (!data.existingDogId) {
+      const required: [string, string][] = [
+        [data.dogJob, "dogJob"],
+        [data.dummyWork, "dummyWork"],
+        [data.whistle, "whistle"],
+        [data.steadyBirds, "steadyBirds"],
+        [data.steadyDogs, "steadyDogs"],
+        [data.steadyShot, "steadyShot"],
+        [data.hasGround, "hasGround"],
+      ];
+      for (const [value, path] of required) {
+        if (!value) {
+          ctx.addIssue({ code: "custom", path: [path], message: "Choose an answer" });
+        }
+      }
+      if (data.ageYears < 1 && data.ageMonths === undefined) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["ageMonths"],
+          message: "Enter the puppy’s age in months",
+        });
+      }
     }
     if (data.meetingType !== "in_person") {
       return;
@@ -69,8 +137,22 @@ export type IntakeFormState = {
 
 export const intakeStepFields = {
   1: ["ownerName", "ownerEmail", "ownerPhone", "meetingType", "addressLine1", "addressLine2", "city", "postcode"],
-  2: ["dogName", "breed", "ageYears", "sex", "neutered"],
-  3: ["recall", "leadWalking", "fearTriggers", "aggressionNotes", "previousTraining", "goals"],
+  2: ["dogName", "breed", "ageYears", "ageMonths", "sex", "neutered"],
+  3: [
+    "dogJob",
+    "dummyWork",
+    "whistle",
+    "steadyBirds",
+    "steadyDogs",
+    "steadyShot",
+    "hasGround",
+    "recall",
+    "leadWalking",
+    "fearTriggers",
+    "aggressionNotes",
+    "previousTraining",
+    "goals",
+  ],
   4: ["consentDataStorage"],
 } as const;
 
@@ -84,4 +166,15 @@ export function formatIntakeAddress(values: {
     .map((part) => part?.trim())
     .filter(Boolean)
     .join(", ");
+}
+
+export function formatDogAge(values: { ageYears: number; ageMonths?: number }) {
+  if (values.ageYears < 1 && values.ageMonths) {
+    return `${values.ageMonths} months`;
+  }
+  if (values.ageYears >= 1 && values.ageMonths) {
+    return `${values.ageYears} years, ${values.ageMonths} months`;
+  }
+  const years = values.ageYears;
+  return `${years} ${years === 1 ? "year" : "years"}`;
 }
