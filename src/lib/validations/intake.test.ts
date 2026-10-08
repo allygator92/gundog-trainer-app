@@ -17,9 +17,7 @@ const virtualIntake = {
   steadyDogs: "steady" as const,
   steadyShot: "not_sure" as const,
   hasGround: "yes" as const,
-  recall: "fair" as const,
-  leadWalking: "good" as const,
-  goals: "Improve recall in the field",
+  goals: "Steady at the peg, and a stop I can trust",
   consentDataStorage: true,
 };
 

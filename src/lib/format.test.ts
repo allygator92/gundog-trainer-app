@@ -7,12 +7,26 @@ import {
   formatServiceType,
   formatSupportKind,
   formatSupportStatus,
+  sessionOffer,
 } from "@/lib/format";
 
 describe("formatPricePence", () => {
   it("formats pounds from pence", () => {
     expect(formatPricePence(6500)).toBe("£65.00");
     expect(formatPricePence(95)).toBe("£0.95");
+  });
+});
+
+describe("sessionOffer", () => {
+  it("builds the public sentences from the same prices as the cards", () => {
+    const offer = sessionOffer([
+      { type: "virtual", pricePence: 6500, durationMinutes: 60 },
+      { type: "in_person", pricePence: 9500, durationMinutes: 90 },
+    ]);
+    expect(offer?.servicesIntro).toContain("£65");
+    expect(offer?.servicesIntro).toContain("£95");
+    expect(offer?.pricingIntro).toContain(offer?.servicesIntro ?? "");
+    expect(offer?.sampleBand).toContain("cannot be booked");
   });
 });
 

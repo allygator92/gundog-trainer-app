@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-export const skillLevels = ["poor", "fair", "good", "excellent"] as const;
 export const dogSexes = ["male", "female", "unknown"] as const;
 export const dogJobs = ["pet", "beating", "picking_up", "peg", "tests"] as const;
 export const startedStates = ["not_started", "started"] as const;
@@ -71,8 +70,6 @@ export const intakeFormSchema = z
     steadyDogs: emptyOrEnum(steadyStates),
     steadyShot: emptyOrEnum(steadyStates),
     hasGround: emptyOrEnum(groundOptions),
-    recall: z.enum(skillLevels),
-    leadWalking: z.enum(skillLevels),
     fearTriggers: optionalText,
     aggressionNotes: optionalText,
     previousTraining: optionalText,
@@ -146,8 +143,6 @@ export const intakeStepFields = {
     "steadyDogs",
     "steadyShot",
     "hasGround",
-    "recall",
-    "leadWalking",
     "fearTriggers",
     "aggressionNotes",
     "previousTraining",

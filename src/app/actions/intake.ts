@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { headers } from "next/headers";
+import { isDatabaseUnavailable, rememberDatabaseDown } from "@/lib/database-availability";
 import { sendIntakeNotification } from "@/lib/email";
 import { generateIntakePdf } from "@/lib/pdf/intake-document";
 import { prisma } from "@/lib/prisma";
@@ -130,6 +131,13 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
     dogId: dog.id,
   };
   } catch (error) {
+    if (isDatabaseUnavailable(error)) {
+      rememberDatabaseDown();
+      return {
+        status: "error",
+        message: "This intake could not be saved.",
+      };
+    }
     console.error("Intake submit failed:", error);
     return {
       status: "error",

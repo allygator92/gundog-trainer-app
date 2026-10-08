@@ -32,7 +32,7 @@ export default async function AdminDashboardLayout({
         <AdminDemoNotes />
         {children}
       </div>
-      <DemoGuide />
+      <DemoGuide theme={theme} />
     </div>
   );
 }

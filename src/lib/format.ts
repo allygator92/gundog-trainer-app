@@ -13,6 +13,32 @@ export function formatDuration(minutes: number): string {
   return `${minutes} minutes`;
 }
 
+export function formatPounds(pence: number) {
+  if (pence % 100 === 0) {
+    return `£${pence / 100}`;
+  }
+  return formatPricePence(pence);
+}
+
+export function sessionOffer(
+  services: { type: "virtual" | "in_person"; pricePence: number; durationMinutes: number }[],
+) {
+  const virtual = services.find((service) => service.type === "virtual");
+  const inPerson = services.find((service) => service.type === "in_person");
+  if (!virtual || !inPerson) {
+    return null;
+  }
+  const videoPrice = formatPounds(virtual.pricePence);
+  const groundPrice = formatPounds(inPerson.pricePence);
+  const groundLength = inPerson.durationMinutes === 90 ? "Ninety minutes" : formatDuration(inPerson.durationMinutes);
+  const shared = `A video hour is ${videoPrice}: whistle timing, handling, and homework. ${groundLength} in person is ${groundPrice}: steadiness, dummies, a spaniel’s pattern, or a retriever at the peg.`;
+  return {
+    servicesIntro: shared,
+    pricingIntro: `${shared} Shot, water, and cover need the in-person session.`,
+    sampleBand: `A video hour is ${videoPrice}. ${groundLength} in person is ${groundPrice}. A time cannot be booked from this copy yet.`,
+  };
+}
+
 export function formatServiceType(type: "virtual" | "in_person"): string {
   return type === "virtual" ? "Virtual" : "In person";
 }

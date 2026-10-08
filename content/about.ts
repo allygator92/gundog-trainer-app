@@ -4,14 +4,14 @@ export const aboutContent = {
   intro:
     "Gundog Trainer is a one-to-one practice for working and sporting breeds. Sessions are calm, clear, and built around real-world shooting and family life - not a one-size-fits-all syllabus.",
   story: [
-    "I grew up around working dogs and now train full time, helping owners get reliable recall, steadiness, and retrieving without losing the spark that makes a gundog a gundog.",
-    "Whether you are starting a puppy, finishing a young dog, or unpicking a habit that has crept in, we work at the dog’s pace - with homework you can actually use between lessons.",
+    "The work follows the job in front of the dog: a calmer pet gundog, beating, picking-up, a peg dog, or tests.",
+    "A video hour covers whistle timing, handling, and homework. An in-person session is on the ground: steadiness, dummies before cold game, a spaniel’s pattern, a retriever quiet at the peg, or an HPR on point.",
   ],
-  credentialsHeading: "Approach and credentials",
+  credentialsHeading: "Approach",
   credentials: [
     {
       title: "Working breeds first",
-      body: "Spaniels, retrievers, HPRs, and crosses - trained with field work and home manners in mind.",
+      body: "Spaniels, retrievers, and HPRs, for a pet gundog, beating, picking-up, a peg dog, or tests.",
     },
     {
       title: "Virtual or in person",

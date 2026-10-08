@@ -54,7 +54,7 @@ export async function submitContactAction(input: unknown): Promise<ContactFormSt
     rememberDatabaseDown();
     return {
       status: "error",
-      message: "The diary database is not connected, so this message could not be saved.",
+      message: "This message could not be saved.",
     };
   }
 

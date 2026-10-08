@@ -51,9 +51,6 @@ export const trainingContent = {
       ],
     },
   ],
-  galleryHeading: "In the field",
-  galleryIntro:
-    "A Labrador in grass, a dog holding a duck, a pointer with a bird, a shake-off, a Gun on a hill, and a springer in cover.",
   cta: {
     heading: "Bring your dog’s real life to a session",
     body: "Tell us whether you want a calmer pet, a picking-up partner, or a peg dog - the plan changes with the job.",

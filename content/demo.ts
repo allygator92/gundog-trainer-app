@@ -11,7 +11,7 @@ export const demo = {
     bullets: [
       "Brand name, phone, email, and social links are sample data - not a live trainer’s details.",
       "Photos are stock images. Swap them for your own dogs and ground.",
-      "Heath and Field in the header are two looks for the public site. Try both.",
+      "Heath and Field are two looks for the public site. Switch them in these sample notes.",
       "Live card payments need a Stripe account linked to a bank. On this sample you can still try checkout with Stripe’s test card (details on the pay step).",
       "Booking confirmation and reminder emails are sent by email (Resend). They do not appear in the admin dashboard, and they will not arrive until sending is switched on.",
     ],
@@ -28,7 +28,7 @@ export const demo = {
   },
   contact: {
     title: "Placeholder contact details",
-    body: "Phone, email, and social links are not on the public page yet. Messages still save under Admin → Enquiries even if notification email is not switched on.",
+    body: "Phone, email, and social links are not on the public page. A message on the form is saved under Admin → Enquiries when the database is connected. If it is not, the form says the message could not be saved.",
   },
   about: {
     title: "Placeholder trainer copy",

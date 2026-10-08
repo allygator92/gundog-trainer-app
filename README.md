@@ -44,7 +44,9 @@ npm run db:push
 npm run db:seed
 ```
 
-Seed creates active services (virtual + in person), weekly availability hours, and a couple of published testimonials.
+Seed creates the two sample services (a 60-minute video hour at £65, and 90 minutes in person at £95), Monday to Friday 09:00–17:00 availability, and three testimonials that stay unpublished. The same service rows live in `src/lib/sample-services.ts`.
+
+If `DATABASE_URL` cannot be reached, the public pages still load and use that sample list. Book shows the prices and says a time cannot be booked. Contact keeps the form on screen and says the message could not be saved. Admin, checkout, intake saves, and the diary still need a live database. After a failed connection the app skips further database calls for 30 seconds, so the next page is not stuck on another timeout.
 
 ### 4. Create an admin user
 
@@ -62,7 +64,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Site looks (Heath and Field)
 
-The public site has two layouts you can toggle in the header (useful when showing a client):
+The public site has two layouts. On this sample, switch them in the sample notes (the welcome dialog and the Sample notes panel). The admin header still has the same control:
 
 | Look | Style |
 |------|--------|
@@ -72,9 +74,9 @@ The public site has two layouts you can toggle in the header (useful when showin
 How it is wired:
 
 1. `src/app/(marketing)/layout.tsx` reads the `gundog-theme` cookie and sets `data-theme="heath" | "field"` on a wrapper.
-2. `src/components/theme/theme-toggle.tsx` writes that cookie in the browser and updates `data-theme` immediately so the page does not need a full reload.
+2. `src/components/theme/theme-toggle.tsx` writes that cookie in the browser and updates `data-theme` immediately so the page does not need a full reload. On the public site it lives in the sample notes, not beside Book.
 3. `src/app/globals.css` scopes Field overrides with `[data-theme="field"]`. Tokens such as `--primary` and `--font-display-family` switch with the attribute.
-4. Admin routes are **not** inside `(marketing)`, so they never pick up Field. Keep it that way - a diary UI in brass serif is harder to scan.
+4. Admin is outside `(marketing)`, but the login page and the dashboard still set `data-theme` from the same cookie, and the admin header includes the Heath / Field toggle. Field styles therefore apply there too.
 
 The Field header is navy with cream text. The mobile menu panel is cream. Menu links must set their own dark colour (`.site-mobile-link`) or they inherit cream-on-cream and disappear. Footer links on Field need `.site-footer-link` for the same reason: Tailwind `text-muted-foreground` is a dark navy that vanishes on a navy footer.
 
@@ -110,7 +112,9 @@ Pages that read the database set `export const dynamic = "force-dynamic"` so ser
 | Privacy text | Intake PDFs (path only - file in Storage) |
 | | Contact enquiries, testimonials |
 
-`content/site.ts` is the switchboard for the logo name, contact details, nav, and photos. Swap gallery URLs there; do not hardcode Unsplash links in components.
+`content/site.ts` is the switchboard for the logo name, sample contact details, nav, and photos. Swap gallery URLs there; do not hardcode Unsplash links in components. The public footer and contact page do not render the sample phone, email, or social links. The footer contact column is a link to `/contact`.
+
+`getActiveServices()` in `src/lib/queries.ts` returns `{ services, sample }`. `sample` is true when the database is down and the page is showing `src/lib/sample-services.ts`. Published testimonials are queried the same way; a missing database returns an empty list, so the quote strip stays hidden. Seed writes those quotes with `isPublished: false` on purpose.
 
 ### Booking state machine
 
@@ -118,7 +122,7 @@ A booking is not “paid” when the client clicks **Pay securely**. The sequenc
 
 1. **Session** - client picks a `Service`. `getSlotsAction` asks the availability engine for that service’s duration.
 2. **Time** - client picks an ISO start (`startsAt`). A full day can take a waitlist instead. Nothing is reserved yet.
-3. **Intake** - `submitIntakeAction` upserts a `Client` by **email**. A returning owner can pick an existing dog (`existingDogId`) and skip a new goals write-up. Otherwise it creates a new `Dog`, stores JSON intake fields, generates a PDF, uploads it to a **private** Supabase bucket, and writes a `Document` row. The wizard returns `clientId` + `dogId` to the booking flow. There is no client login; identity is the email address.
+3. **Intake** - `submitIntakeAction` upserts a `Client` by **email**. A returning owner can pick an existing dog (`existingDogId`) and skip a new goals write-up. Otherwise it creates a new `Dog`, stores JSON intake fields, generates a PDF, uploads it to a **private** Supabase bucket, and writes a `Document` row. The wizard returns `clientId` + `dogId` to the booking flow. There is no client login; identity is the email address. The form asks for the dog’s job (pet gundog, beating, picking-up, peg dog, or tests), age in months when the dog is under a year, whether dummy work and the whistle have started, steadiness to birds, other dogs, and shot, and whether there is ground. Recall, lead, fear, and aggression are still on the form. The PDF and the admin intake view label the job and those field facts.
 4. **Pay** - `createCheckoutAction` re-checks the slot is still free, inserts a booking with `status: pending_payment`, then creates a Stripe Checkout Session that holds `bookingId` in metadata. The browser redirects to Stripe.
 5. **Confirmed** - only the **webhook** (`checkout.session.completed` or `async_payment_succeeded`) flips the row to `confirmed` and sends emails. The success page is not trusted to do this.
 6. **Cancelled / abandoned** - Stripe `expired` / `async_payment_failed`, or a hold older than **30 minutes**, sets `pending_payment` → `cancelled` so the slot is offered again.
@@ -197,20 +201,20 @@ Deleting a client (GDPR) removes their dogs, bookings, and private files. Type t
 
 ### PWA and sharing
 
-- `src/app/manifest.ts` lets supported browsers “Add to Home Screen”.
+- `src/app/manifest.ts` lets supported browsers “Add to Home Screen”. The short name is “Gundog Trainer”. Theme and splash background are `#173B21`, matching the logo. Icons are the brand PNG at `public/icons/icon-192.png`, `public/icons/icon-512.png`, and a full-bleed maskable `public/icons/icon-maskable-512.png`. An already installed shortcut keeps the old icon until it is removed and added again.
 - Open Graph / Twitter cards use `NEXT_PUBLIC_APP_URL` as `metadataBase` and the hero photo.
 
 ### Theme, favicon, images
 
 - Favicon and home-screen icon: `src/app/icon.png` and `src/app/apple-icon.png`, plus `public/apple-touch-icon.png` and `public/icons/` for the installed web app. The in-page mark stays `public/brand/logo.jpg`.
-- Photos are Unsplash working-dog shots referenced from `content/site.ts`. They are placeholders until you have your own trainer/dog pictures. Gallery crops use `object-position` so faces stay in frame. `next.config.ts` allowlists `images.unsplash.com` and `*.supabase.co`.
+- Photos are seven Unsplash shots referenced from `content/site.ts`: six in the field, and a Labrador on a lead in a street. Captions describe the frame only. They are placeholders until you have your own trainer and dog pictures. Gallery crops use `object-position` so faces stay in frame. The home hero, the About portrait, and the lead training-gallery photo use `loading="eager"` so Next.js does not flag them as a lazy largest paint. `next.config.ts` allowlists `images.unsplash.com` and `*.supabase.co`. The public header shows the practice name once. The logo mark is cropped to the dog so the wordmark inside the file is not repeated beside the text.
 
 ### Things that are easy to break
 
 - **Do not confirm bookings from the success page.** Confirm in the webhook only.
 - **Do not move Prisma secrets solely into `.env.local`.**
 - **Do not add `pointer-events: none` or colour Field footer `li` elements** in a way that hides links - Field navy + muted navy already did that once.
-- **Do not wrap admin in `data-theme`.**
+- **Admin already uses `data-theme`.** Login and the dashboard read the same Heath / Field cookie as the public site. Removing that attribute makes the admin toggle look selected while the page stays on the other look.
 - Intake matches clients by email. Returning owners can pick an **existing dog**; a new dog still gets a full intake + PDF. If they skip that picker, a repeat booking creates another `Dog` row.
 - Server actions in `src/app/actions/` are the write API. Keep validation (Zod) on that boundary; the browser wizard is not trusted.
 - Rate limits exist on contact, intake, waitlist, and manage-booking (`src/lib/rate-limit.ts`) - in-memory, so they reset on every server restart and do not work across multiple server instances.
@@ -229,7 +233,9 @@ Apple Pay and Google Pay appear on Stripe Checkout on supported devices. Product
 
 ## Sample site (demo notes)
 
-`NEXT_PUBLIC_DEMO_MODE` defaults on via `.env.example`. Set it to `false` (or turn off `content/demo.ts`) to hide the sample-site badge and notes. Brand copy, phone, email, and Unsplash photos stay as placeholders until you replace them in `content/`.
+`NEXT_PUBLIC_DEMO_MODE` defaults on via `.env.example`. Set it to `false` to hide the sample-site badge, the welcome dialog, the page notes in `content/demo.ts`, and the public Heath / Field switch. The admin header keeps the toggle.
+
+Name, phone, email, social accounts, the About story, the travel area, and the Monday to Friday diary are still sample data in `content/` and the seed. There is no real trainer on this copy yet. Do not treat those placeholders as missing production facts. Unsplash photos stay until they are replaced in `content/site.ts`.
 
 ## Tests
 
@@ -244,7 +250,8 @@ Unit tests live next to the code as `src/**/*.test.ts` (`vitest.config.mts`). Th
 - Availability: London/BST slots, lunch breaks, lead time, travel buffers, blocked dates
 - Booking: Stripe Checkout params, webhook confirm/cancel/idempotency, 24-hour reschedule window
 - Email: HTML escaping, confirmation/reminder/cancel/waitlist copy, Resend config checks
-- Forms: contact, intake, waitlist, and admin support Zod schemas
+- Forms: contact, intake (job, age in months, dummy work, whistle, steadiness, ground), waitlist, and admin support Zod schemas
+- Public catalogue: treating a missing database host as unavailable, without hiding a real query error
 - Admin: booking filters, waitlist notify, next-day reminders, analytics funnel, Heath/Field cookie
 - Layout: admin header classes that keep brand, toggle, and actions from overlapping on a phone
 
@@ -277,7 +284,7 @@ src/
 │   ├── admin/           # Dashboard forms
 │   ├── demo/            # Sample-site notes
 │   └── theme/           # Heath / Field look toggle
-└── lib/                 # Availability, Stripe, email, Zod schemas, theme cookie
+└── lib/                 # Availability, Stripe, email, Zod schemas, theme cookie, sample services, database-down fallback
 prisma/
 ├── schema.prisma
 └── seed.ts
@@ -299,7 +306,7 @@ supabase/
 | `npm run db:generate` | Generate Prisma Client |
 | `npm run db:push` | Push schema to database |
 | `npm run db:migrate` | Create / apply a Prisma migration |
-| `npm run db:seed` | Seed services, testimonials, hours |
+| `npm run db:seed` | Seed services, unpublished testimonials, weekday hours |
 | `npm run db:studio` | Open Prisma Studio |
 
 ## Going live (when you are ready)
@@ -315,8 +322,10 @@ HTTPS is automatic on Vercel. Apple Pay / Google Pay need the domain verified in
 ## What is in place
 
 - Marketing: home, about, training, pricing, contact, privacy, cookies
-- Photo gallery of working gundogs in field and urban settings (Unsplash placeholders)
-- Booking: session type → UK calendar/slots → intake → Stripe Checkout
+- Photo gallery of six field shots and one street Labrador (Unsplash placeholders), captions limited to what is in the frame
+- Booking, when the database is connected: session type → UK calendar/slots → intake → Stripe Checkout
+- Booking, when the database is not connected: sample prices only, with a note that a time cannot be booked
+- Intake asks what the dog is for, plus dummy work, whistle, steadiness, ground, and age in months for a puppy. The review step shows those answers. Recall and lead are not scored.
 - Waitlist for a full day; cancelling or moving a session emails people waiting
 - Client cancel / reschedule from a token link in the confirmation email
 - Intake PDF stored in a private Supabase bucket

@@ -20,7 +20,6 @@ import {
   groundOptions,
   intakeFormSchema,
   intakeStepFields,
-  skillLevels,
   startedLabels,
   startedStates,
   steadyLabels,
@@ -81,6 +80,17 @@ function ChoiceField<T extends string>({
   );
 }
 
+function choiceLine(title: string, value: string, labels: Record<string, string>) {
+  if (!value || !(value in labels)) {
+    return null;
+  }
+  return (
+    <p>
+      <span className="font-medium">{title}:</span> {labels[value]}
+    </p>
+  );
+}
+
 function skillLabel(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
@@ -129,8 +139,6 @@ export function IntakeWizard({
       steadyDogs: "",
       steadyShot: "",
       hasGround: "",
-      recall: "fair",
-      leadWalking: "fair",
       fearTriggers: "",
       aggressionNotes: "",
       previousTraining: "",
@@ -484,26 +492,6 @@ export function IntakeWizard({
             error={form.formState.errors.hasGround?.message}
           />
           <div className="space-y-2">
-            <Label htmlFor="recall">Recall</Label>
-            <select id="recall" className={selectClassName} {...form.register("recall")}>
-              {skillLevels.map((level) => (
-                <option key={level} value={level}>
-                  {skillLabel(level)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="leadWalking">Lead walking</Label>
-            <select id="leadWalking" className={selectClassName} {...form.register("leadWalking")}>
-              {skillLevels.map((level) => (
-                <option key={level} value={level}>
-                  {skillLabel(level)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="fearTriggers">Fear or startle triggers</Label>
             <Textarea id="fearTriggers" {...form.register("fearTriggers")} />
           </div>
@@ -556,6 +544,12 @@ export function IntakeWizard({
                 <span className="font-medium">Job:</span> {dogJobLabels[values.dogJob]}
               </p>
             ) : null}
+            {choiceLine("Dummy work", values.dummyWork, startedLabels)}
+            {choiceLine("Whistle", values.whistle, startedLabels)}
+            {choiceLine("Steady to birds", values.steadyBirds, steadyLabels)}
+            {choiceLine("Steady to other dogs", values.steadyDogs, steadyLabels)}
+            {choiceLine("Steady to shot", values.steadyShot, steadyLabels)}
+            {choiceLine("Ground", values.hasGround, groundLabels)}
             {values.existingDogId ? (
               <p className="text-muted-foreground">We’ll use the intake already on file for this dog.</p>
             ) : (

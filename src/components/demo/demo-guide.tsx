@@ -4,8 +4,10 @@ import { useEffect, useId, useState } from "react";
 import { usePathname } from "next/navigation";
 import { demo } from "@content/demo";
 import { DemoTestCard } from "@/components/demo/demo-callout";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { DEMO_WELCOME_KEY, isDemoEnabled, sampleNotesForPath, type DemoNote } from "@/lib/demo";
+import type { SiteTheme } from "@/lib/theme";
 
 function NoteSection({ note, showTestCard }: { note: DemoNote; showTestCard?: boolean }) {
   return (
@@ -19,7 +21,7 @@ function NoteSection({ note, showTestCard }: { note: DemoNote; showTestCard?: bo
   );
 }
 
-export function DemoGuide() {
+export function DemoGuide({ theme }: { theme: SiteTheme }) {
   const titleId = useId();
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
@@ -89,6 +91,9 @@ export function DemoGuide() {
                 <li key={item}>{item}</li>
               ))}
             </ul>
+            <div className="mt-4">
+              <ThemeToggle theme={theme} />
+            </div>
             <div className="mt-5 flex justify-end">
               <Button type="button" className="site-book" onClick={dismissWelcome}>
                 {demo.welcome.continueLabel}
@@ -113,6 +118,9 @@ export function DemoGuide() {
               <button type="button" className="text-sm text-muted-foreground underline underline-offset-2" onClick={() => setPanelOpen(false)}>
                 Close
               </button>
+            </div>
+            <div className="mt-4">
+              <ThemeToggle theme={theme} />
             </div>
             <div className="mt-4 space-y-4 text-sm">
               {notes.map((note) => (

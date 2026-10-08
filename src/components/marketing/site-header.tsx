@@ -6,11 +6,9 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { navigation, site } from "@content/site";
 import { BrandLockup } from "@/components/marketing/brand-lockup";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
-import type { SiteTheme } from "@/lib/theme";
 
-export function SiteHeader({ theme }: { theme: SiteTheme }) {
+export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -56,7 +54,6 @@ export function SiteHeader({ theme }: { theme: SiteTheme }) {
               </Link>
             </Button>
           </nav>
-          <ThemeToggle theme={theme} />
 
           <button
             type="button"

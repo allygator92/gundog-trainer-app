@@ -295,16 +295,6 @@ export function IntakePdfDocument({
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Behaviour and goals</Text>
-            <View style={styles.skills}>
-              <View style={styles.skill}>
-                <Text style={styles.skillLabel}>Recall</Text>
-                <Text style={styles.skillValue}>{titleCase(values.recall)}</Text>
-              </View>
-              <View style={styles.skill}>
-                <Text style={styles.skillLabel}>Lead walking</Text>
-                <Text style={styles.skillValue}>{titleCase(values.leadWalking)}</Text>
-              </View>
-            </View>
             <Note label="Fear triggers" value={values.fearTriggers} />
             <Note label="Aggression notes" value={values.aggressionNotes} />
             <Note label="Previous training" value={values.previousTraining} />
