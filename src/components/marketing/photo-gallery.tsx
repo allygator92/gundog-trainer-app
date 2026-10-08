@@ -13,10 +13,12 @@ export function PhotoGallery({
   photos,
   heading,
   intro,
+  leadEager = false,
 }: {
   photos: readonly GalleryPhoto[];
   heading: string;
   intro?: string;
+  leadEager?: boolean;
 }) {
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
@@ -38,6 +40,7 @@ export function PhotoGallery({
                 src={photo.src}
                 alt={photo.alt}
                 fill
+                loading={leadEager && index === 0 ? "eager" : "lazy"}
                 className="object-cover motion-safe:transition motion-safe:duration-300 motion-safe:group-hover:scale-[1.03]"
                 style={{ objectPosition: photo.objectPosition ?? "50% 30%" }}
                 sizes={index === 0 ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 25vw, 50vw"}

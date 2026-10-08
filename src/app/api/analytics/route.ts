@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isAnalyticsEventName } from "@/lib/analytics";
+import {
+  databaseRecentlyDown,
+  isDatabaseUnavailable,
+  rememberDatabaseDown,
+} from "@/lib/database-availability";
 import { prisma } from "@/lib/prisma";
 import { isRateLimited } from "@/lib/rate-limit";
 
@@ -34,6 +39,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
+  if (databaseRecentlyDown()) {
+    return NextResponse.json({ ok: true });
+  }
+
   try {
     await prisma.analyticsEvent.create({
       data: {
@@ -44,7 +53,11 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Analytics event failed:", error);
+    if (isDatabaseUnavailable(error)) {
+      rememberDatabaseDown();
+    } else {
+      console.error("Analytics event failed:", error);
+    }
   }
 
   return NextResponse.json({ ok: true });

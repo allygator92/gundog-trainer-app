@@ -10,14 +10,14 @@ export const metadata: Metadata = {
 };
 
 export default async function PricingPage() {
-  const services = await getActiveServices();
+  const { services } = await getActiveServices();
 
   return (
     <ServiceCards
       services={services}
       heading="Pricing"
       headingLevel={1}
-      intro="A video hour is £65: whistle timing, handling, and homework. An in-person hour is £95: steadiness, dummies, a spaniel’s pattern, or a retriever at the peg. Shot, water, and cover need the in-person hour."
+      intro="A video hour is £65: whistle timing, handling, and homework. Ninety minutes in person is £95: steadiness, dummies, a spaniel’s pattern, or a retriever at the peg. Shot, water, and cover need the in-person session."
     />
   );
 }

@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { isDatabaseUnavailable, rememberDatabaseDown } from "@/lib/database-availability";
 import { sendContactNotification } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 import { isRateLimited } from "@/lib/rate-limit";
@@ -37,14 +38,25 @@ export async function submitContactAction(input: unknown): Promise<ContactFormSt
     };
   }
 
-  await prisma.contactSubmission.create({
-    data: {
-      name: parsed.data.name,
-      email: parsed.data.email,
-      phone: parsed.data.phone,
-      message: parsed.data.message,
-    },
-  });
+  try {
+    await prisma.contactSubmission.create({
+      data: {
+        name: parsed.data.name,
+        email: parsed.data.email,
+        phone: parsed.data.phone,
+        message: parsed.data.message,
+      },
+    });
+  } catch (error) {
+    if (!isDatabaseUnavailable(error)) {
+      throw error;
+    }
+    rememberDatabaseDown();
+    return {
+      status: "error",
+      message: "The diary database is not connected, so this message could not be saved.",
+    };
+  }
 
   await sendContactNotification({
     name: parsed.data.name,

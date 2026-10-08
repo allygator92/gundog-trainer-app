@@ -32,6 +32,7 @@ export default async function AboutPage() {
             src={site.images.about}
             alt="A Gun with a shotgun and a pointer in the mist"
             fill
+            loading="eager"
             className="object-cover"
             sizes="(min-width: 1024px) 50vw, 100vw"
           />

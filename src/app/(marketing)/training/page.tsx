@@ -36,6 +36,7 @@ export default function TrainingPage() {
         photos={site.images.gallery}
         heading={trainingContent.galleryHeading}
         intro={trainingContent.galleryIntro}
+        leadEager
       />
       <CtaBand
         heading={trainingContent.cta.heading}

@@ -1,28 +1,10 @@
-import { PrismaClient, ServiceType } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { sampleServiceRows } from "../src/lib/sample-services";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const services = [
-    {
-      name: "Virtual Training Session",
-      type: ServiceType.virtual,
-      durationMinutes: 60,
-      pricePence: 6500,
-      description:
-        "A one-to-one video hour for whistle timing, handling, and homework. Shot, water, and cover need an in-person hour.",
-    },
-    {
-      name: "In-Person Training Session",
-      type: ServiceType.in_person,
-      durationMinutes: 90,
-      pricePence: 9500,
-      description:
-        "Ninety minutes on your ground for the dog’s job: steadiness, dummy work, a spaniel’s pattern, or a retriever quiet at the peg.",
-    },
-  ];
-
-  for (const service of services) {
+  for (const service of sampleServiceRows) {
     await prisma.service.upsert({
       where: { name: service.name },
       update: service,

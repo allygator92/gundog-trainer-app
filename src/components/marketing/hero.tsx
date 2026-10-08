@@ -13,6 +13,7 @@ export function Hero() {
           alt="A yellow Labrador standing in long grass"
           fill
           priority
+          loading="eager"
           className="object-cover"
           sizes="100vw"
         />
