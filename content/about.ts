@@ -22,5 +22,5 @@ export const aboutContent = {
       body: "Reward-based training with structure. No scare tactics, no mystery programmes.",
     },
   ],
-  photoCaption: "A Gun with a shotgun and a pointer in the mist.",
+  photoCaption: "A pointer and handler in the mist.",
 } as const;

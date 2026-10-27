@@ -26,7 +26,7 @@ describe("sessionOffer", () => {
     expect(offer?.servicesIntro).toContain("£65");
     expect(offer?.servicesIntro).toContain("£95");
     expect(offer?.pricingIntro).toContain(offer?.servicesIntro ?? "");
-    expect(offer?.sampleBand).toContain("cannot be booked");
+    expect(offer?.sampleBand).toContain("not open for booking");
   });
 });
 

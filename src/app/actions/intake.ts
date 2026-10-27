@@ -135,7 +135,7 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
       rememberDatabaseDown();
       return {
         status: "error",
-        message: "This intake could not be saved.",
+        message: "This intake could not be sent just now.",
       };
     }
     console.error("Intake submit failed:", error);

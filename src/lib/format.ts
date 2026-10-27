@@ -35,7 +35,7 @@ export function sessionOffer(
   return {
     servicesIntro: shared,
     pricingIntro: `${shared} Shot, water, and cover need the in-person session.`,
-    sampleBand: `A video hour is ${videoPrice}. ${groundLength} in person is ${groundPrice}. A time cannot be booked from this copy yet.`,
+    sampleBand: `A video hour is ${videoPrice}. ${groundLength} in person is ${groundPrice}. Times are not open for booking just now.`,
   };
 }
 

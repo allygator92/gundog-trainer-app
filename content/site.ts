@@ -53,8 +53,8 @@ export const site = {
       },
       {
         src: unsplash("photo-1556478094-bf761a15ef40"),
-        alt: "A Gun with a shotgun and a pointer in the mist",
-        caption: "A Gun and a pointer on a hill",
+        alt: "A person with a shotgun and a pointer on a misty hillside",
+        caption: "A pointer and handler in the mist",
         setting: "field" as const,
         objectPosition: "62% 35%",
       },
@@ -76,12 +76,13 @@ export const site = {
   },
   galleryHeading: "In the field and in town",
   galleryIntro:
-    "A Labrador in grass, a dog holding a duck, a pointer with a bird, a pointer in shallow water, a Gun on a hill, a springer in cover, and a Labrador on a lead in a street.",
+    "A Labrador in grass, a dog holding a duck, a pointer with a bird, a pointer in shallow water, a pointer and handler in the mist, a springer in cover, and a Labrador on a lead in a street.",
 } as const;
 
 export const navigation = [
   { href: "/about", label: "About" },
   { href: "/training", label: "Training" },
+  { href: "/videos", label: "Videos" },
   { href: "/pricing", label: "Pricing" },
   { href: "/training#faq", label: "FAQs" },
   { href: "/contact", label: "Contact" },

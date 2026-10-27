@@ -14,6 +14,7 @@ export const demo = {
       "Heath and Field are two looks for the public site. Switch them in these sample notes.",
       "Live card payments need a Stripe account linked to a bank. On this sample you can still try checkout with Stripe’s test card (details on the pay step).",
       "Booking confirmation and reminder emails are sent by email (Resend). They do not appear in the admin dashboard, and they will not arrive until sending is switched on.",
+      "Films on the Videos page are Crufts gundog videos until a YouTube channel id is set.",
     ],
     continueLabel: "Continue to the sample site",
   },
@@ -27,12 +28,17 @@ export const demo = {
       "A paid booking would email the client a confirmation with a cancel/reschedule link. You will not see that email in admin - only in the inbox, once Resend is configured.",
   },
   contact: {
-    title: "Placeholder contact details",
-    body: "Phone, email, and social links are not on the public page. A message on the form is saved under Admin → Enquiries when the database is connected. If it is not, the form says the message could not be saved.",
+    title: "What the customer receives",
+    body: "A message on this form is saved under Admin → Enquiries. The customer sees a thank-you on the page. They do not get an email for a contact message. You receive the enquiry by email when Resend is switched on. A paid booking is separate: the customer is emailed a confirmation with a link to cancel or reschedule, you are emailed too, and a reminder goes out the day before. Those emails arrive in the inboxes, not in the admin dashboard, and only once Resend is configured.",
   },
-  about: {
-    title: "Placeholder trainer copy",
-    body: "The trainer name, story, and photos are sample content. Replace them when this site is set up for a real practice.",
+  diary: {
+    title: "Diary and booking",
+    body: "When the diary database is not connected, clients see the session prices and are told times are not open. Connect the database and they can choose a time and pay.",
+  },
+  videos: {
+    title: "Placeholder films",
+    body: "The films on this page are Crufts gundog videos. Set YOUTUBE_CHANNEL_ID and the page shows that channel’s latest uploads. Clients only see the films and a link to YouTube.",
+    fallback: "The channel feed did not load, so the Crufts films are showing.",
   },
   cookies: {
     title: "Why this cookies page is here",

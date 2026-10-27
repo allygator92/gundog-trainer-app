@@ -46,7 +46,7 @@ npm run db:seed
 
 Seed creates the two sample services (a 60-minute video hour at £65, and 90 minutes in person at £95), Monday to Friday 09:00–17:00 availability, and three testimonials that stay unpublished. The same service rows live in `src/lib/sample-services.ts`.
 
-If `DATABASE_URL` cannot be reached, the public pages still load and use that sample list. Book shows the prices and says a time cannot be booked. Contact keeps the form on screen and says the message could not be saved. Admin, checkout, intake saves, and the diary still need a live database. After a failed connection the app skips further database calls for 30 seconds, so the next page is not stuck on another timeout.
+If `DATABASE_URL` cannot be reached, the public pages still load and use that sample list. A client sees the session prices and is told times are not open. Contact keeps the form on screen and says the message could not be sent just now. Admin, checkout, intake saves, and the diary still need a live database. After a failed connection the app skips further database calls for 30 seconds, so the next page is not stuck on another timeout.
 
 ### 4. Create an admin user
 
@@ -324,7 +324,7 @@ HTTPS is automatic on Vercel. Apple Pay / Google Pay need the domain verified in
 - Marketing: home, about, training, pricing, contact, privacy, cookies
 - Photo gallery of six field shots and one street Labrador (Unsplash placeholders), captions limited to what is in the frame
 - Booking, when the database is connected: session type → UK calendar/slots → intake → Stripe Checkout
-- Booking, when the database is not connected: sample prices only, with a note that a time cannot be booked
+- Booking, when the database is not connected: session prices, and a note that times are not open
 - Intake asks what the dog is for, plus dummy work, whistle, steadiness, ground, and age in months for a puppy. The review step shows those answers. Recall and lead are not scored.
 - Waitlist for a full day; cancelling or moving a session emails people waiting
 - Client cancel / reschedule from a token link in the confirmation email

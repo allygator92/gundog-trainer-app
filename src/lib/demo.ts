@@ -64,9 +64,22 @@ export function sampleNotesForPath(pathname: string): DemoNote[] {
     body: demo.payment.body,
     afterPay: demo.payment.afterPay,
   };
-  const publicNotes: DemoNote[] = [payment, demo.contact, demo.about, demo.admin, demo.cookies];
+  const publicNotes: DemoNote[] = [
+    payment,
+    demo.contact,
+    demo.videos,
+    demo.diary,
+    demo.admin,
+    demo.cookies,
+  ];
   if (pathname.startsWith("/cookies")) {
-    return [demo.cookies, payment, demo.contact, demo.about, demo.admin];
+    return [demo.cookies, payment, demo.contact, demo.videos, demo.diary, demo.admin];
+  }
+  if (pathname.startsWith("/videos")) {
+    return [demo.videos, payment, demo.contact, demo.diary, demo.admin, demo.cookies];
+  }
+  if (pathname === "/" || pathname.startsWith("/book")) {
+    return [demo.diary, payment, demo.contact, demo.videos, demo.admin, demo.cookies];
   }
   return publicNotes;
 }

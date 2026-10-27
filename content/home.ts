@@ -4,7 +4,7 @@ export const homeContent = {
   intro:
     "Pet gundog, beating, picking-up, peg dog, or tests. A video hour covers whistle, handling, and homework. An in-person session is on the ground.",
   primaryCta: { href: "/book", label: "Book a session" },
-  sampleCta: { href: "/book", label: "See the sample prices" },
+  sampleCta: { href: "/book", label: "See the sessions" },
   secondaryCta: { href: "/contact", label: "Get in touch" },
   servicesHeading: "How we train",
   servicesIntro:
@@ -17,8 +17,8 @@ export const homeContent = {
     label: "See availability",
   },
   sampleBand: {
-    heading: "Sample session prices",
+    heading: "Sessions",
     href: "/book",
-    label: "See the sample prices",
+    label: "See the sessions",
   },
 } as const;
