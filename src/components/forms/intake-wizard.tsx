@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useState } from "react";
-import { Controller, useForm, type UseFormRegisterReturn } from "react-hook-form";
+import { Controller, useForm, useWatch, type UseFormRegisterReturn } from "react-hook-form";
 import { lookupDogsByEmailAction, submitIntakeAction } from "@/app/actions/intake";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -86,7 +86,7 @@ function ChoiceField<T extends string>({
   );
 }
 
-function choiceLine(title: string, value: string, labels: Record<string, string>) {
+function choiceLine(title: string, value: string | undefined, labels: Record<string, string>) {
   if (!value || !(value in labels)) {
     return null;
   }
@@ -157,8 +157,8 @@ export function IntakeWizard({
     },
   });
 
-  const meetingType = form.watch("meetingType");
-  const values = form.watch();
+  const meetingType = useWatch({ control: form.control, name: "meetingType" });
+  const values = useWatch({ control: form.control });
 
   async function goNext() {
     const valid = await form.trigger(intakeStepFields[step] as unknown as (keyof IntakeFormValues)[], {
@@ -175,7 +175,7 @@ export function IntakeWizard({
     setStep((current) => (current < 4 ? ((current + 1) as 2 | 3 | 4) : current));
   }
 
-  function useExistingDog(dog: { id: string; name: string; breed: string | null; age: string | null }) {
+  function chooseExistingDog(dog: { id: string; name: string; breed: string | null; age: string | null }) {
     form.setValue("existingDogId", dog.id);
     form.setValue("dogName", dog.name);
     form.setValue("breed", dog.breed || "Unknown");
@@ -353,7 +353,7 @@ export function IntakeWizard({
               <ul className="space-y-2">
                 {existingDogs.map((dog) => (
                   <li key={dog.id}>
-                    <Button type="button" variant="outline" className="w-full justify-start" onClick={() => useExistingDog(dog)}>
+                    <Button type="button" variant="outline" className="w-full justify-start" onClick={() => chooseExistingDog(dog)}>
                       {dog.name}
                       {dog.breed ? ` · ${dog.breed}` : ""}
                     </Button>

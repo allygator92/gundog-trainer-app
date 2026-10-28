@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { Document, Image, Page, Text, View, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
+import { Document, Image as PdfImage, Page, Text, View, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
 import { site } from "@content/site";
 import {
   dogJobLabels,
@@ -251,7 +251,7 @@ export function IntakePdfDocument({
     <Document title={`${dogTitle} · ${site.name}`} author={site.name}>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          {logoSrc ? <Image src={logoSrc} style={styles.logo} /> : null}
+          {logoSrc ? <PdfImage src={logoSrc} style={styles.logo} /> : null}
           <View>
             <Text style={styles.brand}>{site.name}</Text>
             <Text style={styles.headerMeta}>Confidential dog intake</Text>

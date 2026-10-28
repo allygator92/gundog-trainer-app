@@ -1,30 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 
 const STORAGE_KEY = "gundog-cookie-notice";
+const listeners = new Set<() => void>();
+
+export function subscribeCookieNotice(onChange: () => void) {
+  listeners.add(onChange);
+  return () => {
+    listeners.delete(onChange);
+  };
+}
+
+export function isCookieNoticeVisible() {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) !== "dismissed";
+  } catch {
+    return true;
+  }
+}
+
+function dismissNotice() {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, "dismissed");
+  } catch {
+    // Ignore private-mode storage failures; the bar will show next visit.
+  }
+  for (const listener of listeners) {
+    listener();
+  }
+}
 
 export function CookieNotice() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    try {
-      setVisible(window.localStorage.getItem(STORAGE_KEY) !== "dismissed");
-    } catch {
-      setVisible(true);
-    }
-  }, []);
-
-  function dismiss() {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, "dismissed");
-    } catch {
-      // Ignore private-mode storage failures; the bar will show next visit.
-    }
-    setVisible(false);
-  }
+  const visible = useSyncExternalStore(subscribeCookieNotice, isCookieNoticeVisible, () => false);
 
   if (!visible) {
     return null;
@@ -46,7 +56,7 @@ export function CookieNotice() {
               Cookie details
             </Link>
           </p>
-          <Button type="button" size="sm" className="site-book shrink-0" onClick={dismiss}>
+          <Button type="button" size="sm" className="site-book shrink-0" onClick={dismissNotice}>
             Got it
           </Button>
         </div>

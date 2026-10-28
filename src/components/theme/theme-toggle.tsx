@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { siteThemes, themeCookie, type SiteTheme } from "@/lib/theme";
+import { applySiteTheme, siteThemes, type SiteTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 export function ThemeToggle({ theme }: { theme: SiteTheme }) {
@@ -9,10 +9,7 @@ export function ThemeToggle({ theme }: { theme: SiteTheme }) {
 
   function select(next: SiteTheme) {
     setCurrent(next);
-    document.cookie = themeCookie(next);
-    document.querySelectorAll("[data-theme]").forEach((node) => {
-      node.setAttribute("data-theme", next);
-    });
+    applySiteTheme(next);
   }
 
   return (

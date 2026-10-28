@@ -1,13 +1,45 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { demo } from "@content/demo";
 import { DemoTestCard } from "@/components/demo/demo-callout";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { isCookieNoticeVisible, subscribeCookieNotice } from "@/components/marketing/cookie-notice";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { DEMO_WELCOME_KEY, isDemoEnabled, sampleNotesForPath, type DemoNote } from "@/lib/demo";
 import type { SiteTheme } from "@/lib/theme";
+
+type WelcomeState = "pending" | "open" | "dismissed";
+
+const welcomeListeners = new Set<() => void>();
+
+function subscribeWelcome(onChange: () => void) {
+  welcomeListeners.add(onChange);
+  return () => {
+    welcomeListeners.delete(onChange);
+  };
+}
+
+function readWelcome(): WelcomeState {
+  try {
+    return window.localStorage.getItem(DEMO_WELCOME_KEY) === "dismissed" ? "dismissed" : "open";
+  } catch {
+    return "open";
+  }
+}
+
+function dismissWelcome() {
+  try {
+    window.localStorage.setItem(DEMO_WELCOME_KEY, "dismissed");
+  } catch {
+    // Private mode: the dialog will show again next visit.
+  }
+  for (const listener of welcomeListeners) {
+    listener();
+  }
+}
 
 function NoteSection({ note, showTestCard }: { note: DemoNote; showTestCard?: boolean }) {
   return (
@@ -24,31 +56,11 @@ function NoteSection({ note, showTestCard }: { note: DemoNote; showTestCard?: bo
 export function DemoGuide({ theme }: { theme: SiteTheme }) {
   const titleId = useId();
   const pathname = usePathname();
-  const [ready, setReady] = useState(false);
-  const [welcomeOpen, setWelcomeOpen] = useState(false);
+  const welcome = useSyncExternalStore(subscribeWelcome, readWelcome, () => "pending" as const);
+  const cookieNoticeVisible = useSyncExternalStore(subscribeCookieNotice, isCookieNoticeVisible, () => false);
   const [panelOpen, setPanelOpen] = useState(false);
   const notes = sampleNotesForPath(pathname);
-
-  useEffect(() => {
-    if (!isDemoEnabled()) {
-      return;
-    }
-    try {
-      setWelcomeOpen(window.localStorage.getItem(DEMO_WELCOME_KEY) !== "dismissed");
-    } catch {
-      setWelcomeOpen(true);
-    }
-    setReady(true);
-  }, []);
-
-  function dismissWelcome() {
-    try {
-      window.localStorage.setItem(DEMO_WELCOME_KEY, "dismissed");
-    } catch {
-      // Private mode: the dialog will show again next visit.
-    }
-    setWelcomeOpen(false);
-  }
+  const welcomeOpen = welcome === "open";
 
   useEffect(() => {
     if (!welcomeOpen && !panelOpen) {
@@ -67,7 +79,7 @@ export function DemoGuide({ theme }: { theme: SiteTheme }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [welcomeOpen, panelOpen]);
 
-  if (!isDemoEnabled() || !ready) {
+  if (!isDemoEnabled() || welcome === "pending") {
     return null;
   }
 
@@ -103,7 +115,12 @@ export function DemoGuide({ theme }: { theme: SiteTheme }) {
         </div>
       ) : null}
 
-      <div className="pointer-events-none fixed bottom-24 right-4 z-40 sm:bottom-6">
+      <div
+        className={cn(
+          "pointer-events-none fixed right-4 z-[55]",
+          cookieNoticeVisible ? "bottom-36 sm:bottom-28" : "bottom-24 sm:bottom-6",
+        )}
+      >
         {panelOpen ? (
           <div
             role="dialog"

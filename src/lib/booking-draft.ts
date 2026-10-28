@@ -40,10 +40,68 @@ export function readBookingDraft(): BookingDraft | null {
   return parseBookingDraft(sessionStorage.getItem(BOOKING_DRAFT_KEY));
 }
 
+export type BookingDraftSnapshot =
+  | { status: "pending" }
+  | { status: "empty" }
+  | { status: "ready"; draft: BookingDraft };
+
+const pendingDraft: BookingDraftSnapshot = { status: "pending" };
+const emptyDraft: BookingDraftSnapshot = { status: "empty" };
+const draftListeners = new Set<() => void>();
+let cachedRaw: string | null | undefined;
+let cachedSnapshot: BookingDraftSnapshot = emptyDraft;
+
+function notifyDraftListeners() {
+  cachedRaw = undefined;
+  for (const listener of draftListeners) {
+    listener();
+  }
+}
+
+export function subscribeBookingDraft(onChange: () => void) {
+  draftListeners.add(onChange);
+  return () => {
+    draftListeners.delete(onChange);
+  };
+}
+
+export function getBookingDraftServerSnapshot(): BookingDraftSnapshot {
+  return pendingDraft;
+}
+
+export function getBookingDraftSnapshot(): BookingDraftSnapshot {
+  if (typeof sessionStorage === "undefined") {
+    return emptyDraft;
+  }
+  let raw: string | null;
+  try {
+    raw = sessionStorage.getItem(BOOKING_DRAFT_KEY);
+  } catch {
+    return emptyDraft;
+  }
+  if (raw === cachedRaw) {
+    return cachedSnapshot;
+  }
+  cachedRaw = raw;
+  const draft = parseBookingDraft(raw);
+  cachedSnapshot = draft ? { status: "ready", draft } : emptyDraft;
+  return cachedSnapshot;
+}
+
 export function saveBookingDraft(draft: BookingDraft) {
-  sessionStorage.setItem(BOOKING_DRAFT_KEY, JSON.stringify(draft));
+  try {
+    sessionStorage.setItem(BOOKING_DRAFT_KEY, JSON.stringify(draft));
+  } catch {
+    return;
+  }
+  notifyDraftListeners();
 }
 
 export function clearBookingDraft() {
-  sessionStorage.removeItem(BOOKING_DRAFT_KEY);
+  try {
+    sessionStorage.removeItem(BOOKING_DRAFT_KEY);
+  } catch {
+    return;
+  }
+  notifyDraftListeners();
 }

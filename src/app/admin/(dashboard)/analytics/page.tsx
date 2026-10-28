@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { percent, summariseAnalytics } from "@/lib/analytics";
 import { prisma } from "@/lib/prisma";
 import { subDays } from "date-fns";

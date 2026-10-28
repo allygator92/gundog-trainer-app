@@ -136,13 +136,15 @@ model Document {
 }
 
 model ContactSubmission {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  message   String
-  createdAt DateTime @default(now()) @map("created_at")
+  id         String    @id @default(cuid())
+  name       String
+  email      String
+  phone      String?
+  message    String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  archivedAt DateTime? @map("archived_at")
 
+  @@index([archivedAt])
   @@map("contact_submissions")
 }
 

@@ -88,7 +88,8 @@ export async function updateDogIntakeAction(formData: FormData): Promise<void> {
     );
   }
 
-  const { dogId: _dogId, trainerNotes, ...answers } = parsed.data;
+  const { trainerNotes, ...rest } = parsed.data;
+  const answers = Object.fromEntries(Object.entries(rest).filter(([key]) => key !== "dogId"));
   const consentedAt = consentedAtFromIntake(dog.intakeData, dog.createdAt.toISOString());
   const address =
     parsed.data.meetingType === "in_person" ? formatIntakeAddress(parsed.data) : null;

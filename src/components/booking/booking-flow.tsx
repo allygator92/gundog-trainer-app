@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useSyncExternalStore, useTransition } from "react";
 import { createCheckoutAction, getSlotsAction } from "@/app/actions/booking";
 import { BookingCalendar } from "@/components/booking/booking-calendar";
 import { DemoCallout } from "@/components/demo/demo-callout";
@@ -10,7 +10,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { demo } from "@content/demo";
 import { site } from "@content/site";
 import { trackClientEvent } from "@/lib/analytics-client";
-import { clearBookingDraft, readBookingDraft, saveBookingDraft } from "@/lib/booking-draft";
+import {
+  clearBookingDraft,
+  getBookingDraftServerSnapshot,
+  getBookingDraftSnapshot,
+  saveBookingDraft,
+  subscribeBookingDraft,
+} from "@/lib/booking-draft";
 import type { AvailableSlot } from "@/lib/availability";
 import { formatDuration, formatPricePence, formatServiceType } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -56,33 +62,39 @@ export function BookingFlow({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [resumed, setResumed] = useState(false);
+  const [restoreHandled, setRestoreHandled] = useState(false);
   const [pending, startTransition] = useTransition();
+  const draftSnapshot = useSyncExternalStore(
+    subscribeBookingDraft,
+    getBookingDraftSnapshot,
+    getBookingDraftServerSnapshot,
+  );
 
-  useEffect(() => {
-    if (!cancelled) return;
-    const draft = readBookingDraft();
+  if (cancelled && !restoreHandled && draftSnapshot.status !== "pending") {
+    setRestoreHandled(true);
+    const draft = draftSnapshot.status === "ready" ? draftSnapshot.draft : null;
     const service = draft ? services.find((item) => item.id === draft.serviceId) : undefined;
     if (!draft || !service) {
       setNotice("Payment was not completed. You can pick a time again.");
-      return;
+    } else {
+      setState({
+        service,
+        slot: {
+          startsAt: draft.startsAt,
+          dateLabel: draft.dateLabel,
+          dateKey: draft.dateKey,
+          label: draft.label,
+        },
+        clientId: draft.clientId,
+        dogId: draft.dogId,
+        ownerName: draft.ownerName,
+        dogName: draft.dogName,
+      });
+      setStep(3);
+      setResumed(true);
+      setNotice("Payment was not completed. Your details are still here. You can pay again, or start again.");
     }
-    setState({
-      service,
-      slot: {
-        startsAt: draft.startsAt,
-        dateLabel: draft.dateLabel,
-        dateKey: draft.dateKey,
-        label: draft.label,
-      },
-      clientId: draft.clientId,
-      dogId: draft.dogId,
-      ownerName: draft.ownerName,
-      dogName: draft.dogName,
-    });
-    setStep(3);
-    setResumed(true);
-    setNotice("Payment was not completed. Your details are still here. You can pay again, or start again.");
-  }, [cancelled, services]);
+  }
 
   function startAgain() {
     clearBookingDraft();
