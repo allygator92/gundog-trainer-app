@@ -16,10 +16,13 @@ import {
   dogSexes,
   formatDogAge,
   formatIntakeAddress,
+  groundHint,
   groundLabels,
   groundOptions,
   intakeFormSchema,
   intakeStepFields,
+  shotSteadyLabels,
+  shotSteadyStates,
   startedLabels,
   startedStates,
   steadyLabels,
@@ -52,6 +55,7 @@ function FieldError({ id, message }: { id?: string; message?: string }) {
 function ChoiceField<T extends string>({
   id,
   label,
+  hint,
   options,
   labels,
   register,
@@ -59,6 +63,7 @@ function ChoiceField<T extends string>({
 }: {
   id: string;
   label: string;
+  hint?: string;
   options: readonly T[];
   labels: Record<T, string>;
   register: UseFormRegisterReturn;
@@ -67,6 +72,7 @@ function ChoiceField<T extends string>({
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
+      {hint ? <p className="text-sm text-muted-foreground">{hint}</p> : null}
       <select id={id} className={selectClassName} {...register}>
         <option value="">Choose</option>
         {options.map((option) => (
@@ -139,9 +145,11 @@ export function IntakeWizard({
       steadyDogs: "",
       steadyShot: "",
       hasGround: "",
+      groundNotes: "",
       fearTriggers: "",
       aggressionNotes: "",
       previousTraining: "",
+      extraNotes: "",
       goals: "",
       consentDataStorage: false,
       existingDogId: undefined,
@@ -478,19 +486,28 @@ export function IntakeWizard({
           <ChoiceField
             id="steadyShot"
             label="Steady to shot"
-            options={steadyStates}
-            labels={steadyLabels}
+            options={shotSteadyStates}
+            labels={shotSteadyLabels}
             register={form.register("steadyShot")}
             error={form.formState.errors.steadyShot?.message}
           />
           <ChoiceField
             id="hasGround"
-            label="Ground to work on"
+            label="Do you have a place outdoors we can train?"
+            hint={groundHint}
             options={groundOptions}
             labels={groundLabels}
             register={form.register("hasGround")}
             error={form.formState.errors.hasGround?.message}
           />
+          <div className="space-y-2">
+            <Label htmlFor="groundNotes">Notes about the place (optional)</Label>
+            <Textarea
+              id="groundNotes"
+              placeholder="Gates, livestock, how we get in, or what you mean by other."
+              {...form.register("groundNotes")}
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="fearTriggers">Fear or startle triggers</Label>
             <Textarea id="fearTriggers" {...form.register("fearTriggers")} />
@@ -502,6 +519,14 @@ export function IntakeWizard({
           <div className="space-y-2">
             <Label htmlFor="previousTraining">Previous training</Label>
             <Textarea id="previousTraining" {...form.register("previousTraining")} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="extraNotes">Additional notes (optional)</Label>
+            <Textarea
+              id="extraNotes"
+              placeholder="Anything else I should know before we train."
+              {...form.register("extraNotes")}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="goals">Goals</Label>
@@ -548,8 +573,18 @@ export function IntakeWizard({
             {choiceLine("Whistle", values.whistle, startedLabels)}
             {choiceLine("Steady to birds", values.steadyBirds, steadyLabels)}
             {choiceLine("Steady to other dogs", values.steadyDogs, steadyLabels)}
-            {choiceLine("Steady to shot", values.steadyShot, steadyLabels)}
-            {choiceLine("Ground", values.hasGround, groundLabels)}
+            {choiceLine("Steady to shot", values.steadyShot, shotSteadyLabels)}
+            {choiceLine("Place to train", values.hasGround, groundLabels)}
+            {values.groundNotes ? (
+              <p>
+                <span className="font-medium">Place notes:</span> {values.groundNotes}
+              </p>
+            ) : null}
+            {values.extraNotes ? (
+              <p>
+                <span className="font-medium">Additional notes:</span> {values.extraNotes}
+              </p>
+            ) : null}
             {values.existingDogId ? (
               <p className="text-muted-foreground">We’ll use the intake already on file for this dog.</p>
             ) : (

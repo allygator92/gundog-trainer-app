@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { site } from "@content/site";
+import { ClearBookingDraft } from "@/components/booking/clear-booking-draft";
 import { Button } from "@/components/ui/button";
 import { BOOKING_TIMEZONE } from "@/lib/availability";
 import { formatDuration, formatPricePence } from "@/lib/format";
@@ -28,6 +29,7 @@ export default async function BookingConfirmedPage({
 
   return (
     <div className="mx-auto w-full max-w-xl px-4 py-16 sm:px-6">
+      <ClearBookingDraft />
       <h1 className="font-display text-3xl font-semibold tracking-tight">
         {booking?.status === "confirmed" ? "You’re booked in" : "Payment received"}
       </h1>

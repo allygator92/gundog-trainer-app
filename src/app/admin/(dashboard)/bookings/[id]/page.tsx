@@ -3,12 +3,14 @@ import { notFound } from "next/navigation";
 import { saveBookingNotesAction } from "@/app/admin/(dashboard)/bookings/actions";
 import { BookingStatusBadge } from "@/components/admin/booking-status-badge";
 import { CancelBookingButton } from "@/components/admin/cancel-booking-button";
+import { IntakeRecordForm } from "@/components/admin/intake-record-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { BOOKING_TIMEZONE } from "@/lib/availability";
 import { formatDuration, formatPricePence, formatServiceType } from "@/lib/format";
+import { intakeRecordDefaults } from "@/lib/intake-record";
 import { intakeRows } from "@/lib/intake-display";
 import { prisma } from "@/lib/prisma";
 import { formatInTimeZone } from "date-fns-tz";
@@ -17,10 +19,12 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminBookingDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ intakeDog?: string; intakeSaved?: string; intakeError?: string }>;
 }) {
-  const { id } = await params;
+  const [{ id }, query] = await Promise.all([params, searchParams]);
   const booking = await prisma.booking.findUnique({
     where: { id },
     include: {
@@ -117,7 +121,7 @@ export default async function AdminBookingDetailPage({
               <span className="text-muted-foreground">Dog · </span>
               {booking.dog.name}
               {booking.dog.breed ? ` · ${booking.dog.breed}` : ""}
-              {booking.dog.age ? ` · ${booking.dog.age} yrs` : ""}
+              {booking.dog.age ? ` · ${booking.dog.age}` : ""}
             </p>
           </CardContent>
         </Card>
@@ -132,7 +136,7 @@ export default async function AdminBookingDetailPage({
             {answers.map((row) => (
               <div key={row.label} className="grid gap-1 px-4 py-3 text-sm sm:grid-cols-3">
                 <dt className="text-muted-foreground">{row.label}</dt>
-                <dd className="sm:col-span-2">{row.value}</dd>
+                <dd className="break-words sm:col-span-2">{row.value}</dd>
               </div>
             ))}
           </dl>
@@ -157,8 +161,16 @@ export default async function AdminBookingDetailPage({
         )}
       </section>
 
+      <IntakeRecordForm
+        defaults={intakeRecordDefaults(booking.dog, booking.client)}
+        returnTo={`/admin/bookings/${booking.id}`}
+        saved={query.intakeSaved === "1" && query.intakeDog === booking.dogId}
+        error={query.intakeDog === booking.dogId ? query.intakeError : undefined}
+      />
+
       <section className="space-y-3">
-        <h3 className="font-semibold">Trainer notes</h3>
+        <h3 className="font-semibold">Session notes</h3>
+        <p className="text-sm text-muted-foreground">Kept on this booking only.</p>
         <form action={saveBookingNotesAction} className="space-y-3 rounded-xl border bg-card p-4">
           <input type="hidden" name="bookingId" value={booking.id} />
           <Label htmlFor="notes" className="sr-only">

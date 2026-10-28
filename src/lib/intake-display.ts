@@ -1,4 +1,10 @@
-import { dogJobLabels, groundLabels, startedLabels, steadyLabels } from "@/lib/validations/intake";
+import {
+  dogJobLabels,
+  legacyGroundLabels,
+  shotSteadyLabels,
+  startedLabels,
+  steadyLabels,
+} from "@/lib/validations/intake";
 
 const choiceLabels: Record<string, Record<string, string>> = {
   dogJob: dogJobLabels,
@@ -6,8 +12,8 @@ const choiceLabels: Record<string, Record<string, string>> = {
   whistle: startedLabels,
   steadyBirds: steadyLabels,
   steadyDogs: steadyLabels,
-  steadyShot: steadyLabels,
-  hasGround: groundLabels,
+  steadyShot: shotSteadyLabels,
+  hasGround: legacyGroundLabels,
 };
 
 const labels: Record<string, string> = {
@@ -31,13 +37,16 @@ const labels: Record<string, string> = {
   steadyBirds: "Steady to birds",
   steadyDogs: "Steady to other dogs",
   steadyShot: "Steady to shot",
-  hasGround: "Ground to work on",
+  hasGround: "Place outdoors to train",
+  groundNotes: "Notes about the place",
+  extraNotes: "Additional notes",
   recall: "Recall",
   leadWalking: "Lead walking",
   fearTriggers: "Fear triggers",
   aggressionNotes: "Aggression notes",
   previousTraining: "Previous training",
   goals: "Goals",
+  trainerNotes: "Trainer notes",
   consentedAt: "Consent recorded",
 };
 
