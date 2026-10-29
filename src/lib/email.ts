@@ -109,7 +109,8 @@ export async function sendIntakeNotification(input: {
   });
 
   if (error) {
-    console.error("Failed to send intake email:", error);
+    const detail = error instanceof Error ? error.message : error.message || error.name || error;
+    console.error("Failed to send intake email:", detail);
     return false;
   }
 
