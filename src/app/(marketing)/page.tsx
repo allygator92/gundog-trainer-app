@@ -31,9 +31,14 @@ export default async function HomePage() {
         intro={offer?.servicesIntro ?? homeContent.servicesIntro}
       />
       <PhotoGallery
-        photos={site.images.gallery}
+        photos={site.images.gallery.filter((photo) =>
+          [
+            "photo-1642017273035-f6d949467443",
+            "photo-1514134952839-71312e5b823f",
+            "photo-1697302859121-57b8dd772dac",
+          ].some((id) => photo.src.includes(id)),
+        )}
         heading={site.galleryHeading}
-        intro={site.galleryIntro}
       />
       <TestimonialStrip testimonials={testimonials} heading={homeContent.testimonialsHeading} />
       <SessionExpect />

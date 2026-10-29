@@ -1,28 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Fraunces, Geist, Geist_Mono } from "next/font/google";
+import { Besley, Newsreader } from "next/font/google";
 import { site } from "@content/site";
 import { getAppUrl } from "@/lib/app-url";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const besley = Besley({
+  variable: "--font-besley",
   subsets: ["latin"],
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-});
-
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -80,7 +69,7 @@ export default function RootLayout({
   return (
     <html lang="en-GB">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${cormorant.variable} font-sans antialiased`}
+        className={`${newsreader.variable} ${besley.variable} font-sans antialiased`}
       >
         {children}
       </body>

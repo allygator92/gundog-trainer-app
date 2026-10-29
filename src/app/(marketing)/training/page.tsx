@@ -32,12 +32,7 @@ export default function TrainingPage() {
       </div>
       <SessionExpect />
       <FaqList />
-      <PhotoGallery
-        photos={site.images.gallery}
-        heading={site.galleryHeading}
-        intro={site.galleryIntro}
-        leadEager
-      />
+      <PhotoGallery photos={site.images.gallery} heading={site.galleryHeading} leadEager />
       <CtaBand
         heading={trainingContent.cta.heading}
         body={trainingContent.cta.body}

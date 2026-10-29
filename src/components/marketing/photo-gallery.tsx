@@ -20,22 +20,24 @@ export function PhotoGallery({
   intro?: string;
   leadEager?: boolean;
 }) {
+  const compact = photos.length <= 3;
+
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
       <div className="max-w-2xl">
         <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{heading}</h2>
         {intro ? <p className="mt-3 text-muted-foreground">{intro}</p> : null}
       </div>
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={cn("mt-10 grid gap-4", compact ? "sm:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4")}>
         {photos.map((photo, index) => (
           <figure
             key={photo.src + photo.caption}
             className={cn(
               "group relative overflow-hidden rounded-2xl bg-muted",
-              index === 0 ? "sm:col-span-2 lg:row-span-2" : "",
+              !compact && index === 0 && "sm:col-span-2 lg:row-span-2",
             )}
           >
-            <div className={cn("relative", index === 0 ? "aspect-[4/3] sm:aspect-auto sm:h-full sm:min-h-[22rem]" : "aspect-[4/3]")}>
+            <div className={cn("relative aspect-[4/3]", !compact && index === 0 && "sm:aspect-auto sm:h-full sm:min-h-[22rem]")}>
               <Image
                 src={photo.src}
                 alt={photo.alt}
@@ -43,7 +45,13 @@ export function PhotoGallery({
                 loading={leadEager && index === 0 ? "eager" : "lazy"}
                 className="object-cover motion-safe:transition motion-safe:duration-300 motion-safe:group-hover:scale-[1.03]"
                 style={{ objectPosition: photo.objectPosition ?? "50% 30%" }}
-                sizes={index === 0 ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 25vw, 50vw"}
+                sizes={
+                  compact
+                    ? "(min-width: 640px) 33vw, 100vw"
+                    : index === 0
+                      ? "(min-width: 1024px) 50vw, 100vw"
+                      : "(min-width: 1024px) 25vw, 50vw"
+                }
               />
             </div>
             <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/55 to-transparent px-3 pb-3 pt-14 text-sm text-white [text-shadow:0_1px_2px_rgb(0_0_0_/_70%)]">
