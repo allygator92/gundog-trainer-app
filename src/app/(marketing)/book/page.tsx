@@ -32,7 +32,7 @@ export default async function BookPage({
 
   if (sample) {
     return (
-      <div className="mx-auto w-full max-w-4xl px-4 pb-16 sm:px-6">
+      <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
         <PageHeader
           className="px-0 sm:px-0"
           title={bookContent.headline}
@@ -65,7 +65,7 @@ export default async function BookPage({
   }
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 pb-16 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
       <PageHeader className="px-0 sm:px-0" title={bookContent.headline} description={bookContent.intro} />
       <p className="mb-8 text-sm text-muted-foreground">
         Bring a slip lead if you have one.{" "}

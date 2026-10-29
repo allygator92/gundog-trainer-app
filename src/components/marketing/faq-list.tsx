@@ -2,9 +2,9 @@ import { faqContent } from "@content/faq";
 
 export function FaqList({ heading = faqContent.heading }: { heading?: string }) {
   return (
-    <section id="faq" className="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6">
+    <section id="faq" className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
       <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{heading}</h2>
-      <div className="mt-8 divide-y rounded-2xl border bg-card">
+      <div className="mt-8 max-w-3xl divide-y rounded-2xl border bg-card">
         {faqContent.items.map((item) => (
           <details key={item.question} className="group px-5 py-4">
             <summary className="cursor-pointer list-none font-medium marker:content-none [&::-webkit-details-marker]:hidden">

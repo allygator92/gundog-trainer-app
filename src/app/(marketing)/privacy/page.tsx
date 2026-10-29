@@ -10,13 +10,13 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
       <PageHeader
         className="px-0 sm:px-0"
         title={privacyContent.title}
         description={`Last updated ${privacyContent.updated}.`}
       />
-      <div className="space-y-8">
+      <div className="max-w-3xl space-y-8">
         {privacyContent.sections.map((section) => (
           <section key={section.heading}>
             <h2 className="font-display text-xl font-semibold">{section.heading}</h2>
