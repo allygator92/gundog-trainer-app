@@ -435,30 +435,39 @@ export function IntakeWizard({
             <FieldError message={form.formState.errors.breed?.message} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ageYears">Age (years)</Label>
+            <Label htmlFor="ageYears">Years</Label>
             <Input
               id="ageYears"
               inputMode="numeric"
               autoComplete="off"
               maxLength={2}
               aria-invalid={Boolean(form.formState.errors.ageYears)}
-              aria-describedby={form.formState.errors.ageYears ? "ageYears-error" : undefined}
+              aria-describedby={
+                form.formState.errors.ageYears ? "ageYears-hint ageYears-error" : "ageYears-hint"
+              }
               {...form.register("ageYears")}
             />
+            <p id="ageYears-hint" className="text-sm text-muted-foreground">
+              Enter 0 if your dog is under a year old.
+            </p>
             <FieldError id="ageYears-error" message={form.formState.errors.ageYears?.message} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ageMonths">Age in months, if under a year</Label>
+            <Label htmlFor="ageMonths">Months</Label>
             <Input
               id="ageMonths"
               inputMode="numeric"
               autoComplete="off"
               maxLength={2}
               aria-invalid={Boolean(form.formState.errors.ageMonths)}
-              aria-describedby={form.formState.errors.ageMonths ? "ageMonths-error" : undefined}
+              aria-describedby={
+                form.formState.errors.ageMonths ? "ageMonths-hint ageMonths-error" : "ageMonths-hint"
+              }
               {...form.register("ageMonths")}
             />
-            <p className="text-sm text-muted-foreground">Put 0 in years, then the months here. One month is shown as 1 month.</p>
+            <p id="ageMonths-hint" className="text-sm text-muted-foreground">
+              For a puppy, enter the age in months. For an older dog, add any extra months or leave this blank.
+            </p>
             <FieldError id="ageMonths-error" message={form.formState.errors.ageMonths?.message} />
           </div>
           <div className="space-y-2">
