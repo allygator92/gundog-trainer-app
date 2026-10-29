@@ -142,6 +142,11 @@
   background: color-mix(in oklch, var(--accent) 88%, black);
 }
 
+.site-hero-outline {
+  border-color: color-mix(in oklch, var(--primary) 70%, transparent);
+  color: var(--primary);
+}
+
 [data-theme="field"] .site-hero-outline {
   border-color: color-mix(in oklch, var(--primary-foreground) 55%, transparent);
   background: color-mix(in oklch, var(--primary) 30%, transparent);

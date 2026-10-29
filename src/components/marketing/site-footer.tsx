@@ -5,10 +5,10 @@ import { BrandLockup } from "@/components/marketing/brand-lockup";
 export function SiteFooter() {
   return (
     <footer className="site-footer relative z-10">
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-3">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 text-center sm:px-6 md:grid-cols-3 md:text-left">
         <div>
-          <BrandLockup compact className="site-footer-brand" />
-          <p className="site-footer-muted mt-2 max-w-xs text-sm text-muted-foreground">{site.tagline}</p>
+          <BrandLockup compact className="site-footer-brand justify-center md:justify-start" />
+          <p className="site-footer-muted mx-auto mt-2 max-w-xs text-sm text-muted-foreground md:mx-0">{site.tagline}</p>
         </div>
         <div>
           <p className="site-footer-heading text-sm font-medium">Explore</p>
