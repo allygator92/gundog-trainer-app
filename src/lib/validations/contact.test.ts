@@ -13,6 +13,11 @@ describe("contactFormSchema", () => {
     expect(parsed.email).toBe("sam@example.com");
   });
 
+  it("rejects an email with no @ sign", () => {
+    const parsed = contactFormSchema.safeParse({ ...valid, email: "sam.example.com" });
+    expect(parsed.success).toBe(false);
+  });
+
   it("rejects a short name and message", () => {
     const parsed = contactFormSchema.safeParse({
       name: "S",

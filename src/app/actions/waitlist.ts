@@ -13,7 +13,8 @@ import { waitlistSchema } from "@/lib/validations/waitlist";
 export async function joinWaitlistAction(input: unknown) {
   const parsed = waitlistSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false as const, error: "Please check your name, email, and date." };
+    const issue = parsed.error.issues.find((item) => item.path[0] === "name" || item.path[0] === "email");
+    return { ok: false as const, error: issue?.message ?? "Please check your name and email." };
   }
 
   const headerStore = await headers();

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ageMonthsField, ageYearsField, emailAddress, personName, quantityLabel } from "@/lib/validations/fields";
 
 export const dogSexes = ["male", "female", "unknown"] as const;
 export const dogJobs = ["pet", "beating", "picking_up", "peg", "tests", "non_gundog"] as const;
@@ -60,37 +61,34 @@ export const legacyGroundLabels: Record<string, string> = {
 
 export const groundHint = "The place you can use for the session.";
 
-const optionalMonths = z.preprocess(
-  (value) => (value === "" || value === null || value === undefined ? undefined : value),
-  z.coerce.number().min(1, "Enter the puppy’s age in months").max(18, "Enter the puppy’s age in months").optional(),
-);
-
 function emptyOrEnum<T extends readonly [string, ...string[]]>(values: T) {
   return z.union([z.literal(""), z.enum(values)]);
 }
 
 const ukPostcode = /^[A-Za-z]{1,2}\d[A-Za-z\d]?\s*\d[A-Za-z]{2}$/;
 
-const optionalText = z.string().trim().max(2000).default("");
+const optionalText = z.string().trim().max(2000, "Keep this to 2000 characters").default("");
+const addressLine = z.string().trim().max(100, "Address must be 100 characters or fewer").default("");
 
 export const intakeFormSchema = z
   .object({
-    ownerName: z.string().trim().min(2, "Name is required").max(100),
-    ownerEmail: z.string().trim().email("Enter a valid email address"),
+    ownerName: personName("Name", 60, 2),
+    ownerEmail: emailAddress,
     ownerPhone: z
       .string()
       .trim()
+      .max(20, "Phone number is too long")
       .default("")
       .refine((value) => !value || /^[+0-9()\s-]{10,20}$/.test(value), "Enter a valid phone number"),
     meetingType: z.enum(["virtual", "in_person"]),
-    addressLine1: z.string().trim().default(""),
-    addressLine2: z.string().trim().default(""),
-    city: z.string().trim().default(""),
-    postcode: z.string().trim().default(""),
-    dogName: z.string().trim().min(1, "Dog’s name is required").max(80),
-    breed: z.string().trim().min(1, "Breed is required").max(80),
-    ageYears: z.coerce.number().min(0, "Enter a valid age").max(25, "Enter a valid age"),
-    ageMonths: optionalMonths,
+    addressLine1: addressLine,
+    addressLine2: addressLine,
+    city: z.string().trim().max(60, "Town or city must be 60 characters or fewer").default(""),
+    postcode: z.string().trim().max(10, "Postcode is too long").default(""),
+    dogName: personName("Dog’s name", 40),
+    breed: personName("Breed", 40),
+    ageYears: ageYearsField,
+    ageMonths: ageMonthsField,
     sex: z.enum(dogSexes),
     neutered: z.boolean(),
     dogJob: emptyOrEnum(dogJobs),
@@ -202,22 +200,23 @@ const legacyGround = ["yes", "no"] as const;
 export const trainerIntakeSchema = z
   .object({
     dogId: z.string().min(1),
-    ownerName: z.string().trim().min(2, "Name is required").max(100),
-    ownerEmail: z.string().trim().email("Enter a valid email address"),
+    ownerName: personName("Name", 60, 2),
+    ownerEmail: emailAddress,
     ownerPhone: z
       .string()
       .trim()
+      .max(20, "Phone number is too long")
       .default("")
       .refine((value) => !value || /^[+0-9()\s-]{10,20}$/.test(value), "Enter a valid phone number"),
     meetingType: z.enum(["virtual", "in_person"]),
-    addressLine1: z.string().trim().default(""),
-    addressLine2: z.string().trim().default(""),
-    city: z.string().trim().default(""),
-    postcode: z.string().trim().default(""),
-    dogName: z.string().trim().min(1, "Dog’s name is required").max(80),
-    breed: z.string().trim().min(1, "Breed is required").max(80),
-    ageYears: z.coerce.number().min(0, "Enter a valid age").max(25, "Enter a valid age"),
-    ageMonths: optionalMonths,
+    addressLine1: addressLine,
+    addressLine2: addressLine,
+    city: z.string().trim().max(60, "Town or city must be 60 characters or fewer").default(""),
+    postcode: z.string().trim().max(10, "Postcode is too long").default(""),
+    dogName: personName("Dog’s name", 40),
+    breed: personName("Breed", 40),
+    ageYears: ageYearsField,
+    ageMonths: ageMonthsField,
     sex: z.enum(dogSexes),
     neutered: z.boolean(),
     dogJob: emptyOrEnum(dogJobs),
@@ -253,12 +252,10 @@ export const trainerIntakeSchema = z
 export type TrainerIntakeValues = z.output<typeof trainerIntakeSchema>;
 
 export function formatDogAge(values: { ageYears: number; ageMonths?: number }) {
-  if (values.ageYears < 1 && values.ageMonths) {
-    return `${values.ageMonths} months`;
+  const months = values.ageMonths ? quantityLabel(values.ageMonths, "month", "months") : "";
+  if (values.ageYears < 1) {
+    return months || "0 years";
   }
-  if (values.ageYears >= 1 && values.ageMonths) {
-    return `${values.ageYears} years, ${values.ageMonths} months`;
-  }
-  const years = values.ageYears;
-  return `${years} ${years === 1 ? "year" : "years"}`;
+  const years = quantityLabel(values.ageYears, "year", "years");
+  return months ? `${years}, ${months}` : years;
 }

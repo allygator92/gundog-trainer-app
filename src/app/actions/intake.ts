@@ -39,7 +39,11 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
 
   const headerStore = await headers();
   const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (isRateLimited(`intake:${ip}`, 5, 60 * 60 * 1000)) {
+  const emailKey = parsed.data.ownerEmail.toLowerCase();
+  if (
+    isRateLimited(`intake:${ip}`, 5, 60 * 60 * 1000) ||
+    isRateLimited(`intake-email:${emailKey}`, 3, 60 * 60 * 1000)
+  ) {
     return {
       status: "error",
       message: "Too many submissions from this connection. Please try again later.",

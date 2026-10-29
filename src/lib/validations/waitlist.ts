@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { emailAddress, personName } from "@/lib/validations/fields";
 
 export const waitlistSchema = z.object({
-  name: z.string().trim().min(2).max(100),
-  email: z.string().trim().email(),
+  name: personName("Name", 60, 2),
+  email: emailAddress,
   dateKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   serviceId: z.string().optional(),
 });
