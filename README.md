@@ -68,14 +68,14 @@ The public site has two layouts. On this sample, switch them in the sample notes
 
 | Look | Style |
 |------|--------|
-| **Heath** | Warm countryside greens, rounded cards, Fraunces headings |
-| **Field** | Ink navy and brass, sharper edges, estate-style headings |
+| **Heath** | Warm countryside greens, rounded cards, Besley headings |
+| **Field** | Ink navy and brass, sharper edges, the same Besley headings |
 
 How it is wired:
 
 1. `src/app/(marketing)/layout.tsx` reads the `gundog-theme` cookie and sets `data-theme="heath" | "field"` on a wrapper.
 2. `src/components/theme/theme-toggle.tsx` writes that cookie in the browser and updates `data-theme` immediately so the page does not need a full reload. On the public site it lives in the sample notes, not beside Book.
-3. `src/app/globals.css` scopes Field overrides with `[data-theme="field"]`. Tokens such as `--primary` and `--font-display-family` switch with the attribute.
+3. `src/app/globals.css` scopes Field overrides with `[data-theme="field"]`. Colour tokens such as `--primary` switch with the attribute. Both looks share Besley for headings and Newsreader for text.
 4. Admin is outside `(marketing)`, but the login page and the dashboard still set `data-theme` from the same cookie, and the admin header includes the Heath / Field toggle. Field styles therefore apply there too.
 
 The Field header is navy with cream text. The mobile menu panel is cream. Menu links must set their own dark colour (`.site-mobile-link`) or they inherit cream-on-cream and disappear. Footer links on Field need `.site-footer-link` for the same reason: Tailwind `text-muted-foreground` is a dark navy that vanishes on a navy footer.

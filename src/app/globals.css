@@ -25,14 +25,13 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-display-family), ui-serif, Georgia, serif;
+  --font-sans: var(--font-newsreader), "Iowan Old Style", Palatino, Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-display: var(--font-besley), "Iowan Old Style", Palatino, Georgia, serif;
 }
 
 :root,
 [data-theme="heath"] {
-  --font-display-family: var(--font-fraunces);
   --radius: 0.625rem;
   --background: oklch(0.985 0.002 106);
   --foreground: oklch(0.216 0.022 85);
@@ -55,7 +54,6 @@
 }
 
 [data-theme="field"] {
-  --font-display-family: var(--font-cormorant);
   --radius: 0.125rem;
   --background: oklch(0.965 0.018 82);
   --foreground: oklch(0.22 0.04 250);
