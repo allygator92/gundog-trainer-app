@@ -22,7 +22,8 @@ test("marketing pages render", async ({ page }) => {
   await expect(page.getByRole("heading", { name: /what makes a gundog a gundog/i })).toBeVisible();
 
   await page.goto("/pricing");
-  await expect(page.getByRole("heading").first()).toBeVisible();
+  await expect(page).toHaveURL(/\/#pricing$/);
+  await expect(page.getByRole("heading", { name: "How we train" })).toBeVisible();
 
   await page.goto("/videos");
   await expect(page.getByRole("heading", { name: "The gundog group at Crufts" })).toBeVisible();

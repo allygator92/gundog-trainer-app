@@ -26,6 +26,7 @@ export default async function HomePage() {
         primaryCta={sample ? homeContent.sampleCta : homeContent.primaryCta}
       />
       <ServiceCards
+        id="pricing"
         services={services}
         heading={homeContent.servicesHeading}
         intro={offer?.servicesIntro ?? homeContent.servicesIntro}
@@ -35,7 +36,7 @@ export default async function HomePage() {
           [
             "photo-1642017273035-f6d949467443",
             "photo-1514134952839-71312e5b823f",
-            "photo-1697302859121-57b8dd772dac",
+            "1490908",
           ].some((id) => photo.src.includes(id)),
         )}
         heading={site.galleryHeading}

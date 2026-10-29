@@ -9,16 +9,18 @@ export function ServiceCards({
   heading,
   intro,
   headingLevel = 2,
+  id,
 }: {
   services: Service[];
   heading: string;
   intro?: string;
   headingLevel?: 1 | 2;
+  id?: string;
 }) {
   const HeadingTag = headingLevel === 1 ? "h1" : "h2";
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
+    <section id={id} className="mx-auto w-full max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6">
       <div className="mx-auto max-w-2xl text-center">
         <HeadingTag className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
           {heading}

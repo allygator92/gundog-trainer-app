@@ -19,7 +19,7 @@ export const site = {
   virtualMeetingNote:
     "A video hour can coach whistle timing, handling, and homework. It cannot cover shot, water, or cover. A reminder with the video call link is emailed the day before. No extra app install is required.",
   images: {
-    hero: unsplash("photo-1668036065203-4f1b08f1fcf1", 1600),
+    hero: "https://images.pexels.com/photos/39131340/pexels-photo-39131340.jpeg?auto=compress&cs=tinysrgb&w=2000",
     about: unsplash("photo-1556478094-bf761a15ef40"),
     field: unsplash("photo-1642017273035-f6d949467443"),
     gallery: [
@@ -66,9 +66,9 @@ export const site = {
         objectPosition: "50% 22%",
       },
       {
-        src: unsplash("photo-1697302859121-57b8dd772dac"),
-        alt: "A yellow Labrador on a lead in a street",
-        caption: "A Labrador on a lead in a street",
+        src: "https://images.pexels.com/photos/1490908/pexels-photo-1490908.jpeg?auto=compress&cs=tinysrgb&w=1400",
+        alt: "A golden retriever on a town pavement",
+        caption: "A retriever on a pavement",
         setting: "urban" as const,
         objectPosition: "50% 45%",
       },
@@ -81,7 +81,7 @@ export const navigation = [
   { href: "/about", label: "About" },
   { href: "/training", label: "Training" },
   { href: "/videos", label: "Videos" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/#pricing", label: "Pricing" },
   { href: "/training#faq", label: "FAQs" },
   { href: "/contact", label: "Contact" },
 ] as const;
