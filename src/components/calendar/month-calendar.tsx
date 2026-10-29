@@ -85,7 +85,7 @@ export function MonthCalendar({
               role="gridcell"
               disabled={disabled}
               aria-current={isToday ? "date" : undefined}
-              aria-pressed={tone === "selected" || tone === "rangeEnd"}
+              aria-selected={tone === "selected" || tone === "rangeEnd"}
               aria-label={dayLabel?.(cell.dateKey) ?? cell.dateKey}
               onClick={() => onDayClick(cell.dateKey)}
               className={cn(

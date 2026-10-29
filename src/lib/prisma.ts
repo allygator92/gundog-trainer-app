@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { isDatabaseUnavailableMessage } from "@/lib/database-availability";
 
-const CLIENT_REVISION = 2;
+const CLIENT_REVISION = 3;
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

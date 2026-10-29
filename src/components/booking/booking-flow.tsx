@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useSyncExternalStore, useTransition } from "react";
 import { createCheckoutAction, getSlotsAction } from "@/app/actions/booking";
 import { BookingCalendar } from "@/components/booking/booking-calendar";
 import { DemoCallout } from "@/components/demo/demo-callout";
@@ -10,6 +10,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { demo } from "@content/demo";
 import { site } from "@content/site";
 import { trackClientEvent } from "@/lib/analytics-client";
+import {
+  clearBookingDraft,
+  getBookingDraftServerSnapshot,
+  getBookingDraftSnapshot,
+  saveBookingDraft,
+  subscribeBookingDraft,
+} from "@/lib/booking-draft";
 import type { AvailableSlot } from "@/lib/availability";
 import { formatDuration, formatPricePence, formatServiceType } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -52,8 +59,58 @@ export function BookingFlow({
   });
   const [slots, setSlots] = useState<AvailableSlot[]>([]);
   const [fullDateKeys, setFullDateKeys] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(cancelled ? "Payment was cancelled. You can pick a time again." : null);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [resumed, setResumed] = useState(false);
+  const [restoreHandled, setRestoreHandled] = useState(false);
   const [pending, startTransition] = useTransition();
+  const draftSnapshot = useSyncExternalStore(
+    subscribeBookingDraft,
+    getBookingDraftSnapshot,
+    getBookingDraftServerSnapshot,
+  );
+
+  if (cancelled && !restoreHandled && draftSnapshot.status !== "pending") {
+    setRestoreHandled(true);
+    const draft = draftSnapshot.status === "ready" ? draftSnapshot.draft : null;
+    const service = draft ? services.find((item) => item.id === draft.serviceId) : undefined;
+    if (!draft || !service) {
+      setNotice("Payment was not completed. You can pick a time again.");
+    } else {
+      setState({
+        service,
+        slot: {
+          startsAt: draft.startsAt,
+          dateLabel: draft.dateLabel,
+          dateKey: draft.dateKey,
+          label: draft.label,
+        },
+        clientId: draft.clientId,
+        dogId: draft.dogId,
+        ownerName: draft.ownerName,
+        dogName: draft.dogName,
+      });
+      setStep(3);
+      setResumed(true);
+      setNotice("Payment was not completed. Your details are still here. You can pay again, or start again.");
+    }
+  }
+
+  function startAgain() {
+    clearBookingDraft();
+    setResumed(false);
+    setNotice(null);
+    setError(null);
+    setState({
+      service: null,
+      slot: null,
+      clientId: null,
+      dogId: null,
+      ownerName: null,
+      dogName: null,
+    });
+    setStep(0);
+  }
 
   function selectService(service: BookableService) {
     setError(null);
@@ -75,22 +132,37 @@ export function BookingFlow({
   }
 
   function pay() {
-    if (!state.service || !state.slot || !state.clientId || !state.dogId) {
+    const service = state.service;
+    const slot = state.slot;
+    const clientId = state.clientId;
+    const dogId = state.dogId;
+    if (!service || !slot || !clientId || !dogId) {
       return;
     }
     setError(null);
     trackClientEvent("checkout_clicked");
     startTransition(async () => {
       const result = await createCheckoutAction({
-        serviceId: state.service!.id,
-        startsAt: state.slot!.startsAt,
-        clientId: state.clientId!,
-        dogId: state.dogId!,
+        serviceId: service.id,
+        startsAt: slot.startsAt,
+        clientId,
+        dogId,
       });
       if (!result.ok) {
         setError(result.error);
         return;
       }
+      saveBookingDraft({
+        serviceId: service.id,
+        startsAt: slot.startsAt,
+        dateLabel: slot.dateLabel,
+        dateKey: slot.dateKey,
+        label: slot.label,
+        clientId,
+        dogId,
+        ownerName: state.ownerName ?? "",
+        dogName: state.dogName ?? "",
+      });
       window.location.href = result.url;
     });
   }
@@ -218,9 +290,15 @@ export function BookingFlow({
             <p className="text-sm text-muted-foreground">{site.virtualMeetingNote}</p>
           ) : null}
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-            <Button type="button" variant="outline" onClick={() => setStep(2)}>
-              Back
-            </Button>
+            {resumed ? (
+              <Button type="button" variant="outline" onClick={startAgain}>
+                Start again
+              </Button>
+            ) : (
+              <Button type="button" variant="outline" onClick={() => setStep(2)}>
+                Back
+              </Button>
+            )}
             <Button type="button" onClick={pay} disabled={pending} aria-busy={pending}>
               {pending ? "Starting checkout..." : "Pay securely"}
             </Button>
@@ -228,6 +306,11 @@ export function BookingFlow({
         </div>
       ) : null}
 
+      {notice ? (
+        <p className="text-sm text-muted-foreground" role="status">
+          {notice}
+        </p>
+      ) : null}
       {error ? (
         <p className="text-sm text-destructive" role="alert">
           {error}

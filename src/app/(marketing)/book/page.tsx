@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { bookContent } from "@content/book";
+import { demo } from "@content/demo";
 import { BookingFlow, type BookableService } from "@/components/booking/booking-flow";
+import { DemoCallout } from "@/components/demo/demo-callout";
 import { PageHeader } from "@/components/marketing/page-header";
 import { formatDuration, formatPricePence, formatServiceType } from "@/lib/format";
 import { getActiveServices } from "@/lib/queries";
@@ -31,10 +33,19 @@ export default async function BookPage({
   if (sample) {
     return (
       <div className="mx-auto w-full max-w-4xl px-4 pb-16 sm:px-6">
-        <PageHeader className="px-0 sm:px-0" title={bookContent.headline} description={bookContent.intro} />
+        <PageHeader
+          className="px-0 sm:px-0"
+          title={bookContent.headline}
+          description={bookContent.unavailableIntro}
+        />
+        <DemoCallout title={demo.diary.title} className="mb-6">
+          <p>{demo.diary.body}</p>
+        </DemoCallout>
         <p className="mb-8 text-sm text-muted-foreground">
-          These are the sample session prices. The diary database is not connected, so a time cannot be booked from this
-          copy yet.
+          <a href="/contact" className="underline underline-offset-2">
+            Send a message
+          </a>{" "}
+          if you would like to arrange a session.
         </p>
         <div className="grid gap-4 md:grid-cols-2">
           {bookableServices.map((service) => (

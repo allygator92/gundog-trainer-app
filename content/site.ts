@@ -46,15 +46,15 @@ export const site = {
       },
       {
         src: unsplash("photo-1670504717413-81ba2ae9435b"),
-        alt: "A German Shorthaired Pointer shaking off in shallow water",
-        caption: "A shake-off in shallow water",
+        alt: "A German Shorthaired Pointer moving through shallow water",
+        caption: "A pointer in shallow water",
         setting: "field" as const,
         objectPosition: "50% 24%",
       },
       {
         src: unsplash("photo-1556478094-bf761a15ef40"),
-        alt: "A Gun with a shotgun and a pointer in the mist",
-        caption: "A Gun and a pointer on a hill",
+        alt: "A person with a shotgun and a pointer on a misty hillside",
+        caption: "A pointer and handler in the mist",
         setting: "field" as const,
         objectPosition: "62% 35%",
       },
@@ -65,13 +65,24 @@ export const site = {
         setting: "field" as const,
         objectPosition: "50% 22%",
       },
+      {
+        src: unsplash("photo-1697302859121-57b8dd772dac"),
+        alt: "A yellow Labrador on a lead in a street",
+        caption: "A Labrador on a lead in a street",
+        setting: "urban" as const,
+        objectPosition: "50% 45%",
+      },
     ],
   },
+  galleryHeading: "In the field and in town",
+  galleryIntro:
+    "A Labrador in grass, a dog holding a duck, a pointer with a bird, a pointer in shallow water, a pointer and handler in the mist, a springer in cover, and a Labrador on a lead in a street.",
 } as const;
 
 export const navigation = [
   { href: "/about", label: "About" },
   { href: "/training", label: "Training" },
+  { href: "/videos", label: "Videos" },
   { href: "/pricing", label: "Pricing" },
   { href: "/training#faq", label: "FAQs" },
   { href: "/contact", label: "Contact" },

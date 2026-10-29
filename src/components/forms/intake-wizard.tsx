@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useState } from "react";
-import { Controller, useForm, type UseFormRegisterReturn } from "react-hook-form";
+import { Controller, useForm, useWatch, type UseFormRegisterReturn } from "react-hook-form";
 import { lookupDogsByEmailAction, submitIntakeAction } from "@/app/actions/intake";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +16,13 @@ import {
   dogSexes,
   formatDogAge,
   formatIntakeAddress,
+  groundHint,
   groundLabels,
   groundOptions,
   intakeFormSchema,
   intakeStepFields,
-  skillLevels,
+  shotSteadyLabels,
+  shotSteadyStates,
   startedLabels,
   startedStates,
   steadyLabels,
@@ -53,6 +55,7 @@ function FieldError({ id, message }: { id?: string; message?: string }) {
 function ChoiceField<T extends string>({
   id,
   label,
+  hint,
   options,
   labels,
   register,
@@ -60,6 +63,7 @@ function ChoiceField<T extends string>({
 }: {
   id: string;
   label: string;
+  hint?: string;
   options: readonly T[];
   labels: Record<T, string>;
   register: UseFormRegisterReturn;
@@ -68,6 +72,7 @@ function ChoiceField<T extends string>({
   return (
     <div className="space-y-2">
       <Label htmlFor={id}>{label}</Label>
+      {hint ? <p className="text-sm text-muted-foreground">{hint}</p> : null}
       <select id={id} className={selectClassName} {...register}>
         <option value="">Choose</option>
         {options.map((option) => (
@@ -78,6 +83,17 @@ function ChoiceField<T extends string>({
       </select>
       <FieldError message={error} />
     </div>
+  );
+}
+
+function choiceLine(title: string, value: string | undefined, labels: Record<string, string>) {
+  if (!value || !(value in labels)) {
+    return null;
+  }
+  return (
+    <p>
+      <span className="font-medium">{title}:</span> {labels[value]}
+    </p>
   );
 }
 
@@ -129,11 +145,11 @@ export function IntakeWizard({
       steadyDogs: "",
       steadyShot: "",
       hasGround: "",
-      recall: "fair",
-      leadWalking: "fair",
+      groundNotes: "",
       fearTriggers: "",
       aggressionNotes: "",
       previousTraining: "",
+      extraNotes: "",
       goals: "",
       consentDataStorage: false,
       existingDogId: undefined,
@@ -141,8 +157,8 @@ export function IntakeWizard({
     },
   });
 
-  const meetingType = form.watch("meetingType");
-  const values = form.watch();
+  const meetingType = useWatch({ control: form.control, name: "meetingType" });
+  const values = useWatch({ control: form.control });
 
   async function goNext() {
     const valid = await form.trigger(intakeStepFields[step] as unknown as (keyof IntakeFormValues)[], {
@@ -159,7 +175,7 @@ export function IntakeWizard({
     setStep((current) => (current < 4 ? ((current + 1) as 2 | 3 | 4) : current));
   }
 
-  function useExistingDog(dog: { id: string; name: string; breed: string | null; age: string | null }) {
+  function chooseExistingDog(dog: { id: string; name: string; breed: string | null; age: string | null }) {
     form.setValue("existingDogId", dog.id);
     form.setValue("dogName", dog.name);
     form.setValue("breed", dog.breed || "Unknown");
@@ -337,7 +353,7 @@ export function IntakeWizard({
               <ul className="space-y-2">
                 {existingDogs.map((dog) => (
                   <li key={dog.id}>
-                    <Button type="button" variant="outline" className="w-full justify-start" onClick={() => useExistingDog(dog)}>
+                    <Button type="button" variant="outline" className="w-full justify-start" onClick={() => chooseExistingDog(dog)}>
                       {dog.name}
                       {dog.breed ? ` · ${dog.breed}` : ""}
                     </Button>
@@ -470,38 +486,27 @@ export function IntakeWizard({
           <ChoiceField
             id="steadyShot"
             label="Steady to shot"
-            options={steadyStates}
-            labels={steadyLabels}
+            options={shotSteadyStates}
+            labels={shotSteadyLabels}
             register={form.register("steadyShot")}
             error={form.formState.errors.steadyShot?.message}
           />
           <ChoiceField
             id="hasGround"
-            label="Ground to work on"
+            label="Do you have a place outdoors we can train?"
+            hint={groundHint}
             options={groundOptions}
             labels={groundLabels}
             register={form.register("hasGround")}
             error={form.formState.errors.hasGround?.message}
           />
           <div className="space-y-2">
-            <Label htmlFor="recall">Recall</Label>
-            <select id="recall" className={selectClassName} {...form.register("recall")}>
-              {skillLevels.map((level) => (
-                <option key={level} value={level}>
-                  {skillLabel(level)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="leadWalking">Lead walking</Label>
-            <select id="leadWalking" className={selectClassName} {...form.register("leadWalking")}>
-              {skillLevels.map((level) => (
-                <option key={level} value={level}>
-                  {skillLabel(level)}
-                </option>
-              ))}
-            </select>
+            <Label htmlFor="groundNotes">Notes about the place (optional)</Label>
+            <Textarea
+              id="groundNotes"
+              placeholder="Gates, livestock, how we get in, or what you mean by other."
+              {...form.register("groundNotes")}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="fearTriggers">Fear or startle triggers</Label>
@@ -514,6 +519,14 @@ export function IntakeWizard({
           <div className="space-y-2">
             <Label htmlFor="previousTraining">Previous training</Label>
             <Textarea id="previousTraining" {...form.register("previousTraining")} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="extraNotes">Additional notes (optional)</Label>
+            <Textarea
+              id="extraNotes"
+              placeholder="Anything else I should know before we train."
+              {...form.register("extraNotes")}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="goals">Goals</Label>
@@ -554,6 +567,22 @@ export function IntakeWizard({
             {values.dogJob ? (
               <p>
                 <span className="font-medium">Job:</span> {dogJobLabels[values.dogJob]}
+              </p>
+            ) : null}
+            {choiceLine("Dummy work", values.dummyWork, startedLabels)}
+            {choiceLine("Whistle", values.whistle, startedLabels)}
+            {choiceLine("Steady to birds", values.steadyBirds, steadyLabels)}
+            {choiceLine("Steady to other dogs", values.steadyDogs, steadyLabels)}
+            {choiceLine("Steady to shot", values.steadyShot, shotSteadyLabels)}
+            {choiceLine("Place to train", values.hasGround, groundLabels)}
+            {values.groundNotes ? (
+              <p>
+                <span className="font-medium">Place notes:</span> {values.groundNotes}
+              </p>
+            ) : null}
+            {values.extraNotes ? (
+              <p>
+                <span className="font-medium">Additional notes:</span> {values.extraNotes}
               </p>
             ) : null}
             {values.existingDogId ? (

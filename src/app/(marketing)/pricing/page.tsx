@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ServiceCards } from "@/components/marketing/service-cards";
+import { sessionOffer } from "@/lib/format";
 import { getActiveServices } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -11,13 +12,17 @@ export const metadata: Metadata = {
 
 export default async function PricingPage() {
   const { services } = await getActiveServices();
+  const offer = sessionOffer(services);
 
   return (
     <ServiceCards
       services={services}
       heading="Pricing"
       headingLevel={1}
-      intro="A video hour is £65: whistle timing, handling, and homework. Ninety minutes in person is £95: steadiness, dummies, a spaniel’s pattern, or a retriever at the peg. Shot, water, and cover need the in-person session."
+      intro={
+        offer?.pricingIntro ??
+        "A video hour covers whistle timing, handling, and homework. An in-person session is on the ground. Shot, water, and cover need the in-person session."
+      }
     />
   );
 }

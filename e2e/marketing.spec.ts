@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 test("home page shows the book CTA", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /train the dog for the job/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Book a session" }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /book a session|see the sessions/i }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Gundog Trainer home" }).locator("img")).toBeVisible();
   await expect(page.getByRole("heading", { name: "FAQs" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "What to expect in a session" })).toBeVisible();
@@ -23,6 +23,11 @@ test("marketing pages render", async ({ page }) => {
 
   await page.goto("/pricing");
   await expect(page.getByRole("heading").first()).toBeVisible();
+
+  await page.goto("/videos");
+  await expect(page.getByRole("heading", { name: "The gundog group at Crufts" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Group Judging (Gundog) | Crufts 2026" })).toBeVisible();
+  await expect(page.getByTitle("Gundog Display | Crufts 2024")).toBeVisible();
 
   await page.goto("/privacy");
   await expect(page.getByRole("heading").first()).toBeVisible();

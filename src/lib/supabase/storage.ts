@@ -69,6 +69,19 @@ export async function uploadPrivatePdf(path: string, body: Buffer) {
   await uploadPrivateFile(path, body, "application/pdf");
 }
 
+export async function replacePrivatePdf(path: string, body: Buffer) {
+  await ensureClientDocumentsBucket();
+  const storage = await getStorage();
+  const { error } = await storage.from(CLIENT_DOCUMENTS_BUCKET).upload(path, body, {
+    contentType: "application/pdf",
+    upsert: true,
+  });
+
+  if (error) {
+    throw new Error(`Could not replace file: ${error.message}`);
+  }
+}
+
 export async function uploadPrivateFile(path: string, body: Buffer, contentType: AllowedDocumentMime) {
   await ensureClientDocumentsBucket();
   const storage = await getStorage();

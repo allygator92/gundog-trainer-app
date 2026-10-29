@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatIntakeAddress, intakeFormSchema } from "@/lib/validations/intake";
+import { formatIntakeAddress, intakeFormSchema, trainerIntakeSchema } from "@/lib/validations/intake";
 
 const virtualIntake = {
   ownerName: "Sam Owner",
@@ -16,14 +16,24 @@ const virtualIntake = {
   steadyBirds: "not_yet" as const,
   steadyDogs: "steady" as const,
   steadyShot: "not_sure" as const,
-  hasGround: "yes" as const,
-  recall: "fair" as const,
-  leadWalking: "good" as const,
-  goals: "Improve recall in the field",
+  hasGround: "paddock" as const,
+  goals: "Steady at the peg, and a stop I can trust",
   consentDataStorage: true,
 };
 
 describe("intakeFormSchema", () => {
+  it("accepts a non-gundog enquiry that does not need shot work", () => {
+    const parsed = intakeFormSchema.parse({
+      ...virtualIntake,
+      dogJob: "non_gundog",
+      steadyShot: "not_required",
+      hasGround: "nowhere",
+    });
+    expect(parsed.dogJob).toBe("non_gundog");
+    expect(parsed.steadyShot).toBe("not_required");
+    expect(parsed.hasGround).toBe("nowhere");
+  });
+
   it("accepts a virtual intake without an address", () => {
     const parsed = intakeFormSchema.parse(virtualIntake);
     expect(parsed.meetingType).toBe("virtual");
@@ -89,5 +99,16 @@ describe("intakeFormSchema", () => {
       postcode: "NOT A POSTCODE",
     });
     expect(parsed.success).toBe(false);
+  });
+
+  it("lets the trainer keep an older place answer and add notes", () => {
+    const parsed = trainerIntakeSchema.parse({
+      ...virtualIntake,
+      dogId: "dog_1",
+      hasGround: "yes",
+      trainerNotes: "Stop is coming. Keep the first retrieves short.",
+    });
+    expect(parsed.hasGround).toBe("yes");
+    expect(parsed.trainerNotes).toBe("Stop is coming. Keep the first retrieves short.");
   });
 });

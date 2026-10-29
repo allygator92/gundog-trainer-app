@@ -48,11 +48,12 @@ for (const viewport of viewports) {
   test.describe(`${viewport.name} ${viewport.width}x${viewport.height}`, () => {
     test.use({ viewport: { width: viewport.width, height: viewport.height } });
 
-    test("public header brand and look toggle do not overlap", async ({ page }) => {
+    test("public header shows one practice name and keeps the look toggle in the sample notes", async ({ page }) => {
       await page.goto("/");
-      const brand = page.getByRole("link", { name: "Gundog Trainer home" });
-      const toggle = page.getByRole("group", { name: "Website look" });
-      await expectLocatorsDoNotOverlap(brand, toggle, `${viewport.name} public header`);
+      const header = page.getByTestId("site-header");
+      await expect(header.getByRole("link", { name: "Gundog Trainer home" })).toBeVisible();
+      await expect(header.getByRole("group", { name: "Website look" })).toHaveCount(0);
+      await page.getByRole("button", { name: "Sample notes" }).click();
       await expect(page.getByRole("button", { name: /heath look/i })).toBeVisible();
       await expect(page.getByRole("button", { name: /field look/i })).toBeVisible();
     });

@@ -1,11 +1,19 @@
 import { z } from "zod";
 
-export const skillLevels = ["poor", "fair", "good", "excellent"] as const;
 export const dogSexes = ["male", "female", "unknown"] as const;
-export const dogJobs = ["pet", "beating", "picking_up", "peg", "tests"] as const;
+export const dogJobs = ["pet", "beating", "picking_up", "peg", "tests", "non_gundog"] as const;
 export const startedStates = ["not_started", "started"] as const;
 export const steadyStates = ["steady", "not_yet", "not_sure"] as const;
-export const groundOptions = ["yes", "no"] as const;
+export const shotSteadyStates = ["steady", "not_yet", "not_sure", "not_required"] as const;
+export const groundOptions = [
+  "enclosed_field",
+  "open_field",
+  "paddock",
+  "open_land",
+  "back_garden",
+  "nowhere",
+  "other",
+] as const;
 
 export const dogJobLabels: Record<(typeof dogJobs)[number], string> = {
   pet: "Pet gundog",
@@ -13,6 +21,7 @@ export const dogJobLabels: Record<(typeof dogJobs)[number], string> = {
   picking_up: "Picking-up",
   peg: "Peg dog",
   tests: "Working tests",
+  non_gundog: "Not a gundog",
 };
 
 export const startedLabels: Record<(typeof startedStates)[number], string> = {
@@ -26,10 +35,30 @@ export const steadyLabels: Record<(typeof steadyStates)[number], string> = {
   not_sure: "Not sure",
 };
 
-export const groundLabels: Record<(typeof groundOptions)[number], string> = {
-  yes: "Yes",
-  no: "No",
+export const shotSteadyLabels: Record<(typeof shotSteadyStates)[number], string> = {
+  steady: "Steady",
+  not_yet: "Not yet",
+  not_sure: "Not sure",
+  not_required: "Not needed",
 };
+
+export const groundLabels: Record<(typeof groundOptions)[number], string> = {
+  enclosed_field: "Enclosed field",
+  open_field: "Open field",
+  paddock: "Paddock",
+  open_land: "Open land",
+  back_garden: "Back garden",
+  nowhere: "Nowhere to train outside",
+  other: "Other",
+};
+
+export const legacyGroundLabels: Record<string, string> = {
+  ...groundLabels,
+  yes: "Yes, I have a place we can use",
+  no: "No, I don't have a place",
+};
+
+export const groundHint = "The place you can use for the session.";
 
 const optionalMonths = z.preprocess(
   (value) => (value === "" || value === null || value === undefined ? undefined : value),
@@ -69,13 +98,13 @@ export const intakeFormSchema = z
     whistle: emptyOrEnum(startedStates),
     steadyBirds: emptyOrEnum(steadyStates),
     steadyDogs: emptyOrEnum(steadyStates),
-    steadyShot: emptyOrEnum(steadyStates),
+    steadyShot: emptyOrEnum(shotSteadyStates),
     hasGround: emptyOrEnum(groundOptions),
-    recall: z.enum(skillLevels),
-    leadWalking: z.enum(skillLevels),
+    groundNotes: optionalText,
     fearTriggers: optionalText,
     aggressionNotes: optionalText,
     previousTraining: optionalText,
+    extraNotes: optionalText,
     goals: z.string().trim().max(2000).default(""),
     consentDataStorage: z.boolean().refine((value) => value === true, {
       message: "Please agree so we can store this intake securely",
@@ -146,11 +175,11 @@ export const intakeStepFields = {
     "steadyDogs",
     "steadyShot",
     "hasGround",
-    "recall",
-    "leadWalking",
+    "groundNotes",
     "fearTriggers",
     "aggressionNotes",
     "previousTraining",
+    "extraNotes",
     "goals",
   ],
   4: ["consentDataStorage"],
@@ -167,6 +196,61 @@ export function formatIntakeAddress(values: {
     .filter(Boolean)
     .join(", ");
 }
+
+const legacyGround = ["yes", "no"] as const;
+
+export const trainerIntakeSchema = z
+  .object({
+    dogId: z.string().min(1),
+    ownerName: z.string().trim().min(2, "Name is required").max(100),
+    ownerEmail: z.string().trim().email("Enter a valid email address"),
+    ownerPhone: z
+      .string()
+      .trim()
+      .default("")
+      .refine((value) => !value || /^[+0-9()\s-]{10,20}$/.test(value), "Enter a valid phone number"),
+    meetingType: z.enum(["virtual", "in_person"]),
+    addressLine1: z.string().trim().default(""),
+    addressLine2: z.string().trim().default(""),
+    city: z.string().trim().default(""),
+    postcode: z.string().trim().default(""),
+    dogName: z.string().trim().min(1, "Dog’s name is required").max(80),
+    breed: z.string().trim().min(1, "Breed is required").max(80),
+    ageYears: z.coerce.number().min(0, "Enter a valid age").max(25, "Enter a valid age"),
+    ageMonths: optionalMonths,
+    sex: z.enum(dogSexes),
+    neutered: z.boolean(),
+    dogJob: emptyOrEnum(dogJobs),
+    dummyWork: emptyOrEnum(startedStates),
+    whistle: emptyOrEnum(startedStates),
+    steadyBirds: emptyOrEnum(steadyStates),
+    steadyDogs: emptyOrEnum(steadyStates),
+    steadyShot: emptyOrEnum(shotSteadyStates),
+    hasGround: z.union([z.literal(""), z.enum(groundOptions), z.enum(legacyGround)]),
+    groundNotes: optionalText,
+    fearTriggers: optionalText,
+    aggressionNotes: optionalText,
+    previousTraining: optionalText,
+    extraNotes: optionalText,
+    goals: z.string().trim().max(2000).default(""),
+    trainerNotes: optionalText,
+  })
+  .superRefine((data, ctx) => {
+    if (data.meetingType !== "in_person") {
+      return;
+    }
+    if (!data.addressLine1) {
+      ctx.addIssue({ code: "custom", path: ["addressLine1"], message: "Address is required for in-person sessions" });
+    }
+    if (!data.city) {
+      ctx.addIssue({ code: "custom", path: ["city"], message: "Town or city is required" });
+    }
+    if (!data.postcode || !ukPostcode.test(data.postcode)) {
+      ctx.addIssue({ code: "custom", path: ["postcode"], message: "Enter a UK postcode" });
+    }
+  });
+
+export type TrainerIntakeValues = z.output<typeof trainerIntakeSchema>;
 
 export function formatDogAge(values: { ageYears: number; ageMonths?: number }) {
   if (values.ageYears < 1 && values.ageMonths) {

@@ -31,6 +31,7 @@ export default async function AdminDashboardPage() {
         take: 5,
       }),
       prisma.contactSubmission.findMany({
+        where: { archivedAt: null },
         orderBy: { createdAt: "desc" },
         take: 5,
       }),
@@ -164,7 +165,7 @@ export default async function AdminDashboardPage() {
         <section className="space-y-3">
           <h3 className="font-semibold">Recent enquiries</h3>
           {recentEnquiries.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No messages yet.</p>
+            <p className="text-sm text-muted-foreground">No open enquiries.</p>
           ) : (
             <ul className="divide-y rounded-xl border bg-card">
               {recentEnquiries.map((enquiry) => (

@@ -18,13 +18,13 @@ export default async function MarketingLayout({ children }: { children: React.Re
       <a href="#main" className="skip-link">
         Skip to content
       </a>
-      <SiteHeader theme={theme} />
+      <SiteHeader />
       <main id="main" className="flex-1">
         {children}
       </main>
       <SiteFooter />
       <CookieNotice />
-      <DemoGuide />
+      <DemoGuide theme={theme} />
       <PageViewTracker />
     </div>
   );

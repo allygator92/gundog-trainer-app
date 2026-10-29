@@ -22,3 +22,10 @@ export function parseSiteTheme(value?: string | null): SiteTheme {
 export function themeCookie(theme: SiteTheme) {
   return `${THEME_COOKIE}=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`;
 }
+
+export function applySiteTheme(theme: SiteTheme) {
+  document.cookie = themeCookie(theme);
+  document.querySelectorAll("[data-theme]").forEach((node) => {
+    node.setAttribute("data-theme", theme);
+  });
+}

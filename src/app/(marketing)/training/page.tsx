@@ -34,8 +34,8 @@ export default function TrainingPage() {
       <FaqList />
       <PhotoGallery
         photos={site.images.gallery}
-        heading={trainingContent.galleryHeading}
-        intro={trainingContent.galleryIntro}
+        heading={site.galleryHeading}
+        intro={site.galleryIntro}
         leadEager
       />
       <CtaBand

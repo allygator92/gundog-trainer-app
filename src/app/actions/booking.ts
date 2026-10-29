@@ -49,6 +49,16 @@ export async function createCheckoutAction(input: {
   }
 
   await releaseExpiredHolds();
+  await prisma.booking.updateMany({
+    where: {
+      clientId: client.id,
+      dogId: dog.id,
+      serviceId: service.id,
+      startsAt,
+      status: "pending_payment",
+    },
+    data: { status: "cancelled" },
+  });
 
   const slotStillOpen = (await getAvailableSlots(service.id)).some(
     (slot) => slot.startsAt === startsAt.toISOString(),

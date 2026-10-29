@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { Document, Image, Page, Text, View, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
+import { Document, Image as PdfImage, Page, Text, View, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
 import { site } from "@content/site";
 import {
   dogJobLabels,
   formatDogAge,
   formatIntakeAddress,
-  groundLabels,
+  legacyGroundLabels,
+  shotSteadyLabels,
   startedLabels,
   steadyLabels,
   type IntakeFormValues,
@@ -25,7 +26,6 @@ const colors = {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 0,
     fontSize: 10,
     fontFamily: "Helvetica",
     color: colors.ink,
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   body: {
     paddingHorizontal: 36,
     paddingTop: 22,
-    paddingBottom: 28,
+    paddingBottom: 40,
   },
   titleRow: {
     marginBottom: 16,
@@ -82,10 +82,7 @@ const styles = StyleSheet.create({
   columns: {
     flexDirection: "row",
     gap: 12,
-    marginBottom: 12,
-  },
-  column: {
-    flex: 1,
+    marginBottom: 4,
   },
   section: {
     marginBottom: 12,
@@ -160,9 +157,12 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
     color: colors.green,
   },
+  pair: {
+    flex: 1,
+  },
   footer: {
     position: "absolute",
-    bottom: 16,
+    bottom: 18,
     left: 36,
     right: 36,
     flexDirection: "row",
@@ -172,11 +172,11 @@ const styles = StyleSheet.create({
   },
 });
 
-function choiceLabel<T extends string>(labels: Record<T, string>, value: T | "") {
+function choiceLabel(labels: Record<string, string>, value: string) {
   if (!value) {
     return "Not set";
   }
-  return labels[value];
+  return labels[value] ?? value;
 }
 
 function titleCase(value: string) {
@@ -205,10 +205,14 @@ function Field({ label, value }: { label: string; value: string }) {
 }
 
 function Note({ label, value }: { label: string; value: string }) {
+  const text = value?.trim() ?? "";
+  if (!text) {
+    return null;
+  }
   return (
-    <View style={styles.notes}>
+    <View style={styles.notes} wrap={false}>
       <Text style={styles.notesLabel}>{label}</Text>
-      <Text style={styles.notesValue}>{value?.trim() ? value : "None noted"}</Text>
+      <Text style={styles.notesValue}>{text}</Text>
     </View>
   );
 }
@@ -232,10 +236,12 @@ function brandLogoSrc() {
 export function IntakePdfDocument({
   values,
   consentedAt,
+  trainerNotes = "",
   logoSrc,
 }: {
   values: IntakeFormValues;
   consentedAt: string;
+  trainerNotes?: string;
   logoSrc?: string | null;
 }) {
   const consentedLabel = formatConsentedAt(consentedAt);
@@ -245,7 +251,7 @@ export function IntakePdfDocument({
     <Document title={`${dogTitle} · ${site.name}`} author={site.name}>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          {logoSrc ? <Image src={logoSrc} style={styles.logo} /> : null}
+          {logoSrc ? <PdfImage src={logoSrc} style={styles.logo} /> : null}
           <View>
             <Text style={styles.brand}>{site.name}</Text>
             <Text style={styles.headerMeta}>Confidential dog intake</Text>
@@ -261,57 +267,74 @@ export function IntakePdfDocument({
             </Text>
           </View>
 
-          <View style={styles.columns}>
-            <View style={[styles.section, styles.column]}>
-              <Text style={styles.sectionTitle}>Owner</Text>
-              <Field label="Name" value={values.ownerName} />
-              <Field label="Email" value={values.ownerEmail} />
-              <Field label="Phone" value={values.ownerPhone || "Not provided"} />
+          <View style={styles.section} wrap={false}>
+            <Text style={styles.sectionTitle}>Owner</Text>
+            <View style={styles.columns}>
+              <View style={styles.pair}>
+                <Field label="Name" value={values.ownerName} />
+                <Field label="Phone" value={values.ownerPhone || "Not provided"} />
+              </View>
+            <View style={styles.pair}>
               <Field label="Session" value={values.meetingType === "virtual" ? "Virtual" : "In person"} />
-              {values.meetingType === "in_person" ? (
-                <Field label="Address" value={formatIntakeAddress(values)} />
-              ) : null}
             </View>
-            <View style={[styles.section, styles.column]}>
-              <Text style={styles.sectionTitle}>Dog</Text>
-              <Field label="Name" value={values.dogName} />
-              <Field label="Breed" value={values.breed} />
-              <Field label="Age" value={formatDogAge(values)} />
-              <Field label="Job" value={choiceLabel(dogJobLabels, values.dogJob)} />
-              <Field label="Sex" value={titleCase(values.sex)} />
-              <Field label="Neutered" value={values.neutered ? "Yes" : "No"} />
+          </View>
+          <Field label="Email" value={values.ownerEmail} />
+          {values.meetingType === "in_person" ? (
+            <Field label="Address" value={formatIntakeAddress(values)} />
+          ) : null}
+        </View>
+
+          <View style={styles.section} wrap={false}>
+            <Text style={styles.sectionTitle}>Dog</Text>
+            <View style={styles.columns}>
+              <View style={styles.pair}>
+                <Field label="Name" value={values.dogName} />
+                <Field label="Breed" value={values.breed} />
+                <Field label="Age" value={formatDogAge(values)} />
+              </View>
+              <View style={styles.pair}>
+                <Field label="Job" value={choiceLabel(dogJobLabels, values.dogJob)} />
+                <Field label="Sex" value={titleCase(values.sex)} />
+                <Field label="Neutered" value={values.neutered ? "Yes" : "No"} />
+              </View>
             </View>
           </View>
 
-          <View style={styles.section}>
+          <View style={styles.section} wrap={false}>
             <Text style={styles.sectionTitle}>The job</Text>
             <Field label="Dummy work" value={choiceLabel(startedLabels, values.dummyWork)} />
             <Field label="Whistle" value={choiceLabel(startedLabels, values.whistle)} />
             <Field label="Birds" value={choiceLabel(steadyLabels, values.steadyBirds)} />
             <Field label="Other dogs" value={choiceLabel(steadyLabels, values.steadyDogs)} />
-            <Field label="Shot" value={choiceLabel(steadyLabels, values.steadyShot)} />
-            <Field label="Ground" value={choiceLabel(groundLabels, values.hasGround)} />
+            <Field label="Shot" value={choiceLabel(shotSteadyLabels, values.steadyShot)} />
+            <Field label="Place outdoors" value={choiceLabel(legacyGroundLabels, values.hasGround)} />
+            <Note label="Notes about the place" value={values.groundNotes} />
           </View>
 
-          <View style={styles.section}>
+          <View style={styles.section} wrap={false}>
             <Text style={styles.sectionTitle}>Behaviour and goals</Text>
-            <View style={styles.skills}>
-              <View style={styles.skill}>
-                <Text style={styles.skillLabel}>Recall</Text>
-                <Text style={styles.skillValue}>{titleCase(values.recall)}</Text>
-              </View>
-              <View style={styles.skill}>
-                <Text style={styles.skillLabel}>Lead walking</Text>
-                <Text style={styles.skillValue}>{titleCase(values.leadWalking)}</Text>
-              </View>
-            </View>
             <Note label="Fear triggers" value={values.fearTriggers} />
             <Note label="Aggression notes" value={values.aggressionNotes} />
             <Note label="Previous training" value={values.previousTraining} />
+            <Note label="Additional notes" value={values.extraNotes} />
             <Note label="Goals" value={values.goals} />
+            {!values.fearTriggers.trim() &&
+            !values.aggressionNotes.trim() &&
+            !values.previousTraining.trim() &&
+            !values.extraNotes.trim() &&
+            !values.goals.trim() ? (
+              <Field label="Notes" value="None noted" />
+            ) : null}
           </View>
 
-          <View style={styles.section}>
+          {trainerNotes.trim() ? (
+            <View style={styles.section} wrap={false}>
+              <Text style={styles.sectionTitle}>Trainer notes</Text>
+              <Note label="After the appointment" value={trainerNotes} />
+            </View>
+          ) : null}
+
+          <View style={styles.section} wrap={false}>
             <Text style={styles.sectionTitle}>Consent</Text>
             <Field label="Data storage" value="Agreed" />
             <Field label="Recorded" value={consentedLabel} />
@@ -327,6 +350,17 @@ export function IntakePdfDocument({
   );
 }
 
-export async function generateIntakePdf(values: IntakeFormValues, consentedAt: string) {
-  return renderToBuffer(<IntakePdfDocument values={values} consentedAt={consentedAt} logoSrc={brandLogoSrc()} />);
+export async function generateIntakePdf(
+  values: IntakeFormValues,
+  consentedAt: string,
+  trainerNotes = "",
+) {
+  return renderToBuffer(
+    <IntakePdfDocument
+      values={values}
+      consentedAt={consentedAt}
+      trainerNotes={trainerNotes}
+      logoSrc={brandLogoSrc()}
+    />,
+  );
 }

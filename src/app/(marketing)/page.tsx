@@ -7,37 +7,42 @@ import { PhotoGallery } from "@/components/marketing/photo-gallery";
 import { ServiceCards } from "@/components/marketing/service-cards";
 import { SessionExpect } from "@/components/marketing/session-expect";
 import { TestimonialStrip } from "@/components/marketing/testimonial-strip";
+import { sessionOffer } from "@/lib/format";
 import { getActiveServices, getPublishedTestimonials } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [{ services }, testimonials] = await Promise.all([
+  const [{ services, sample }, testimonials] = await Promise.all([
     getActiveServices(),
     getPublishedTestimonials(),
   ]);
+  const offer = sessionOffer(services);
 
   return (
     <>
-      <Hero />
+      <Hero
+        intro={homeContent.intro}
+        primaryCta={sample ? homeContent.sampleCta : homeContent.primaryCta}
+      />
       <ServiceCards
         services={services}
         heading={homeContent.servicesHeading}
-        intro={homeContent.servicesIntro}
+        intro={offer?.servicesIntro ?? homeContent.servicesIntro}
       />
       <PhotoGallery
         photos={site.images.gallery}
-        heading="In the field"
-        intro="A Labrador in grass, a dog holding a duck, a pointer with a bird, a shake-off, a Gun on a hill, and a springer in cover."
+        heading={site.galleryHeading}
+        intro={site.galleryIntro}
       />
       <TestimonialStrip testimonials={testimonials} heading={homeContent.testimonialsHeading} />
       <SessionExpect />
       <FaqList />
       <CtaBand
-        heading={homeContent.ctaBand.heading}
-        body={homeContent.ctaBand.body}
-        href={homeContent.ctaBand.href}
-        label={homeContent.ctaBand.label}
+        heading={sample ? homeContent.sampleBand.heading : homeContent.ctaBand.heading}
+        body={sample && offer ? offer.sampleBand : homeContent.ctaBand.body}
+        href={sample ? homeContent.sampleBand.href : homeContent.ctaBand.href}
+        label={sample ? homeContent.sampleBand.label : homeContent.ctaBand.label}
       />
     </>
   );

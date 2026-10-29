@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { BookingStatusBadge } from "@/components/admin/booking-status-badge";
 import { DeleteClientForm } from "@/components/admin/delete-client-form";
 import { DocumentUploadForm } from "@/components/admin/document-upload-form";
+import { IntakeRecordForm } from "@/components/admin/intake-record-form";
 import { BOOKING_TIMEZONE } from "@/lib/availability";
 import { formatDocumentType, formatServiceType } from "@/lib/format";
+import { intakeRecordDefaults } from "@/lib/intake-record";
 import { intakeRows } from "@/lib/intake-display";
 import { prisma } from "@/lib/prisma";
 import { formatInTimeZone } from "date-fns-tz";
@@ -16,7 +18,7 @@ export default async function AdminClientDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; intakeDog?: string; intakeSaved?: string; intakeError?: string }>;
 }) {
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const client = await prisma.client.findUnique({
@@ -64,24 +66,30 @@ export default async function AdminClientDetailPage({
             {client.dogs.map((dog) => {
               const answers = intakeRows(dog.intakeData);
               return (
-                <article key={dog.id} className="rounded-xl border bg-card p-4">
+                <article key={dog.id} className="space-y-4 rounded-xl border bg-card p-4">
                   <h4 className="font-medium">
                     {dog.name}
                     {dog.breed ? ` · ${dog.breed}` : ""}
-                    {dog.age ? ` · ${dog.age} yrs` : ""}
+                    {dog.age ? ` · ${dog.age}` : ""}
                   </h4>
                   {answers.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted-foreground">No intake snapshot.</p>
+                    <p className="text-sm text-muted-foreground">No intake snapshot.</p>
                   ) : (
-                    <dl className="mt-3 divide-y text-sm">
-                      {answers.slice(0, 8).map((row) => (
+                    <dl className="divide-y text-sm">
+                      {answers.map((row) => (
                         <div key={row.label} className="grid gap-1 py-2 sm:grid-cols-3">
                           <dt className="text-muted-foreground">{row.label}</dt>
-                          <dd className="sm:col-span-2">{row.value}</dd>
+                          <dd className="break-words sm:col-span-2">{row.value}</dd>
                         </div>
                       ))}
                     </dl>
                   )}
+                  <IntakeRecordForm
+                    defaults={intakeRecordDefaults(dog, client)}
+                    returnTo={`/admin/clients/${client.id}`}
+                    saved={query.intakeSaved === "1" && query.intakeDog === dog.id}
+                    error={query.intakeDog === dog.id ? query.intakeError : undefined}
+                  />
                 </article>
               );
             })}

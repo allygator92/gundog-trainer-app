@@ -4,7 +4,13 @@ import { homeContent } from "@content/home";
 import { site } from "@content/site";
 import { Button } from "@/components/ui/button";
 
-export function Hero() {
+export function Hero({
+  intro = homeContent.intro,
+  primaryCta = homeContent.primaryCta,
+}: {
+  intro?: string;
+  primaryCta?: { href: string; label: string };
+}) {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0">
@@ -27,10 +33,10 @@ export function Hero() {
           <h1 className="site-hero-copy mt-4 font-display text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
             {homeContent.headline}
           </h1>
-          <p className="site-hero-intro mt-5 max-w-xl text-lg text-muted-foreground">{homeContent.intro}</p>
+          <p className="site-hero-intro mt-5 max-w-xl text-lg text-muted-foreground">{intro}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg" className="site-hero-primary site-book">
-              <Link href={homeContent.primaryCta.href}>{homeContent.primaryCta.label}</Link>
+              <Link href={primaryCta.href}>{primaryCta.label}</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="site-hero-outline">
               <Link href={homeContent.secondaryCta.href}>{homeContent.secondaryCta.label}</Link>
