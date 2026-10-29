@@ -25,16 +25,16 @@ export function Hero({
         />
         <div className="site-hero-overlay absolute inset-0" />
       </div>
-      <div className="relative mx-auto flex min-h-[34rem] w-full max-w-6xl flex-col justify-center px-4 py-20 sm:min-h-[40rem] sm:px-6">
-        <div className="site-hero-panel max-w-2xl">
+      <div className="relative mx-auto flex min-h-[34rem] w-full max-w-6xl flex-col items-center justify-center px-4 py-20 text-center sm:min-h-[40rem] sm:px-6">
+        <div className="site-hero-panel mx-auto max-w-2xl">
           <p className="site-hero-kicker text-sm font-medium uppercase tracking-[0.2em] text-primary">
             {homeContent.eyebrow}
           </p>
           <h1 className="site-hero-copy mt-4 font-display text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
             {homeContent.headline}
           </h1>
-          <p className="site-hero-intro mt-5 max-w-xl text-lg text-muted-foreground">{intro}</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <p className="site-hero-intro mx-auto mt-5 max-w-xl text-lg text-muted-foreground">{intro}</p>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="site-hero-primary site-book">
               <Link href={primaryCta.href}>{primaryCta.label}</Link>
             </Button>

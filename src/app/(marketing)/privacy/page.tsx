@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         title={privacyContent.title}
         description={`Last updated ${privacyContent.updated}.`}
       />
-      <div className="max-w-3xl space-y-8">
+      <div className="mx-auto max-w-3xl space-y-8 text-center">
         {privacyContent.sections.map((section) => (
           <section key={section.heading}>
             <h2 className="font-display text-xl font-semibold">{section.heading}</h2>

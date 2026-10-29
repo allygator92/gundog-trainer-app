@@ -9,7 +9,7 @@ export default function MarketingError({
   reset: () => void;
 }) {
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
+    <div className="mx-auto w-full max-w-3xl px-4 py-20 text-center sm:px-6">
       <h1 className="font-display text-3xl font-semibold">Something went wrong</h1>
       <p className="mt-3 text-muted-foreground">
         Please try again. If this keeps happening, use the contact page and I’ll look into it.

@@ -31,7 +31,7 @@ export default async function AboutPage() {
               sizes="(min-width: 1024px) 50vw, 100vw"
             />
           </div>
-          <figcaption className="mt-2 text-sm text-muted-foreground">{aboutContent.photoCaption}</figcaption>
+          <figcaption className="mt-2 text-center text-sm text-muted-foreground">{aboutContent.photoCaption}</figcaption>
         </figure>
         <div className="space-y-4 text-muted-foreground">
           {aboutContent.story.map((paragraph) => (
@@ -40,7 +40,7 @@ export default async function AboutPage() {
         </div>
       </section>
       <section className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
-        <h2 className="font-display text-3xl font-semibold tracking-tight">
+        <h2 className="text-center font-display text-3xl font-semibold tracking-tight">
           {aboutContent.credentialsHeading}
         </h2>
         <div className="mt-8 grid gap-6 md:grid-cols-3">

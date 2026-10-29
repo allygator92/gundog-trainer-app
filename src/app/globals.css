@@ -109,7 +109,7 @@
 
 [data-theme="field"] .site-hero-panel {
   background: color-mix(in oklch, var(--primary) 92%, black);
-  border-left: 4px solid var(--accent);
+  border-top: 4px solid var(--accent);
   box-shadow: 0 18px 40px rgb(0 0 0 / 40%);
   color: var(--primary-foreground);
   padding: 1.35rem 1.35rem 1.5rem;

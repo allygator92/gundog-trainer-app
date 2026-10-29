@@ -12,18 +12,12 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 pb-16 sm:px-6 lg:grid-cols-[1.1fr_0.9fr]">
-      <div>
-        <PageHeader
-          className="mx-0 max-w-none px-0 pt-12 sm:px-0 sm:pt-16"
-          title={contactContent.headline}
-          description={contactContent.intro}
-        />
-        <DemoCallout title={demo.contact.title} className="mt-6">
+    <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
+      <PageHeader className="px-0 sm:px-0" title={contactContent.headline} description={contactContent.intro} />
+      <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-2">
+        <DemoCallout title={demo.contact.title}>
           <p>{demo.contact.body}</p>
         </DemoCallout>
-      </div>
-      <div className="pt-12 sm:pt-16">
         <ContactForm privacyNote={contactContent.privacyNote} />
       </div>
     </div>
