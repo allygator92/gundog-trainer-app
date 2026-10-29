@@ -107,30 +107,42 @@ export async function submitIntakeAction(input: unknown): Promise<IntakeFormStat
     },
   });
 
-  const filename = `${parsed.data.dogName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-intake.pdf`;
-  const storagePath = `${client.id}/${dog.id}-intake-${Date.now()}.pdf`;
-  const pdf = await generateIntakePdf(parsed.data, consentedAt);
+  let pdfSaved = true;
+  try {
+    const filename = `${parsed.data.dogName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-intake.pdf`;
+    const storagePath = `${client.id}/${dog.id}-intake-${Date.now()}.pdf`;
+    const pdf = await generateIntakePdf(parsed.data, consentedAt);
 
-  await uploadPrivatePdf(storagePath, pdf);
+    await uploadPrivatePdf(storagePath, pdf);
 
-  await prisma.document.create({
-    data: {
-      clientId: client.id,
-      storagePath,
-      filename,
-      type: "intake_pdf",
-    },
-  });
+    await prisma.document.create({
+      data: {
+        clientId: client.id,
+        storagePath,
+        filename,
+        type: "intake_pdf",
+      },
+    });
+  } catch (error) {
+    pdfSaved = false;
+    console.error("Intake PDF failed:", error);
+  }
 
-  await sendIntakeNotification({
-    ownerName: parsed.data.ownerName,
-    ownerEmail: parsed.data.ownerEmail,
-    dogName: parsed.data.dogName,
-  });
+  try {
+    await sendIntakeNotification({
+      ownerName: parsed.data.ownerName,
+      ownerEmail: parsed.data.ownerEmail,
+      dogName: parsed.data.dogName,
+    });
+  } catch (error) {
+    console.error("Intake email failed:", error);
+  }
 
   return {
     status: "success",
-    message: "Thanks - your intake has been received.",
+    message: pdfSaved
+      ? "Thanks - your intake has been received."
+      : "Your intake has been received. The PDF copy could not be stored just now.",
     clientId: client.id,
     dogId: dog.id,
   };

@@ -14,7 +14,7 @@ export function TestimonialStrip({
   return (
     <section className="bg-secondary/50">
       <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
-        <h2 className="text-center font-display text-3xl font-semibold tracking-tight sm:text-left">{heading}</h2>
+        <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">{heading}</h2>
         <div className="mt-10 flex snap-x gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-3 md:overflow-visible">
           {testimonials.map((testimonial) => (
             <blockquote
