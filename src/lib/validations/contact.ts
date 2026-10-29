@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { emailAddress, personName } from "@/lib/validations/fields";
 
 const optionalPhone = z
   .string()
@@ -11,14 +12,16 @@ const optionalPhone = z
   );
 
 export const contactFormSchema = z.object({
-  name: z.string().trim().min(2, "Name is required").max(100, "Name is too long"),
-  email: z.string().trim().email("Enter a valid email address"),
+  name: personName("Name", 60, 2),
+  email: emailAddress,
   phone: optionalPhone,
   message: z
     .string()
     .trim()
     .min(10, "Message must be at least 10 characters")
-    .max(2000, "Message is too long"),
+    .max(2000, "Message is too long")
+    .refine((value) => /\p{L}/u.test(value), "Write a short message")
+    .refine((value) => !/(.)\1{9,}/u.test(value), "Message looks incomplete"),
   website: z.string().optional(),
 });
 

@@ -31,7 +31,11 @@ export async function submitContactAction(input: unknown): Promise<ContactFormSt
 
   const headerStore = await headers();
   const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (isRateLimited(`contact:${ip}`, 5, 60 * 60 * 1000)) {
+  const emailKey = parsed.data.email.toLowerCase();
+  if (
+    isRateLimited(`contact:${ip}`, 5, 60 * 60 * 1000) ||
+    isRateLimited(`contact-email:${emailKey}`, 3, 60 * 60 * 1000)
+  ) {
     return {
       status: "error",
       message: "Too many messages from this connection. Please try again later.",

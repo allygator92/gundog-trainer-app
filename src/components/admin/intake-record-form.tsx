@@ -65,7 +65,7 @@ export function IntakeRecordForm({
   const id = defaults.dogId;
 
   return (
-    <form action={updateDogIntakeAction} className="space-y-6 rounded-xl border bg-card p-4">
+    <form noValidate action={updateDogIntakeAction} className="space-y-6 rounded-xl border bg-card p-4">
       <div>
         <h4 className="font-medium">Update this intake</h4>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -99,7 +99,7 @@ export function IntakeRecordForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor={`${id}-ownerName`}>Name</Label>
-            <Input id={`${id}-ownerName`} name="ownerName" defaultValue={defaults.ownerName} required />
+            <Input id={`${id}-ownerName`} name="ownerName" defaultValue={defaults.ownerName} maxLength={60} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor={`${id}-ownerEmail`}>Email</Label>
@@ -107,6 +107,8 @@ export function IntakeRecordForm({
               id={`${id}-ownerEmail`}
               name="ownerEmail"
               type="email"
+              inputMode="email"
+              maxLength={120}
               defaultValue={defaults.ownerEmail}
               required
             />
@@ -151,20 +153,21 @@ export function IntakeRecordForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor={`${id}-dogName`}>Name</Label>
-            <Input id={`${id}-dogName`} name="dogName" defaultValue={defaults.dogName} required />
+            <Input id={`${id}-dogName`} name="dogName" defaultValue={defaults.dogName} maxLength={40} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor={`${id}-breed`}>Breed</Label>
-            <Input id={`${id}-breed`} name="breed" defaultValue={defaults.breed} required />
+            <Input id={`${id}-breed`} name="breed" defaultValue={defaults.breed} maxLength={40} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor={`${id}-ageYears`}>Age in years</Label>
             <Input
               id={`${id}-ageYears`}
               name="ageYears"
-              type="number"
-              min={0}
-              max={25}
+              inputMode="numeric"
+              autoComplete="off"
+              pattern="[0-9]*"
+              maxLength={2}
               defaultValue={defaults.ageYears}
               required
             />
@@ -174,9 +177,10 @@ export function IntakeRecordForm({
             <Input
               id={`${id}-ageMonths`}
               name="ageMonths"
-              type="number"
-              min={1}
-              max={18}
+              inputMode="numeric"
+              autoComplete="off"
+              pattern="[0-9]*"
+              maxLength={2}
               defaultValue={defaults.ageMonths}
             />
           </div>

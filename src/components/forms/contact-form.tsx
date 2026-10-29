@@ -22,6 +22,7 @@ export function ContactForm({ privacyNote }: { privacyNote: string }) {
     setError,
   } = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
+    mode: "onTouched",
     defaultValues: {
       name: "",
       email: "",
@@ -59,7 +60,7 @@ export function ContactForm({ privacyNote }: { privacyNote: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="relative space-y-5 rounded-xl border bg-card p-6 shadow-sm">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="relative space-y-5 rounded-xl border bg-card p-6 shadow-sm">
       <div className="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
         <input id="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" {...register("website")} />
       </div>
@@ -69,6 +70,7 @@ export function ContactForm({ privacyNote }: { privacyNote: string }) {
         <Input
           id="name"
           autoComplete="name"
+          maxLength={60}
           aria-invalid={Boolean(errors.name)}
           aria-describedby={errors.name ? "name-error" : undefined}
           {...register("name")}
@@ -86,6 +88,8 @@ export function ContactForm({ privacyNote }: { privacyNote: string }) {
           id="email"
           type="email"
           autoComplete="email"
+          inputMode="email"
+          maxLength={120}
           aria-invalid={Boolean(errors.email)}
           aria-describedby={errors.email ? "email-error" : undefined}
           {...register("email")}
@@ -103,6 +107,8 @@ export function ContactForm({ privacyNote }: { privacyNote: string }) {
           id="phone"
           type="tel"
           autoComplete="tel"
+          inputMode="tel"
+          maxLength={20}
           aria-invalid={Boolean(errors.phone)}
           aria-describedby={errors.phone ? "phone-error" : undefined}
           {...register("phone")}
@@ -118,6 +124,7 @@ export function ContactForm({ privacyNote }: { privacyNote: string }) {
         <Label htmlFor="message">Message</Label>
         <Textarea
           id="message"
+          maxLength={2000}
           aria-invalid={Boolean(errors.message)}
           aria-describedby={errors.message ? "message-error" : undefined}
           {...register("message")}

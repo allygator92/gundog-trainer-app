@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useState } from "react";
-import { Controller, useForm, useWatch, type UseFormRegisterReturn } from "react-hook-form";
+import { Controller, useForm, useWatch, type FieldErrors, type UseFormRegisterReturn } from "react-hook-form";
 import { lookupDogsByEmailAction, submitIntakeAction } from "@/app/actions/intake";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,26 @@ const steps = [
   { id: 3, label: "Job" },
   { id: 4, label: "Review" },
 ] as const;
+
+function stepForField(field: string): (typeof steps)[number]["id"] {
+  for (const item of steps) {
+    if ((intakeStepFields[item.id] as readonly string[]).includes(field)) {
+      return item.id;
+    }
+  }
+  return 1;
+}
+
+function earliestStep(fields: string[]): (typeof steps)[number]["id"] {
+  let earliest: (typeof steps)[number]["id"] = 4;
+  for (const field of fields) {
+    const stepId = stepForField(field);
+    if (stepId < earliest) {
+      earliest = stepId;
+    }
+  }
+  return earliest;
+}
 
 const selectClassName =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -123,6 +143,7 @@ export function IntakeWizard({
 
   const form = useForm<IntakeFormInput, unknown, IntakeFormValues>({
     resolver: zodResolver(intakeFormSchema),
+    mode: "onTouched",
     defaultValues: {
       ownerName: "",
       ownerEmail: "",
@@ -160,7 +181,16 @@ export function IntakeWizard({
   const meetingType = useWatch({ control: form.control, name: "meetingType" });
   const values = useWatch({ control: form.control });
 
+  function onInvalid(errors: FieldErrors<IntakeFormInput>) {
+    const fields = Object.keys(errors);
+    if (fields.length > 0) {
+      setStep(earliestStep(fields));
+    }
+    setServerMessage("Please check the highlighted fields.");
+  }
+
   async function goNext() {
+    setServerMessage(null);
     const valid = await form.trigger(intakeStepFields[step] as unknown as (keyof IntakeFormValues)[], {
       shouldFocus: true,
     });
@@ -208,12 +238,13 @@ export function IntakeWizard({
       return;
     }
     if (result.fieldErrors) {
-      for (const [field, message] of Object.entries(result.fieldErrors)) {
-        if (message) {
-          form.setError(field as keyof IntakeFormValues, { message });
-        }
+      const fields = Object.entries(result.fieldErrors).filter((entry): entry is [string, string] => Boolean(entry[1]));
+      for (const [field, message] of fields) {
+        form.setError(field as keyof IntakeFormValues, { message });
       }
-      setStep(1);
+      if (fields.length > 0) {
+        setStep(earliestStep(fields.map(([field]) => field)));
+      }
     }
     setServerMessage(result.message ?? "Something went wrong. Please try again.");
   }
@@ -231,7 +262,18 @@ export function IntakeWizard({
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="relative space-y-8">
+    <form
+      noValidate
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (step < 4) {
+          void goNext();
+          return;
+        }
+        void form.handleSubmit(onSubmit, onInvalid)(event);
+      }}
+      className="relative space-y-8"
+    >
       <div className="pointer-events-none absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
         <input
           id="intake_hp"
@@ -272,6 +314,7 @@ export function IntakeWizard({
             <Input
               id="ownerName"
               autoComplete="name"
+              maxLength={60}
               aria-invalid={Boolean(form.formState.errors.ownerName)}
               aria-describedby={form.formState.errors.ownerName ? "ownerName-error" : undefined}
               {...form.register("ownerName")}
@@ -284,6 +327,8 @@ export function IntakeWizard({
               id="ownerEmail"
               type="email"
               autoComplete="email"
+              maxLength={120}
+              inputMode="email"
               aria-invalid={Boolean(form.formState.errors.ownerEmail)}
               aria-describedby={form.formState.errors.ownerEmail ? "ownerEmail-error" : undefined}
               {...form.register("ownerEmail")}
@@ -292,7 +337,7 @@ export function IntakeWizard({
           </div>
           <div className="space-y-2">
             <Label htmlFor="ownerPhone">Phone (optional)</Label>
-            <Input id="ownerPhone" type="tel" autoComplete="tel" {...form.register("ownerPhone")} />
+            <Input id="ownerPhone" type="tel" autoComplete="tel" maxLength={20} inputMode="tel" {...form.register("ownerPhone")} />
             <FieldError message={form.formState.errors.ownerPhone?.message} />
           </div>
           <fieldset className="space-y-3">
@@ -321,22 +366,22 @@ export function IntakeWizard({
             <div className="space-y-5 rounded-lg border bg-card p-4">
               <div className="space-y-2">
                 <Label htmlFor="addressLine1">Address line 1</Label>
-                <Input id="addressLine1" autoComplete="address-line1" {...form.register("addressLine1")} />
+                <Input id="addressLine1" autoComplete="address-line1" maxLength={100} {...form.register("addressLine1")} />
                 <FieldError message={form.formState.errors.addressLine1?.message} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="addressLine2">Address line 2 (optional)</Label>
-                <Input id="addressLine2" autoComplete="address-line2" {...form.register("addressLine2")} />
+                <Input id="addressLine2" autoComplete="address-line2" maxLength={100} {...form.register("addressLine2")} />
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="city">Town or city</Label>
-                  <Input id="city" autoComplete="address-level2" {...form.register("city")} />
+                  <Input id="city" autoComplete="address-level2" maxLength={60} {...form.register("city")} />
                   <FieldError message={form.formState.errors.city?.message} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="postcode">Postcode</Label>
-                  <Input id="postcode" autoComplete="postal-code" {...form.register("postcode")} />
+                  <Input id="postcode" autoComplete="postal-code" maxLength={10} {...form.register("postcode")} />
                   <FieldError message={form.formState.errors.postcode?.message} />
                 </div>
               </div>
@@ -377,6 +422,7 @@ export function IntakeWizard({
             <Label htmlFor="dogName">Dog’s name</Label>
             <Input
               id="dogName"
+              maxLength={40}
               aria-invalid={Boolean(form.formState.errors.dogName)}
               aria-describedby={form.formState.errors.dogName ? "dogName-error" : undefined}
               {...form.register("dogName")}
@@ -385,19 +431,35 @@ export function IntakeWizard({
           </div>
           <div className="space-y-2">
             <Label htmlFor="breed">Breed</Label>
-            <Input id="breed" {...form.register("breed")} />
+            <Input id="breed" maxLength={40} {...form.register("breed")} />
             <FieldError message={form.formState.errors.breed?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="ageYears">Age (years)</Label>
-            <Input id="ageYears" type="number" min={0} max={25} step={0.5} {...form.register("ageYears")} />
-            <FieldError message={form.formState.errors.ageYears?.message} />
+            <Input
+              id="ageYears"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={2}
+              aria-invalid={Boolean(form.formState.errors.ageYears)}
+              aria-describedby={form.formState.errors.ageYears ? "ageYears-error" : undefined}
+              {...form.register("ageYears")}
+            />
+            <FieldError id="ageYears-error" message={form.formState.errors.ageYears?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="ageMonths">Age in months, if under a year</Label>
-            <Input id="ageMonths" type="number" min={1} max={18} {...form.register("ageMonths")} />
-            <p className="text-sm text-muted-foreground">Put 0 in years, then the months here.</p>
-            <FieldError message={form.formState.errors.ageMonths?.message} />
+            <Input
+              id="ageMonths"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={2}
+              aria-invalid={Boolean(form.formState.errors.ageMonths)}
+              aria-describedby={form.formState.errors.ageMonths ? "ageMonths-error" : undefined}
+              {...form.register("ageMonths")}
+            />
+            <p className="text-sm text-muted-foreground">Put 0 in years, then the months here. One month is shown as 1 month.</p>
+            <FieldError id="ageMonths-error" message={form.formState.errors.ageMonths?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="sex">Sex</Label>
@@ -504,35 +566,43 @@ export function IntakeWizard({
             <Label htmlFor="groundNotes">Notes about the place (optional)</Label>
             <Textarea
               id="groundNotes"
+              maxLength={2000}
               placeholder="Gates, livestock, how we get in, or what you mean by other."
               {...form.register("groundNotes")}
             />
+            <FieldError message={form.formState.errors.groundNotes?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="fearTriggers">Fear or startle triggers</Label>
-            <Textarea id="fearTriggers" {...form.register("fearTriggers")} />
+            <Textarea id="fearTriggers" maxLength={2000} {...form.register("fearTriggers")} />
+            <FieldError message={form.formState.errors.fearTriggers?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="aggressionNotes">Aggression or concern notes</Label>
-            <Textarea id="aggressionNotes" {...form.register("aggressionNotes")} />
+            <Textarea id="aggressionNotes" maxLength={2000} {...form.register("aggressionNotes")} />
+            <FieldError message={form.formState.errors.aggressionNotes?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="previousTraining">Previous training</Label>
-            <Textarea id="previousTraining" {...form.register("previousTraining")} />
+            <Textarea id="previousTraining" maxLength={2000} {...form.register("previousTraining")} />
+            <FieldError message={form.formState.errors.previousTraining?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="extraNotes">Additional notes (optional)</Label>
             <Textarea
               id="extraNotes"
+              maxLength={2000}
               placeholder="Anything else I should know before we train."
               {...form.register("extraNotes")}
             />
+            <FieldError message={form.formState.errors.extraNotes?.message} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="goals">Goals</Label>
             <Textarea
               id="goals"
               placeholder="What do you want this dog to do - at home, beating, picking-up, or at the peg?"
+              maxLength={2000}
               {...form.register("goals")}
             />
             <FieldError message={form.formState.errors.goals?.message} />

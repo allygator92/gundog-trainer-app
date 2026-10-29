@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatIntakeAddress, intakeFormSchema, trainerIntakeSchema } from "@/lib/validations/intake";
+import { formatDogAge, formatIntakeAddress, intakeFormSchema, trainerIntakeSchema } from "@/lib/validations/intake";
 
 const virtualIntake = {
   ownerName: "Sam Owner",
@@ -88,6 +88,26 @@ describe("intakeFormSchema", () => {
       goals: "Recall",
     });
     expect(parsed.success).toBe(false);
+  });
+
+  it("writes one month in the singular", () => {
+    expect(formatDogAge({ ageYears: 0, ageMonths: 1 })).toBe("1 month");
+    expect(formatDogAge({ ageYears: 0, ageMonths: 4 })).toBe("4 months");
+    expect(formatDogAge({ ageYears: 1 })).toBe("1 year");
+    expect(formatDogAge({ ageYears: 1, ageMonths: 1 })).toBe("1 year, 1 month");
+  });
+
+  it("rejects letters and symbols in age and dog name", () => {
+    expect(intakeFormSchema.safeParse({ ...virtualIntake, ageYears: "e" }).success).toBe(false);
+    expect(intakeFormSchema.safeParse({ ...virtualIntake, ageYears: "1e2" }).success).toBe(false);
+    expect(intakeFormSchema.safeParse({ ...virtualIntake, ageYears: 0, ageMonths: "e" }).success).toBe(false);
+    expect(
+      intakeFormSchema.safeParse({
+        ...virtualIntake,
+        dogName: "asd\\fgvwargbvwrbm;krenmbhlknerkhjbnerjinglewriglkjl",
+      }).success,
+    ).toBe(false);
+    expect(intakeFormSchema.safeParse({ ...virtualIntake, ownerEmail: "not-an-email" }).success).toBe(false);
   });
 
   it("rejects an invalid UK postcode for in-person sessions", () => {

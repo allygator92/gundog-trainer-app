@@ -113,10 +113,10 @@ export default async function AdminDashboardPage() {
           {todayBookings.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nothing in the diary today.</p>
           ) : (
-            <ul className="divide-y rounded-xl border bg-card">
+            <ul className="min-w-0 divide-y overflow-hidden rounded-xl border bg-card">
               {todayBookings.map((booking) => (
-                <li key={booking.id} className="px-4 py-3 text-sm">
-                  <Link href={`/admin/bookings/${booking.id}`} className="font-medium hover:underline">
+                <li key={booking.id} className="min-w-0 px-4 py-3 text-sm">
+                  <Link href={`/admin/bookings/${booking.id}`} className="block break-words font-medium hover:underline [overflow-wrap:anywhere]">
                     {formatInTimeZone(booking.startsAt, BOOKING_TIMEZONE, "HH:mm")} · {booking.dog.name}
                   </Link>
                   <p className="text-muted-foreground">{booking.client.name}</p>
@@ -129,13 +129,13 @@ export default async function AdminDashboardPage() {
           {upcomingBookings.length === 0 ? (
             <p className="text-sm text-muted-foreground">No upcoming bookings.</p>
           ) : (
-            <ul className="divide-y rounded-xl border bg-card">
+            <ul className="min-w-0 divide-y overflow-hidden rounded-xl border bg-card">
               {upcomingBookings.map((booking) => (
-                <li key={booking.id} className="px-4 py-3 text-sm">
-                  <Link href={`/admin/bookings/${booking.id}`} className="font-medium hover:underline">
+                <li key={booking.id} className="min-w-0 px-4 py-3 text-sm">
+                  <Link href={`/admin/bookings/${booking.id}`} className="block break-words font-medium hover:underline [overflow-wrap:anywhere]">
                     {formatInTimeZone(booking.startsAt, BOOKING_TIMEZONE, "EEE d MMM, HH:mm")}
                   </Link>
-                  <p className="text-muted-foreground">
+                  <p className="break-words text-muted-foreground [overflow-wrap:anywhere]">
                     {booking.dog.name} · {booking.service.name}
                   </p>
                 </li>
@@ -144,15 +144,18 @@ export default async function AdminDashboardPage() {
           )}
         </section>
 
-        <section className="space-y-3">
+        <section className="min-w-0 space-y-3">
           <h3 className="font-semibold">Recent intakes</h3>
           {recentDogs.length === 0 ? (
             <p className="text-sm text-muted-foreground">No intakes yet.</p>
           ) : (
-            <ul className="divide-y rounded-xl border bg-card">
+            <ul className="min-w-0 divide-y overflow-hidden rounded-xl border bg-card">
               {recentDogs.map((dog) => (
-                <li key={dog.id} className="px-4 py-3 text-sm">
-                  <Link href={`/admin/clients/${dog.clientId}`} className="font-medium hover:underline">
+                <li key={dog.id} className="min-w-0 px-4 py-3 text-sm">
+                  <Link
+                    href={`/admin/clients/${dog.clientId}`}
+                    className="block break-words font-medium hover:underline [overflow-wrap:anywhere]"
+                  >
                     {dog.name} · {dog.client.name}
                   </Link>
                   <p className="text-muted-foreground">{dog.createdAt.toLocaleString("en-GB")}</p>
@@ -167,10 +170,10 @@ export default async function AdminDashboardPage() {
           {recentEnquiries.length === 0 ? (
             <p className="text-sm text-muted-foreground">No open enquiries.</p>
           ) : (
-            <ul className="divide-y rounded-xl border bg-card">
+            <ul className="min-w-0 divide-y overflow-hidden rounded-xl border bg-card">
               {recentEnquiries.map((enquiry) => (
-                <li key={enquiry.id} className="px-4 py-3 text-sm">
-                  <Link href="/admin/enquiries" className="font-medium hover:underline">
+                <li key={enquiry.id} className="min-w-0 px-4 py-3 text-sm">
+                  <Link href="/admin/enquiries" className="block break-words font-medium hover:underline [overflow-wrap:anywhere]">
                     {enquiry.name}
                   </Link>
                   <p className="line-clamp-2 text-muted-foreground">{enquiry.message}</p>
