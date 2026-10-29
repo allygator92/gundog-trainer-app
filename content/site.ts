@@ -75,8 +75,6 @@ export const site = {
     ],
   },
   galleryHeading: "In the field and in town",
-  galleryIntro:
-    "A Labrador in grass, a dog holding a duck, a pointer with a bird, a pointer in shallow water, a pointer and handler in the mist, a springer in cover, and a Labrador on a lead in a street.",
 } as const;
 
 export const navigation = [
