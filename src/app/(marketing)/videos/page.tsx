@@ -21,7 +21,7 @@ export default async function VideosPage() {
       />
       <div className="mx-auto w-full max-w-6xl space-y-8 px-4 pb-16 sm:px-6">
         {showingCrufts ? (
-          <div className="max-w-3xl space-y-4">
+          <div className="mx-auto max-w-3xl space-y-4 text-center">
             {videosContent.body.map((paragraph) => (
               <p key={paragraph} className="text-muted-foreground">
                 {paragraph}
@@ -32,7 +32,7 @@ export default async function VideosPage() {
         {channelUrl ? (
           <a
             href={channelUrl}
-            className="inline-block text-sm text-primary underline-offset-4 hover:underline"
+            className="block text-center text-sm text-primary underline-offset-4 hover:underline"
             target="_blank"
             rel="noreferrer"
           >

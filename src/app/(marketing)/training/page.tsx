@@ -17,7 +17,7 @@ export default function TrainingPage() {
     <>
       <PageHeader title={trainingContent.headline} description={trainingContent.intro} />
       <div className="mx-auto w-full max-w-6xl space-y-12 px-4 pb-8 sm:px-6">
-        <div className="max-w-3xl space-y-12">
+        <div className="mx-auto max-w-3xl space-y-12 text-center">
         {trainingContent.sections.map((section) => (
           <section key={section.id} id={section.id} className="space-y-4">
             <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">

@@ -29,7 +29,7 @@ export default async function BookingConfirmedPage({
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
-      <div className="max-w-xl">
+      <div className="mx-auto max-w-xl text-center">
       <ClearBookingDraft />
       <h1 className="font-display text-3xl font-semibold tracking-tight">
         {booking?.status === "confirmed" ? "You’re booked in" : "Payment received"}

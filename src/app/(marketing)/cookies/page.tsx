@@ -17,11 +17,11 @@ export default function CookiesPage() {
         title={cookiesContent.title}
         description={`Last updated ${cookiesContent.updated}. ${cookiesContent.intro}`}
       />
-      <DemoCallout title={demo.cookies.title} className="mb-8 max-w-3xl">
+      <DemoCallout title={demo.cookies.title} className="mx-auto mb-8 max-w-3xl text-center">
         <p>{demo.cookies.body}</p>
         <p>{demo.cookies.untilLive}</p>
       </DemoCallout>
-      <ul className="max-w-3xl space-y-3">
+      <ul className="mx-auto max-w-3xl space-y-3 text-left">
         {cookiesContent.rows.map((row) => (
           <li key={row.name} className="rounded-xl border bg-card p-4">
             <p className="font-medium">{row.name}</p>
