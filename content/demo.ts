@@ -13,7 +13,7 @@ export const demo = {
       "Photos are stock images. Swap them for your own dogs and ground.",
       "Heath and Field are two looks for the public site. Switch them in these sample notes.",
       "Live card payments need a Stripe account linked to a bank. On this sample you can still try checkout with Stripe’s test card (details on the pay step).",
-      "Booking confirmation and reminder emails are sent by email (Resend). They do not appear in the admin dashboard, and they will not arrive until sending is switched on.",
+      "Emails are not reaching clients yet. Resend is connected, but the test sender only delivers to the Resend account inbox. Confirmations, reminders, enquiries, and waitlist mail will not reach anyone else until a domain is verified. They do not appear in the admin dashboard.",
       "Films on the Videos page are Crufts gundog videos until a YouTube channel id is set.",
     ],
     continueLabel: "Continue to the sample site",
@@ -25,11 +25,11 @@ export const demo = {
     testCardHint:
       "Use any future expiry date, any 3-digit CVC, and any postcode. No real money is taken in test mode.",
     afterPay:
-      "A paid booking would email the client a confirmation with a cancel/reschedule link. You will not see that email in admin - only in the inbox, once Resend is configured.",
+      "A paid booking is meant to email the client a confirmation with a cancel/reschedule link. That email is not sending yet. The test sender only delivers to the Resend account inbox, and it does not show in admin.",
   },
   contact: {
     title: "What the customer receives",
-    body: "A message on this form is saved under Admin → Enquiries. The customer sees a thank-you on the page. They do not get an email for a contact message. You receive the enquiry by email when Resend is switched on. A paid booking is separate: the customer is emailed a confirmation with a link to cancel or reschedule, you are emailed too, and a reminder goes out the day before. Those emails arrive in the inboxes, not in the admin dashboard, and only once Resend is configured.",
+    body: "A message on this form is saved under Admin → Enquiries. The customer sees a thank-you on the page. They do not get an email for a contact message. You are meant to receive the enquiry by email, but that is not sending yet: the test sender only delivers to the Resend account inbox. A paid booking is separate. The customer should get a confirmation with a link to cancel or reschedule, you should be emailed too, and a reminder should go out the day before. Those emails are not reaching clients at the moment, and they never appear in the admin dashboard.",
   },
   diary: {
     title: "Diary and booking",
@@ -48,7 +48,7 @@ export const demo = {
   },
   admin: {
     title: "Admin dashboard",
-    body: "The Admin dashboard is the trainer’s private area (sign in from /admin). Bookings, intakes, waitlist, and enquiries here are real records for this demo database. Confirmation emails, day-before reminders, and waitlist “a time has opened” messages are not listed in admin: they go to the client’s inbox when Resend is configured. Prices, hours, and public copy are still sample data until you change them.",
+    body: "The Admin dashboard is the trainer’s private area (sign in from /admin). Bookings, intakes, waitlist, and enquiries here are real records for this demo database. Confirmation emails, day-before reminders, and waitlist “a time has opened” messages are not listed in admin. They are not reaching clients yet, because the test sender only delivers to the Resend account inbox. Prices, hours, and public copy are still sample data until you change them.",
   },
   login: {
     title: "Admin dashboard sign in",
@@ -59,13 +59,13 @@ export const demo = {
       title: "Admin dashboard - Overview",
       body: "This tab is a snapshot of the practice: today’s sessions, upcoming confirmed bookings, intakes waiting to be read, and recent contact messages. Counts come from this demo database, so you can click through as the trainer would.",
       untilLive:
-        "Until the site is live you will not see client confirmation emails, day-before reminders, or payment payouts here. Those go out by email (Resend) and Stripe once they are connected. You also cannot take real card payments from this overview - that needs a Stripe account linked to a bank.",
+        "You will not see client confirmation emails or day-before reminders here. They are not sending to clients yet: the test sender only delivers to the Resend account inbox. You also cannot take real card payments from this overview - that needs a Stripe account linked to a bank.",
     },
     bookings: {
       title: "Admin dashboard - Bookings",
       body: "Filter and open sessions, see who booked, which dog, payment status, and session time. From a booking you can follow the same cancel or reschedule path a client uses. Sample bookings in this database are real rows you can inspect.",
       untilLive:
-        "Until Stripe and Resend are live, a paid booking will not take real money and will not email the client a confirmation with a manage link. You can still walk through the list and statuses on this demo. Refunds and bank payouts will not appear until the trainer’s Stripe account is connected.",
+        "A paid booking on this sample uses Stripe test mode, so no real money is taken. The confirmation email with a manage link is not reaching the client yet: the test sender only delivers to the Resend account inbox. Refunds and bank payouts will not appear until the trainer’s Stripe account is connected.",
     },
     clients: {
       title: "Admin dashboard - Clients",
@@ -83,7 +83,7 @@ export const demo = {
       title: "Admin dashboard - Intakes",
       body: "Dog intake forms submitted from the public site land here, with a link to the generated PDF. Open Intakes after you sign in - the login page itself does not list them. PDF links expire after 10 minutes for privacy.",
       untilLive:
-        "Until file storage and Resend are configured for a live practice, new intakes may still save in this demo database but you will not get an email ping, and PDF download links need the private storage bucket to be connected. Clients do not see this tab.",
+        "New intakes save in this demo database. The email ping to you is not sending yet, except to the Resend account inbox. Clients do not see this tab.",
     },
     documents: {
       title: "Admin dashboard - Documents",
@@ -95,7 +95,7 @@ export const demo = {
       title: "Admin dashboard - Enquiries",
       body: "Messages from the public contact form. Name, email, phone, and the message are stored even if notification email is off, so you can still reply from here.",
       untilLive:
-        "Until Resend is switched on you will not get an email when someone writes in - you need to check this tab. The sample contact details on the public site are placeholders; live, this list would be real enquiries to the trainer.",
+        "Enquiry emails are not sending yet. The test sender only delivers to the Resend account inbox, so check this tab for new messages. The sample contact details on the public site are placeholders.",
     },
     analytics: {
       title: "Admin dashboard - Analytics",
@@ -107,7 +107,7 @@ export const demo = {
       title: "Admin dashboard - Waitlist",
       body: "People who asked to be emailed if a full day opens. They are stored here with the date they wanted. When a session on that date is cancelled, the live site emails them a link to book.",
       untilLive:
-        "Until Resend is configured, joining the waitlist still saves a row you can see here, but the “a time has opened” email will not send. Waitlist is not offered for days or remaining times that have already passed.",
+        "Joining the waitlist still saves a row you can see here, but the “a time has opened” email is not sending yet. The test sender only delivers to the Resend account inbox. Waitlist is not offered for days or remaining times that have already passed.",
     },
     support: {
       title: "Admin dashboard - Support",
