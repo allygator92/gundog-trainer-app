@@ -40,7 +40,7 @@ export default async function AboutPage() {
         </div>
       </section>
       <section className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
-        <h2 className="text-center font-display text-3xl font-semibold tracking-tight sm:text-left">
+        <h2 className="font-display text-3xl font-semibold tracking-tight">
           {aboutContent.credentialsHeading}
         </h2>
         <div className="mt-8 grid gap-6 md:grid-cols-3">

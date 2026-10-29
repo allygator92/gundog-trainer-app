@@ -29,7 +29,7 @@ export default async function ManageBookingPage({
 
   if (booking.status === "cancelled") {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
+      <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
         <PageHeader className="px-0" title="This booking is cancelled" description="You can book a new time any time." />
       </div>
     );
@@ -37,7 +37,7 @@ export default async function ManageBookingPage({
 
   if (booking.status !== "confirmed") {
     return (
-      <div className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
+      <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
         <PageHeader
           className="px-0"
           title="This booking is not ready yet"
@@ -50,7 +50,7 @@ export default async function ManageBookingPage({
   const calendar = await getCalendarAvailability(booking.serviceId, booking.id);
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-4 pb-16 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
       <PageHeader
         className="px-0"
         title={`Manage ${booking.dog.name}’s session`}

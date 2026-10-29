@@ -28,7 +28,8 @@ export default async function BookingConfirmedPage({
     : null;
 
   return (
-    <div className="mx-auto w-full max-w-xl px-4 py-16 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6">
+      <div className="max-w-xl">
       <ClearBookingDraft />
       <h1 className="font-display text-3xl font-semibold tracking-tight">
         {booking?.status === "confirmed" ? "You’re booked in" : "Payment received"}
@@ -52,6 +53,7 @@ export default async function BookingConfirmedPage({
       <Button asChild className="mt-8">
         <Link href="/">Back to home</Link>
       </Button>
+      </div>
     </div>
   );
 }

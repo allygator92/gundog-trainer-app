@@ -11,17 +11,17 @@ export const metadata: Metadata = {
 
 export default function CookiesPage() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
+    <div className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6">
       <PageHeader
         className="px-0 sm:px-0"
         title={cookiesContent.title}
         description={`Last updated ${cookiesContent.updated}. ${cookiesContent.intro}`}
       />
-      <DemoCallout title={demo.cookies.title} className="mb-8">
+      <DemoCallout title={demo.cookies.title} className="mb-8 max-w-3xl">
         <p>{demo.cookies.body}</p>
         <p>{demo.cookies.untilLive}</p>
       </DemoCallout>
-      <ul className="space-y-3">
+      <ul className="max-w-3xl space-y-3">
         {cookiesContent.rows.map((row) => (
           <li key={row.name} className="rounded-xl border bg-card p-4">
             <p className="font-medium">{row.name}</p>

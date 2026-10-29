@@ -19,7 +19,7 @@ export default async function VideosPage() {
         title={showingCrufts ? videosContent.headline : videosContent.channelHeadline}
         description={showingCrufts ? videosContent.intro : videosContent.channelIntro}
       />
-      <div className="mx-auto w-full max-w-5xl space-y-8 px-4 pb-16 sm:px-6">
+      <div className="mx-auto w-full max-w-6xl space-y-8 px-4 pb-16 sm:px-6">
         {showingCrufts ? (
           <div className="max-w-3xl space-y-4">
             {videosContent.body.map((paragraph) => (
